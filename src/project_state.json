@@ -1,0 +1,242 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Adjust core behavior: Manager role auto-assigned to creator with no confirmation; fix avatar SVG loading by storing SVG strings in canister and returning a list/URLs. Update Overtime to minutes-only with DD MM YYYY date prefilled to today, no future dates, no photos. Update Tasks to remove due date/assignee/priority and use types (weekly/monthly/urgent) with color coding, track completer, optional comment, optional before/after photos; recurring resets occur when the app opens; manager has basic who/how-often stats and CSV exports.",
+  "architectural_notes": [
+    "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
+    "Localization: manual language selection (Dutch/French/English) with UI toggle.",
+    "Asset generation: generate 48 SVG avatar icons within project (including 12 Islamic-themed).",
+    "Media storage: task photos stored directly in canister (not external storage).",
+    "Overtime rules: date defaults to today; disallow future dates; entries are minutes-only with add (red) / deduct (green); 480 minutes = 1 workday.",
+    "Exports: manager can export overtime and task/audit/stats data to CSV.",
+    "Manager role assignment: creator/deployer is auto-assigned Manager immediately with no confirmation prompts.",
+    "Avatar delivery: store SVG avatar assets as strings in the canister and expose them via a list/URLs for the frontend.",
+    "Tasks schema: tasks only have title + type (weekly/monthly/urgent); remove due date, assignee, and priority fields from UI and backend.",
+    "Task recurrence: weekly due Monday; monthly due first Monday; reset/recompute recurrence when the app opens (not via midnight cron)."
+  ],
+  "known_issues": [
+    "Avatar SVGs are not currently showing/loading in the app (needs fix to asset storage/serving and picker rendering).",
+    "Build/app generation attempts failed multiple times during this conversation (needs investigation or scope reduction to unblock)."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-implement-internet-identity-login-and-an-authenticated-app-shell-for-fitgebit-team-tracker-including-automatic-role-assignment-the-first-ever-authenticated-user-deployer-becomes-manager-after-a-first-login-confirmation-and-all-other-users-default-to-assistant",
+      "title": "Implement Internet Identity login and an authenticated app shell for FitGebit Team Tracker, including automatic role assignment: the first-ever authenticated user (deployer) becomes Manager after a first-login confirmation, and all other users default to Assistant.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-user-profile-onboarding-and-profile-display-on-first-login-prompt-the-user-to-choose-a-username-initials-and-an-avatar-store-and-display-the-user-s-profile-username-initials-selected-avatar-role-throughout-the-ui",
+      "title": "Create user profile onboarding and profile display: on first login, prompt the user to choose a username/initials and an avatar; store and display the user’s profile (username/initials, selected avatar, role) throughout the UI.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-generate-and-integrate-an-avatar-picker-using-48-cute-svg-dental-icons-including-12-islamic-themed-icons-show-8-avatars-per-grid-page-with-pagination-controls",
+      "title": "Generate and integrate an avatar picker using 48 cute SVG dental icons, including 12 Islamic-themed icons; show 8 avatars per grid page with pagination controls.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-core-responsive-ui-structure-with-tabbed-navigation-for-tasks-overtime-and-manager-sections-include-dark-light-mode-toggle-and-ensure-the-ui-remains-usable-on-mobile-and-desktop",
+      "title": "Build the core responsive UI structure with tabbed navigation for Tasks, Overtime, and Manager sections; include dark/light mode toggle and ensure the UI remains usable on mobile and desktop.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-manual-language-selection-with-complete-translations-for-all-user-facing-text-in-dutch-french-and-english-with-a-language-selector-available-in-the-app-ui",
+      "title": "Implement manual language selection with complete translations for all user-facing text in Dutch, French, and English, with a language selector available in the app UI.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-overtime-tracker-module-assistants-can-add-or-deduct-overtime-minutes-with-rules-date-prefilled-to-today-no-future-dates-minutes-only-input-with-a-colored-history-additions-red-deductions-green-and-totals-minutes-workdays-where-480-minutes-1-day",
+      "title": "Implement the Overtime Tracker module: Assistants can add or deduct overtime minutes with rules (date prefilled to today, no future dates, minutes-only input), with a colored history (additions red, deductions green) and totals (minutes + workdays where 480 minutes = 1 day).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-manager-overtime-views-and-csv-export-manager-can-view-overtime-totals-and-histories-for-each-user-and-export-overtime-data-to-csv",
+      "title": "Add Manager overtime views and CSV export: Manager can view overtime totals and histories for each user, and export overtime data to CSV.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-tasks-module-as-the-main-page-create-shared-tasks-with-fields-title-frequency-daily-weekly-monthly-due-date-priority-assignee-show-a-list-sorted-by-urgency-and-allow-assistants-to-mark-tasks-done-with-optional-comment-and-optional-photo-recurring-tasks-reset-appropriately-after-completion",
+      "title": "Implement Tasks module as the main page: create shared tasks with fields (title, frequency: daily/weekly/monthly, due date, priority, assignee), show a list sorted by urgency, and allow Assistants to mark tasks done with optional comment and optional photo; recurring tasks reset appropriately after completion.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-manager-stats-and-audits-for-tasks-including-simple-charts-and-csv-export-of-task-activity-completions",
+      "title": "Implement Manager stats and audits for tasks, including simple charts and CSV export of task activity/completions.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-in-app-notifications-for-key-actions-e-g-save-success-failure-validation-errors-and-implement-basic-security-gdpr-oriented-controls-data-minimization-access-control-and-a-way-for-a-user-to-view-export-and-delete-their-own-profile-data",
+      "title": "Add in-app notifications for key actions (e.g., save success/failure, validation errors) and implement basic security + GDPR-oriented controls (data minimization, access control, and a way for a user to view/export and delete their own profile data).",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-define-and-apply-a-fun-modern-dental-themed-visual-style-with-subtle-animations-and-an-engagement-badge-system-ensure-the-theme-is-consistent-across-screens-without-using-a-blue-purple-primary-palette",
+      "title": "Define and apply a fun, modern dental-themed visual style with subtle animations and an engagement badge system; ensure the theme is consistent across screens without using a blue/purple primary palette.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-overtime-photo-support-end-to-end-users-must-not-be-able-to-upload-or-view-overtime-photos-and-the-backend-must-no-longer-accept-store-or-return-any-overtime-photo-data",
+      "title": "Remove overtime photo support end-to-end: users must not be able to upload or view overtime photos, and the backend must no longer accept, store, or return any overtime photo data.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-overtime-entry-date-input-ux-to-use-a-dd-mm-yyyy-date-entry-prefilled-to-today-and-keep-the-existing-rule-that-future-dates-are-not-allowed",
+      "title": "Update the overtime entry date input UX to use a DD MM YYYY date entry (prefilled to today) and keep the existing rule that future dates are not allowed.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-overtime-add-deduct-behavior-and-color-semantics-match-the-spec-add-must-display-as-red-minutes-and-deduct-must-display-as-green-minutes-in-the-overtime-history-list-and-totals-calculations",
+      "title": "Ensure overtime add/deduct behavior and color semantics match the spec: Add must display as red (+minutes) and Deduct must display as green (-minutes) in the overtime history list and totals calculations.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-tasks-domain-model-and-ui-to-remove-due-date-assignee-and-priority-and-replace-them-with-title-type-weekly-monthly-urgent-tasks-must-be-shared-not-per-user-assigned",
+      "title": "Redesign the Tasks domain model and UI to remove due date, assignee, and priority and replace them with: title + type (weekly/monthly/urgent). Tasks must be shared (not per-user assigned).",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-task-type-based-status-coloring-and-done-behavior-monthly-tasks-are-yellow-weekly-tasks-are-blue-urgent-tasks-are-red-when-completed-the-task-displays-as-green-done-until-it-resets",
+      "title": "Implement task type-based status coloring and done behavior: monthly tasks are yellow, weekly tasks are blue, urgent tasks are red; when completed, the task displays as green 'done' until it resets.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-change-recurring-reset-logic-to-match-the-new-spec-and-trigger-resets-when-the-app-opens-weekly-tasks-reset-based-on-monday-monthly-tasks-reset-based-on-the-first-monday-of-the-month-urgent-tasks-do-not-auto-reset-unless-explicitly-specified-by-the-implemented-logic-document-the-chosen-behavior-in-code-comments",
+      "title": "Change recurring/reset logic to match the new spec and trigger resets when the app opens: weekly tasks reset based on Monday; monthly tasks reset based on the first Monday of the month; urgent tasks do not auto-reset unless explicitly specified by the implemented logic (document the chosen behavior in code comments).",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-task-completion-tracking-to-record-the-completer-and-support-optional-comment-plus-optional-before-and-after-photos-two-distinct-images-the-completion-ui-must-show-camera-related-affordances-icons",
+      "title": "Update task completion tracking to record the completer and support optional comment plus optional before-and-after photos (two distinct images). The completion UI must show camera-related affordances/icons.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-manager-task-statistics-and-csv-export-to-align-with-the-redesigned-task-model-and-new-completion-tracking-focusing-on-who-completed-tasks-and-how-often-and-keeping-export-functional",
+      "title": "Update Manager task statistics and CSV export to align with the redesigned task model and new completion tracking, focusing on 'who completed tasks' and 'how often' and keeping export functional.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Internet Identity login with auto-assigned Manager role for deployer; Assistants for others; username/initials profile + role display",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "UI/UX: fun modern dental theme, animations, engagement badges; responsive tabs (tasks/overtime/manager), dark/light mode, manual NL/FR/EN language selection, notifications",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Avatars: generate 48 cute SVG dental icons (including 12 Islamic-themed); avatar picker grid showing 8 per page",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Overtime tracker: assistants add/deduct minutes (prefill today, no future dates), colored history, totals (480 min=1 day); manager per-user views + CSV export",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Tasks & stats: shared task list with frequency/duedate/priority/assignee; sorted by urgency; mark done with optional comment/photo; reset recurring; manager charts/stats/audit + CSV export",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Data handling: store task photos directly in canister; secure storage approach + GDPR basics",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Branding: replace app logo with a cute tooth dental icon (no text)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Tasks redesign: remove due date/assignee/priority; task types = weekly/monthly/urgent with specified color coding; track completer; done stays green until next reset; manager stats (who/how often) + CSV",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Recurring task reset behavior: weekly due Monday, monthly due first Monday; completed tasks reset when the app opens (not at midnight)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Overtime updates: date format DD MM YYYY prefilled today; disallow future dates; minutes-only add (red +) and deduct (green -); remove any photo capability; manager per-user view + CSV export",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "FitGebit Team Tracker",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

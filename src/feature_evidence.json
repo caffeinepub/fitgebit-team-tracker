@@ -1,0 +1,186 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-remove-overtime-photo-support-end-to-end-users-must-not-be-able-to-upload-or-view-overtime-photos-and-the-backend-must-no-longer-accept-store-or-return-any-overtime-photo-data",
+      "featureTitle": "Remove overtime photo support end-to-end: users must not be able to upload or view overtime photos, and the backend must no longer accept, store, or return any overtime photo data.",
+      "files": [
+        "frontend/src/components/overtime/OvertimeForm.tsx",
+        "frontend/src/components/overtime/OvertimeHistory.tsx",
+        "frontend/src/hooks/useOvertime.ts",
+        "frontend/src/i18n/translations.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-12"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-overtime-entry-date-input-ux-to-use-a-dd-mm-yyyy-date-entry-prefilled-to-today-and-keep-the-existing-rule-that-future-dates-are-not-allowed",
+      "featureTitle": "Update the overtime entry date input UX to use a DD MM YYYY date entry (prefilled to today) and keep the existing rule that future dates are not allowed.",
+      "files": [
+        "frontend/src/components/overtime/OvertimeForm.tsx",
+        "frontend/src/components/overtime/OvertimeHistory.tsx",
+        "frontend/src/i18n/translations.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-13"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-overtime-add-deduct-behavior-and-color-semantics-match-the-spec-add-must-display-as-red-minutes-and-deduct-must-display-as-green-minutes-in-the-overtime-history-list-and-totals-calculations",
+      "featureTitle": "Ensure overtime add/deduct behavior and color semantics match the spec: Add must display as red (+minutes) and Deduct must display as green (-minutes) in the overtime history list and totals calculations.",
+      "files": [
+        "frontend/src/components/overtime/OvertimeForm.tsx",
+        "frontend/src/components/overtime/OvertimeHistory.tsx",
+        "frontend/src/components/overtime/OvertimeTotals.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-14"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-redesign-the-tasks-domain-model-and-ui-to-remove-due-date-assignee-and-priority-and-replace-them-with-title-type-weekly-monthly-urgent-tasks-must-be-shared-not-per-user-assigned",
+      "featureTitle": "Redesign the Tasks domain model and UI to remove due date, assignee, and priority and replace them with: title + type (weekly/monthly/urgent). Tasks must be shared (not per-user assigned).",
+      "files": [
+        "frontend/src/components/tasks/CreateTaskDialog.tsx",
+        "frontend/src/components/tasks/TaskCard.tsx",
+        "frontend/src/components/tasks/TaskList.tsx",
+        "frontend/src/hooks/useTasks.ts",
+        "frontend/src/i18n/translations.ts",
+        "frontend/src/pages/TasksPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-15"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-task-type-based-status-coloring-and-done-behavior-monthly-tasks-are-yellow-weekly-tasks-are-blue-urgent-tasks-are-red-when-completed-the-task-displays-as-green-done-until-it-resets",
+      "featureTitle": "Implement task type-based status coloring and done behavior: monthly tasks are yellow, weekly tasks are blue, urgent tasks are red; when completed, the task displays as green 'done' until it resets.",
+      "files": [
+        "frontend/src/components/tasks/TaskCard.tsx",
+        "frontend/src/components/tasks/TaskList.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-16"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-change-recurring-reset-logic-to-match-the-new-spec-and-trigger-resets-when-the-app-opens-weekly-tasks-reset-based-on-monday-monthly-tasks-reset-based-on-the-first-monday-of-the-month-urgent-tasks-do-not-auto-reset-unless-explicitly-specified-by-the-implemented-logic-document-the-chosen-behavior-in-code-comments",
+      "featureTitle": "Change recurring/reset logic to match the new spec and trigger resets when the app opens: weekly tasks reset based on Monday; monthly tasks reset based on the first Monday of the month; urgent tasks do not auto-reset unless explicitly specified by the implemented logic (document the chosen behavior in code comments).",
+      "files": [
+        "frontend/src/hooks/useTasks.ts",
+        "frontend/src/pages/TasksPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-17"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-task-completion-tracking-to-record-the-completer-and-support-optional-comment-plus-optional-before-and-after-photos-two-distinct-images-the-completion-ui-must-show-camera-related-affordances-icons",
+      "featureTitle": "Update task completion tracking to record the completer and support optional comment plus optional before-and-after photos (two distinct images). The completion UI must show camera-related affordances/icons.",
+      "files": [
+        "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+        "frontend/src/components/tasks/TaskCard.tsx",
+        "frontend/src/hooks/useTasks.ts",
+        "frontend/src/i18n/translations.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-18"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-manager-task-statistics-and-csv-export-to-align-with-the-redesigned-task-model-and-new-completion-tracking-focusing-on-who-completed-tasks-and-how-often-and-keeping-export-functional",
+      "featureTitle": "Update Manager task statistics and CSV export to align with the redesigned task model and new completion tracking, focusing on 'who completed tasks' and 'how often' and keeping export functional.",
+      "files": [
+        "frontend/src/components/manager/TaskAuditLog.tsx",
+        "frontend/src/components/manager/TaskCompletionChart.tsx",
+        "frontend/src/hooks/useManagerTasks.ts",
+        "frontend/src/i18n/translations.ts",
+        "frontend/src/pages/manager/ManagerStatsPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-19"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

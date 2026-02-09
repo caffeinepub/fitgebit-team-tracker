@@ -1,0 +1,92 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-09T23:13:42.874Z",
+  "summary": "Tasks domain/model/UI appear largely redesigned (type weekly/monthly/urgent, shared tasks, completion tracking with completer/comment/before+after photos, and manager-facing completion stats components). Overtime UI date entry and add/deduct color semantics are present, but the diff indicates overtime backend functionality was removed/disabled rather than updated to remove photos only, leaving overtime creation unavailable and hooks returning empty data. Reset logic and manager CSV export cannot be confirmed from the provided diff excerpts.",
+  "missing_requirements": [
+    {
+      "id": "REQ-12",
+      "requirement": "Remove overtime photo support end-to-end while keeping overtime creation/history functional (backend must not accept/store/return photo data).",
+      "reason": "Frontend and hooks indicate overtime functionality was removed/disabled entirely (no backend API call; hooks return empty/no-op), rather than implementing overtime without photos. The migration file still defines old overtimeEntries with photo, but new actor state drops overtime completely, which does not satisfy the requirement to keep overtime working sans photos.",
+      "evidence": [
+        "frontend/src/components/overtime/OvertimeForm.tsx (\"Overtime functionality is currently unavailable\")",
+        "frontend/src/hooks/useOvertime.ts (returns [] and throws \"Overtime functionality has been removed\")",
+        "backend/migration.mo (OldActor includes overtimeEntries with photo; migration drops overtimeEntries/nextOvertimeId)"
+      ]
+    },
+    {
+      "id": "REQ-17",
+      "requirement": "Weekly/monthly task reset logic (weekly resets on Monday; monthly resets on first Monday) evaluated on app open/load; urgent behavior documented in code comments.",
+      "reason": "The diff shows a frontend hook calling resetRecurringTasksIfNeeded(), but the backend implementation and the specific Monday/first-Monday logic (and urgent behavior comments) are not shown in the provided truncated backend diff, and no frontend mount/app-open trigger is evidenced in the shown files.",
+      "evidence": [
+        "frontend/src/hooks/useTasks.ts (useResetRecurringTasks calls actor.resetRecurringTasksIfNeeded())",
+        "backend/main.mo (truncated; reset logic not visible)"
+      ]
+    },
+    {
+      "id": "REQ-19",
+      "requirement": "Update Manager task statistics and CSV export to align with the redesigned task model and new completion tracking; export must download successfully and include task type + completion metadata.",
+      "reason": "Manager-facing stats components exist (chart/audit log), and there is a hook calling actor.exportTaskData(), but no evidence is shown for CSV generation/download on the frontend, and backend exportTaskData / CSV formatting/content is not shown in the provided diff summary.",
+      "evidence": [
+        "frontend/src/components/manager/TaskCompletionChart.tsx",
+        "frontend/src/components/manager/TaskAuditLog.tsx",
+        "frontend/src/hooks/useManagerTasks.ts (useExportTaskData calls actor.exportTaskData())",
+        "backend/main.mo (truncated; exportTaskData/CSV not visible)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Overtime feature removed/disabled (backend removed; frontend form hard-errors; hooks return empty/no-op).",
+      "reason": "The BuildRequest requires removing overtime photo support, not removing overtime functionality entirely.",
+      "evidence": [
+        "frontend/src/hooks/useOvertime.ts (\"Overtime has been removed from the backend\")",
+        "frontend/src/components/overtime/OvertimeForm.tsx (\"Overtime functionality is currently unavailable\")",
+        "backend/migration.mo (explicitly drops overtimeEntries and nextOvertimeId)"
+      ]
+    },
+    {
+      "description": "Added a Privacy & Data panel that exports cached data as JSON and provides a delete flow that logs the user out.",
+      "reason": "Not requested by any requirement; unrelated to Tasks/Overtime changes.",
+      "evidence": [
+        "frontend/src/components/profile/PrivacyPanel.tsx"
+      ]
+    },
+    {
+      "description": "Added/expanded header UI elements related to badges and settings panels (e.g., BadgeShelf).",
+      "reason": "Not requested by any requirement; non-goal says not to change Part 1 features unless required to compile.",
+      "evidence": [
+        "frontend/src/components/layout/AppHeader.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.74,
+  "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/components/layout/AppHeader.tsx",
+    "frontend/src/components/manager/TaskAuditLog.tsx",
+    "frontend/src/components/manager/TaskCompletionChart.tsx",
+    "frontend/src/components/overtime/OvertimeForm.tsx",
+    "frontend/src/components/overtime/OvertimeHistory.tsx",
+    "frontend/src/components/overtime/OvertimeTotals.tsx",
+    "frontend/src/components/profile/PrivacyPanel.tsx",
+    "frontend/src/components/profile/ProfileOnboardingModal.tsx",
+    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+    "frontend/src/components/tasks/CreateTaskDialog.tsx",
+    "frontend/src/components/tasks/TaskCard.tsx",
+    "frontend/src/components/tasks/TaskList.tsx",
+    "frontend/src/hooks/useManagerOvertime.ts",
+    "frontend/src/hooks/useManagerTasks.ts",
+    "frontend/src/hooks/useOvertime.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useTasks.ts",
+    "frontend/src/hooks/useUserProfile.ts",
+    "frontend/src/i18n/translations.ts",
+    "frontend/src/pages/TasksPage.tsx",
+    "frontend/src/pages/manager/ManagerOvertimePage.tsx",
+    "frontend/src/pages/manager/ManagerStatsPage.tsx",
+    "project_state.json"
+  ]
+}

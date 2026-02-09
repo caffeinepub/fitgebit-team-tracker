@@ -1,0 +1,170 @@
+{
+  "kind": "build_request",
+  "title": "Update Overtime (no photos, DD MM YYYY) and redesign Tasks (weekly/monthly/urgent, reset on app open)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-12",
+      "text": "Remove overtime photo support end-to-end: users must not be able to upload or view overtime photos, and the backend must no longer accept, store, or return any overtime photo data.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Part 2: Overtime Tracker... No photos."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Overtime entry creation API does not accept a photo parameter and does not store photo data.",
+        "Overtime UI has no file input for photos and does not display overtime photos anywhere (history, manager views, exports).",
+        "Existing overtime entries that contain a photo (if any) render safely without attempting to load/display the photo."
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "text": "Update the overtime entry date input UX to use a DD MM YYYY date entry (prefilled to today) and keep the existing rule that future dates are not allowed.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Minutes input (DD MM YYYY prefilled today, no future)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Overtime form shows a day/month/year input in DD MM YYYY format and is prefilled with today’s date.",
+        "Submitting an overtime entry with a date after today is blocked with a user-visible validation error.",
+        "Submitting with today or a past date succeeds and the created entry shows the correct date in history."
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "text": "Ensure overtime add/deduct behavior and color semantics match the spec: Add must display as red (+minutes) and Deduct must display as green (-minutes) in the overtime history list and totals calculations.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Assistant: Add (red +minutes), deduct (green -minutes), totals (workdays/minutes, 480 min=1 day), colored history list."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The overtime form provides two actions: Add and Deduct.",
+        "History entries clearly show +minutes for additions in red styling and -minutes for deductions in green styling.",
+        "Totals compute net minutes using additions minus deductions and show workdays where 480 minutes = 1 day."
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "text": "Redesign the Tasks domain model and UI to remove due date, assignee, and priority and replace them with: title + type (weekly/monthly/urgent). Tasks must be shared (not per-user assigned).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Part 3: TasksShared tasks main page: No due date/assignee.Tasks: Title, type (weekly/monthly/urgent; weekly=Monday, monthly=first Monday)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Create Task UI only collects: Title and Type (weekly/monthly/urgent).",
+        "Task list and task card UI do not show due date, assignee, or priority anywhere.",
+        "Backend task creation/update APIs and stored Task type do not require due date, assignee, or priority.",
+        "Existing task-related pages compile and render without referencing removed fields."
+      ]
+    },
+    {
+      "id": "REQ-16",
+      "text": "Implement task type-based status coloring and done behavior: monthly tasks are yellow, weekly tasks are blue, urgent tasks are red; when completed, the task displays as green 'done' until it resets.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "List: Color (yellow monthly, blue weekly, red urgent; green done until reset)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Task cards (or list rows) visually indicate type using the specified colors.",
+        "When a task is completed, its visual state switches to a green 'done' styling and remains green until a reset event occurs.",
+        "Colors are applied consistently in both light and dark themes (with appropriate contrast)."
+      ]
+    },
+    {
+      "id": "REQ-17",
+      "text": "Change recurring/reset logic to match the new spec and trigger resets when the app opens: weekly tasks reset based on Monday; monthly tasks reset based on the first Monday of the month; urgent tasks do not auto-reset unless explicitly specified by the implemented logic (document the chosen behavior in code comments).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "weekly=Monday, monthly=first Monday).",
+          "Whenever  the app opens"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On app load (or when Tasks page mounts), the system evaluates whether weekly/monthly tasks should reset based on the current date and their last completion/reset state.",
+        "Weekly tasks that were completed for a previous week become available again when the app opens on/after the next Monday boundary.",
+        "Monthly tasks that were completed for a previous month become available again when the app opens on/after the first Monday of the new month.",
+        "Reset logic does not require the app to be open at midnight; it is evaluated when the app opens/loads."
+      ]
+    },
+    {
+      "id": "REQ-18",
+      "text": "Update task completion tracking to record the completer and support optional comment plus optional before-and-after photos (two distinct images). The completion UI must show camera-related affordances/icons.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Mark done: Track completer, optional comment, before/after pics (camera, show icons)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Completing a task records which authenticated user completed it (principal) in backend state and returns it in task queries/exports.",
+        "Complete Task dialog allows an optional comment and up to two optional images: before photo and after photo.",
+        "Task UI displays completion details including the completer identity (e.g., username if available) and shows camera/photo icons for before/after images when present.",
+        "If no photos are provided, completion still succeeds and UI does not show broken image elements."
+      ]
+    },
+    {
+      "id": "REQ-19",
+      "text": "Update Manager task statistics and CSV export to align with the redesigned task model and new completion tracking, focusing on 'who completed tasks' and 'how often' and keeping export functional.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Manager: Basic stats (who/how often), CSV export."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Manager stats page renders without relying on removed task fields (due date, priority, assignee).",
+        "Stats summarize completions per user (who) and counts (how often) using the new completer tracking.",
+        "Task CSV export includes fields relevant to the new model, including task type and completion metadata (including completer and completion timestamps), and downloads successfully."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor with all logic in backend/main.mo (add backend/migration.mo only if an upgrade requires state migration).",
+    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "No WebSockets or realtime features; resets must be evaluated on app open/load as specified."
+  ],
+  "nonGoals": [
+    "Do not change Part 1 features (Internet Identity login flow, avatar system, manager role confirmation removal, logo/theme work) in this build unless strictly required to compile after the Tasks/Overtime changes.",
+    "Do not add new external databases or third-party services.",
+    "Do not implement automatic midnight/background resets; resets only occur when the app opens/loads as specified."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

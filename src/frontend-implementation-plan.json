@@ -1,0 +1,245 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Overtime: remove photos + DD MM YYYY date input; Tasks: shared type-based model with reset-on-open and updated manager stats/export",
+  "requirements": [
+    {
+      "id": "REQ-12",
+      "summary": "Remove overtime photo support from all overtime UIs (creation, history, manager views) and render old photo-bearing entries safely without displaying photos.",
+      "acceptanceCriteria": [
+        "Overtime UI has no file input for photos and does not display overtime photos anywhere (history, manager views, exports).",
+        "Existing overtime entries that contain a photo (if any) render safely without attempting to load/display the photo."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
+          "operation": "modify",
+          "description": "Remove overtime photo selection/upload UI and all related state/conversion to ExternalBlob; ensure create mutation no longer sends any photo data."
+        },
+        {
+          "path": "frontend/src/hooks/useOvertime.ts",
+          "operation": "modify",
+          "description": "Update create overtime hook to no longer accept/require a photo parameter and to call the backend capability without photo arguments (align with updated backend interface)."
+        },
+        {
+          "path": "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "operation": "modify",
+          "description": "Remove overtime photo rendering; ensure entries that still include a legacy photo field are ignored (no image element created) so history renders safely."
+        },
+        {
+          "path": "frontend/src/i18n/translations.ts",
+          "operation": "modify",
+          "description": "Remove/adjust overtime photo-related translation strings (e.g., overtime.photo) and any UI copy that references uploading or viewing overtime photos."
+        }
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "summary": "Update overtime entry date input UX to DD MM YYYY (prefilled to today) and block future dates with a visible validation error.",
+      "acceptanceCriteria": [
+        "Overtime form shows a day/month/year input in DD MM YYYY format and is prefilled with today’s date.",
+        "Submitting an overtime entry with a date after today is blocked with a user-visible validation error.",
+        "Submitting with today or a past date succeeds and the created entry shows the correct date in history."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
+          "operation": "modify",
+          "description": "Replace the single date input with DD MM YYYY inputs prefilled to today; parse to a Date for timestamp creation; enforce no-future-date validation with a user-visible error message."
+        },
+        {
+          "path": "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "operation": "modify",
+          "description": "Ensure overtime entry date display aligns with the new input expectations (DD/MM/YYYY-like display if required by the UX), while still using stored timestamps."
+        },
+        {
+          "path": "frontend/src/i18n/translations.ts",
+          "operation": "modify",
+          "description": "Add/update translation strings for any new date field labels and validation messaging required by DD MM YYYY input."
+        }
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "summary": "Ensure overtime add/deduct actions, color semantics, and totals match spec: Add is red +minutes; Deduct is green -minutes; totals compute net minutes and workdays (480 min = 1 day).",
+      "acceptanceCriteria": [
+        "The overtime form provides two actions: Add and Deduct.",
+        "History entries clearly show +minutes for additions in red styling and -minutes for deductions in green styling.",
+        "Totals compute net minutes using additions minus deductions and show workdays where 480 minutes = 1 day."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
+          "operation": "modify",
+          "description": "Verify Add/Deduct actions remain present and aligned with spec; ensure button labels and styling convey Add=red and Deduct=green."
+        },
+        {
+          "path": "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "operation": "modify",
+          "description": "Verify history rows display +minutes in red for additions and -minutes in green for deductions; ensure visuals remain legible in light/dark themes."
+        },
+        {
+          "path": "frontend/src/components/overtime/OvertimeTotals.tsx",
+          "operation": "modify",
+          "description": "Confirm totals compute net minutes as additions minus deductions and convert to workdays using 480 minutes per day; ensure negative totals render sensibly."
+        }
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "summary": "Redesign Tasks UI to the new shared model: Task is only title + type (weekly/monthly/urgent), with no due date, assignee, or priority shown/collected.",
+      "acceptanceCriteria": [
+        "Create Task UI only collects: Title and Type (weekly/monthly/urgent).",
+        "Task list and task card UI do not show due date, assignee, or priority anywhere.",
+        "Existing task-related pages compile and render without referencing removed fields."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/tasks/CreateTaskDialog.tsx",
+          "operation": "modify",
+          "description": "Replace the create task form to collect only Title and Type (weekly/monthly/urgent); remove due date, priority, and assignee picker; align to backend createTask(title, taskType)."
+        },
+        {
+          "path": "frontend/src/hooks/useTasks.ts",
+          "operation": "modify",
+          "description": "Update task hooks to use the new Task model and backend capabilities: remove due-date sorting query hook usage and update createTask to accept (title, taskType) only."
+        },
+        {
+          "path": "frontend/src/components/tasks/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Refactor TaskCard to remove all references/UI for due date, assignee, and priority; render only title, type, and completion details supported by the new Task shape."
+        },
+        {
+          "path": "frontend/src/components/tasks/TaskList.tsx",
+          "operation": "modify",
+          "description": "Remove due-date/priority-based sorting and any references to removed fields; sort/filter tasks in a way that makes sense for title + type + completion state (without introducing new routes)."
+        },
+        {
+          "path": "frontend/src/pages/TasksPage.tsx",
+          "operation": "modify",
+          "description": "Switch the Tasks page to load tasks using the updated hook(s) and render the redesigned list/create dialog without any removed-field dependencies."
+        },
+        {
+          "path": "frontend/src/i18n/translations.ts",
+          "operation": "modify",
+          "description": "Update tasks translation strings: remove due date/assignee/priority/frequency labels where no longer used; add Task Type labels and any new UI copy required."
+        }
+      ]
+    },
+    {
+      "id": "REQ-16",
+      "summary": "Add task type-based coloring and done state styling: monthly=yellow, weekly=blue, urgent=red; completed tasks show green 'done' until reset.",
+      "acceptanceCriteria": [
+        "Task cards (or list rows) visually indicate type using the specified colors.",
+        "When a task is completed, its visual state switches to a green 'done' styling and remains green until a reset event occurs.",
+        "Colors are applied consistently in both light and dark themes (with appropriate contrast)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/tasks/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Implement consistent type-color styling (monthly yellow, weekly blue, urgent red) and a green 'done' styling when task.isCompleted is true; ensure light/dark contrast."
+        },
+        {
+          "path": "frontend/src/components/tasks/TaskList.tsx",
+          "operation": "modify",
+          "description": "Ensure list-level presentation does not override/conflict with TaskCard’s type/done coloring and remains consistent across the list."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "If needed for contrast/accessibility, adjust or add Tailwind-friendly CSS variables/classes used by the task type/done color semantics (avoid creating new global stylesheet paths)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-17",
+      "summary": "Trigger weekly/monthly reset evaluation when the app opens/Tasks page mounts; keep urgent reset behavior explicit and documented in code comments.",
+      "acceptanceCriteria": [
+        "On app load (or when Tasks page mounts), the system evaluates whether weekly/monthly tasks should reset based on the current date and their last completion/reset state.",
+        "Weekly tasks that were completed for a previous week become available again when the app opens on/after the next Monday boundary.",
+        "Monthly tasks that were completed for a previous month become available again when the app opens on/after the first Monday of the new month.",
+        "Reset logic does not require the app to be open at midnight; it is evaluated when the app opens/loads."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useTasks.ts",
+          "operation": "modify",
+          "description": "Add a React Query mutation/helper hook that invokes the backend capability resetRecurringTasksIfNeeded and invalidates the tasks query afterwards."
+        },
+        {
+          "path": "frontend/src/pages/TasksPage.tsx",
+          "operation": "modify",
+          "description": "Invoke the resetRecurringTasksIfNeeded hook on initial mount (app open/page open behavior) before/while rendering tasks; add concise code comments clarifying urgent-task reset behavior is backend-defined."
+        }
+      ]
+    },
+    {
+      "id": "REQ-18",
+      "summary": "Update task completion UI to record completer, support optional comment, and allow optional before/after photos with camera-related affordances/icons; display completion details safely.",
+      "acceptanceCriteria": [
+        "Complete Task dialog allows an optional comment and up to two optional images: before photo and after photo.",
+        "Task UI displays completion details including the completer identity (e.g., username if available) and shows camera/photo icons for before/after images when present.",
+        "If no photos are provided, completion still succeeds and UI does not show broken image elements."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+          "operation": "modify",
+          "description": "Redesign completion dialog to collect optional comment plus optional before and after images, and show camera-related affordances/icons. Use the blob-storage component’s ExternalBlob to convert selected files into blobs for upload. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useTasks.ts",
+          "operation": "modify",
+          "description": "Update completeTask mutation to call backend completeTask(taskId, comment, beforePhoto, afterPhoto) and handle nulls for optional fields; use ExternalBlob for images. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/tasks/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Display completion metadata from task.currentCompletion (completedAt, completedBy, comment, before/after photos). Use the authorization component pattern by resolving completedBy to a human-readable username via existing profile queries (do not display raw principal by default). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/i18n/translations.ts",
+          "operation": "modify",
+          "description": "Add/update translation strings for before/after photos, camera affordances, and completion metadata (completed by / completed at)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-19",
+      "summary": "Update Manager task stats and CSV export to align with new task model and completion tracking (who completed tasks and how often), keeping export functional.",
+      "acceptanceCriteria": [
+        "Manager stats page renders without relying on removed task fields (due date, priority, assignee).",
+        "Stats summarize completions per user (who) and counts (how often) using the new completer tracking.",
+        "Task CSV export includes fields relevant to the new model, including task type and completion metadata (including completer and completion timestamps), and downloads successfully."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/manager/ManagerStatsPage.tsx",
+          "operation": "modify",
+          "description": "Refactor manager stats page export mapping to use the new Task fields (taskType, isCompleted, currentCompletion metadata) and remove assignee/priority/due-date references."
+        },
+        {
+          "path": "frontend/src/components/manager/TaskCompletionChart.tsx",
+          "operation": "modify",
+          "description": "Update chart aggregation to count completions by task.currentCompletion.completedBy (who/how often) instead of task.assignee; ensure it tolerates tasks without currentCompletion."
+        },
+        {
+          "path": "frontend/src/components/manager/TaskAuditLog.tsx",
+          "operation": "modify",
+          "description": "Update audit log to show task title, type, completedBy (resolved to username where possible), completion timestamp, optional comment, and before/after photo presence (icons), without referencing removed fields."
+        },
+        {
+          "path": "frontend/src/hooks/useManagerTasks.ts",
+          "operation": "modify",
+          "description": "Ensure manager export hook and query keys align with the updated exportTaskData return shape and are used consistently by ManagerStatsPage."
+        },
+        {
+          "path": "frontend/src/i18n/translations.ts",
+          "operation": "modify",
+          "description": "Update manager/task stats translation strings to reflect the new model (type, completed by, completion time, before/after photo indicators)."
+        }
+      ]
+    }
+  ]
+}

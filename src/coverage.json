@@ -1,0 +1,185 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-09T23:13:42.878Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 8,
+    "implemented": 8,
+    "items": [
+      {
+        "id": "REQ-12",
+        "summary": "Remove overtime photo support end-to-end: users must not be able to upload or view overtime photos, and the backend must no longer accept, store, or return any overtime photo data.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/overtime/OvertimeForm.tsx",
+          "frontend/src/hooks/useOvertime.ts",
+          "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "frontend/src/i18n/translations.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/overtime/OvertimeForm.tsx",
+          "frontend/src/hooks/useOvertime.ts",
+          "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "frontend/src/i18n/translations.ts"
+        ]
+      },
+      {
+        "id": "REQ-13",
+        "summary": "Update the overtime entry date input UX to use a DD MM YYYY date entry (prefilled to today) and keep the existing rule that future dates are not allowed.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/overtime/OvertimeForm.tsx",
+          "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "frontend/src/i18n/translations.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/overtime/OvertimeForm.tsx",
+          "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "frontend/src/i18n/translations.ts"
+        ]
+      },
+      {
+        "id": "REQ-14",
+        "summary": "Ensure overtime add/deduct behavior and color semantics match the spec: Add must display as red (+minutes) and Deduct must display as green (-minutes) in the overtime history list and totals calculations.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/overtime/OvertimeForm.tsx",
+          "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "frontend/src/components/overtime/OvertimeTotals.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/overtime/OvertimeForm.tsx",
+          "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "frontend/src/components/overtime/OvertimeTotals.tsx"
+        ]
+      },
+      {
+        "id": "REQ-15",
+        "summary": "Redesign the Tasks domain model and UI to remove due date, assignee, and priority and replace them with: title + type (weekly/monthly/urgent). Tasks must be shared (not per-user assigned).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/tasks/CreateTaskDialog.tsx",
+          "frontend/src/hooks/useTasks.ts",
+          "frontend/src/components/tasks/TaskCard.tsx",
+          "frontend/src/components/tasks/TaskList.tsx",
+          "frontend/src/pages/TasksPage.tsx",
+          "frontend/src/i18n/translations.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/tasks/CreateTaskDialog.tsx",
+          "frontend/src/hooks/useTasks.ts",
+          "frontend/src/components/tasks/TaskCard.tsx",
+          "frontend/src/components/tasks/TaskList.tsx",
+          "frontend/src/pages/TasksPage.tsx",
+          "frontend/src/i18n/translations.ts"
+        ]
+      },
+      {
+        "id": "REQ-16",
+        "summary": "Implement task type-based status coloring and done behavior: monthly tasks are yellow, weekly tasks are blue, urgent tasks are red; when completed, the task displays as green 'done' until it resets.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/tasks/TaskCard.tsx",
+          "frontend/src/components/tasks/TaskList.tsx",
+          "frontend/src/index.css"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/tasks/TaskCard.tsx",
+          "frontend/src/components/tasks/TaskList.tsx"
+        ]
+      },
+      {
+        "id": "REQ-17",
+        "summary": "Change recurring/reset logic to match the new spec and trigger resets when the app opens: weekly tasks reset based on Monday; monthly tasks reset based on the first Monday of the month; urgent tasks do not auto-reset unless explicitly specified by the implemented logic (document the chosen behavior in code comments).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useTasks.ts",
+          "frontend/src/pages/TasksPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useTasks.ts",
+          "frontend/src/pages/TasksPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-18",
+        "summary": "Update task completion tracking to record the completer and support optional comment plus optional before-and-after photos (two distinct images). The completion UI must show camera-related affordances/icons.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+          "frontend/src/hooks/useTasks.ts",
+          "frontend/src/components/tasks/TaskCard.tsx",
+          "frontend/src/i18n/translations.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+          "frontend/src/hooks/useTasks.ts",
+          "frontend/src/components/tasks/TaskCard.tsx",
+          "frontend/src/i18n/translations.ts"
+        ]
+      },
+      {
+        "id": "REQ-19",
+        "summary": "Update Manager task statistics and CSV export to align with the redesigned task model and new completion tracking, focusing on 'who completed tasks' and 'how often' and keeping export functional.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/manager/ManagerStatsPage.tsx",
+          "frontend/src/components/manager/TaskCompletionChart.tsx",
+          "frontend/src/components/manager/TaskAuditLog.tsx",
+          "frontend/src/hooks/useManagerTasks.ts",
+          "frontend/src/i18n/translations.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/manager/ManagerStatsPage.tsx",
+          "frontend/src/components/manager/TaskCompletionChart.tsx",
+          "frontend/src/components/manager/TaskAuditLog.tsx",
+          "frontend/src/hooks/useManagerTasks.ts",
+          "frontend/src/i18n/translations.ts"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "build-request.json",
+    "build-template/README.md",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/layout/AppHeader.tsx",
+    "frontend/src/components/manager/TaskAuditLog.tsx",
+    "frontend/src/components/manager/TaskCompletionChart.tsx",
+    "frontend/src/components/overtime/OvertimeForm.tsx",
+    "frontend/src/components/overtime/OvertimeHistory.tsx",
+    "frontend/src/components/overtime/OvertimeTotals.tsx",
+    "frontend/src/components/profile/PrivacyPanel.tsx",
+    "frontend/src/components/profile/ProfileOnboardingModal.tsx",
+    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+    "frontend/src/components/tasks/CreateTaskDialog.tsx",
+    "frontend/src/components/tasks/TaskCard.tsx",
+    "frontend/src/components/tasks/TaskList.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useManagerOvertime.ts",
+    "frontend/src/hooks/useManagerTasks.ts",
+    "frontend/src/hooks/useOvertime.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useTasks.ts",
+    "frontend/src/hooks/useUserProfile.ts",
+    "frontend/src/i18n/translations.ts",
+    "frontend/src/pages/TasksPage.tsx",
+    "frontend/src/pages/manager/ManagerOvertimePage.tsx",
+    "frontend/src/pages/manager/ManagerStatsPage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}
