@@ -1,87 +1,42 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T00:15:29.721Z",
-  "summary": "Diff implements a new role-choice UI (Assistant/Manager with token), adds canister-served dental avatars rendered in a non-paginated grid, updates onboarding initials validation, and swaps header/login branding to a tooth image path. However, several requirements cannot be confirmed from the truncated backend diff (token enforcement, persistence, removal of first-user manager behavior), and some changes appear outside the BuildRequest (overtime/task-domain alterations).",
-  "missing_requirements": [
+  "generatedAt": "2026-02-10T00:42:22.690Z",
+  "summary": "All four requested UI polish items appear to be implemented: task dialogs are set to opaque backgrounds in light/dark mode, “(optional)” wording is removed via i18n strings in tasks/overtime, branding shows only the i18n-driven app title “FitGebit” in header and login, and the avatar picker now renders avatars via an SVG-to-data-URI image component with an i18n empty state. However, the diff also includes changes that were not requested (notably role selection/manager token flow on the login screen, and multiple broader functional changes referenced in the file summaries).",
+  "missing_requirements": [],
+  "hallucinated_features": [
     {
-      "id": "REQ-21",
-      "requirement": "Backend exposes a single, explicit method for role setup/upgrade that checks the manager token for Manager selection and assigns the appropriate authorization role for the caller.",
-      "reason": "Frontend calls two separate backend methods (selectRoleAssistant and selectRoleManager) rather than a single explicit role-setup method. The backend diff snippet shown does not evidence a single consolidated method.",
+      "description": "Login screen adds role selection (Assistant/Manager) UI and stores pending role/token in sessionStorage as part of login flow.",
+      "reason": "BuildRequest only asked to simplify branding text on the login screen (show only “FitGebit”) and did not request any new/changed authentication/role flows (explicit non-goal).",
       "evidence": [
-        "frontend/src/hooks/useRoleSelection.ts"
+        "frontend/src/components/auth/LoginScreen.tsx"
       ]
     },
     {
-      "id": "REQ-21",
-      "requirement": "Selecting Manager requires entering the exact token \"ICPmaxi313\" and only then granting admin/manager privileges; callers without completing token flow cannot access manager-only endpoints; legacy first-user admin grant removed/disabled.",
-      "reason": "The backend diff is truncated before showing any token validation logic, role persistence mapping, or removal of legacy implicit-first-user admin behavior, so compliance cannot be verified from the provided evidence.",
+      "description": "Broader product/feature changes unrelated to UI polish, including: overtime hooks returning empty data due to backend removal; task sorting/type priority changes; recurring task reset on mount; manager stats/audit log/CSV export changes; and other behavior changes listed across tasks/manager/overtime components.",
+      "reason": "These changes are not part of REQ-28..REQ-31 and conflict with the BuildRequest non-goals (no business-logic changes) and constraint that backend/migrations are not expected for UI-only changes.",
       "evidence": [
-        "backend/main.mo"
+        "frontend-file-summaries.txt"
       ]
     },
     {
-      "id": "REQ-25",
-      "requirement": "Avatars are initialized/available from the canister reliably so the frontend can fetch and render all 16 without manual steps.",
-      "reason": "Backend shows an exposed initializeAvatars() method, but the frontend App.tsx contains a no-op/stub comment and no evidence of calling initialization automatically; the backend diff is truncated before showing whether avatars are initialized at deploy/upgrade time.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend/src/App.tsx"
-      ]
-    },
-    {
-      "id": "REQ-26",
-      "requirement": "All new strings introduced by the updated login/role flow and onboarding validation are translated in en/nl/fr dictionaries.",
-      "reason": "Only the English portion of translations is visible in the truncated snippet; Dutch and French updates for the new keys cannot be confirmed from the provided diff excerpt.",
+      "description": "Introduces/keeps an app subtitle translation key (app.subtitle: \"Dental Practice Management\").",
+      "reason": "REQ-30 requested removing extra branding text such as subtitles from header/login rendering; while the UI may no longer render it, keeping/updating subtitle content was not requested and may be unnecessary scope.",
       "evidence": [
         "frontend/src/i18n/translations.ts"
       ]
-    },
-    {
-      "id": "REQ-27",
-      "requirement": "Logo is included as a static asset in the frontend and loads in both light and dark modes.",
-      "reason": "Components reference \"/assets/generated/app-logo-tooth.dim_256x256.png\", but the diff summary does not show the image asset being added/modified, so inclusion cannot be verified.",
-      "evidence": [
-        "frontend/src/components/auth/LoginScreen.tsx",
-        "frontend/src/components/layout/AppHeader.tsx"
-      ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Overtime functionality appears to be removed/disabled (hooks returning empty data) with UI still present for backwards compatibility.",
-      "reason": "BuildRequest explicitly lists as a non-goal: \"Do not implement new overtime functionality beyond what already exists\"—it does not request removing/neutralizing overtime. The diff summary indicates overtime backend removal behavior via frontend hook stubbing.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/hooks/useOvertime.ts)"
-      ]
-    },
-    {
-      "description": "Task domain/UI appears simplified beyond the described existing weekly/monthly/urgent model (e.g., removing assignee/due date/priority references).",
-      "reason": "BuildRequest non-goal: \"Do not redesign the Tasks domain beyond the existing weekly/monthly/urgent model already implemented.\" The diff summary suggests removing additional task fields/behavior, which is an unrequested domain change.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/components/tasks/CreateTaskDialog.tsx)",
-        "frontend-file-summaries.txt (frontend/src/components/tasks/TaskList.tsx)"
-      ]
-    }
-  ],
-  "confidence": 0.62,
+  "confidence": 0.68,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/auth/FirstManagerConfirmDialog.tsx",
     "frontend/src/components/auth/LoginScreen.tsx",
-    "frontend/src/components/auth/RoleChoiceScreen.tsx",
     "frontend/src/components/avatars/AvatarPicker.tsx",
     "frontend/src/components/avatars/DentalAvatarImage.tsx",
-    "frontend/src/components/avatars/avatarManifest.ts",
     "frontend/src/components/layout/AppHeader.tsx",
-    "frontend/src/components/manager/UserPicker.tsx",
-    "frontend/src/components/profile/ProfileOnboardingModal.tsx",
-    "frontend/src/hooks/useDentalAvatars.ts",
-    "frontend/src/hooks/useRoleSelection.ts",
+    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+    "frontend/src/components/tasks/CreateTaskDialog.tsx",
     "frontend/src/i18n/translations.ts",
-    "frontend/src/index.css",
     "project_state.json"
   ]
 }

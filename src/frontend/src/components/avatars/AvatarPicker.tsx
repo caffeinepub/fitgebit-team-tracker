@@ -1,4 +1,5 @@
 import { useGetDentalAvatars } from '../../hooks/useDentalAvatars';
+import { useI18n } from '../../hooks/useI18n';
 import DentalAvatarImage from './DentalAvatarImage';
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 
 export default function AvatarPicker({ selectedAvatar, onSelectAvatar }: Props) {
   const { data: avatars, isLoading } = useGetDentalAvatars();
+  const { t } = useI18n();
 
   if (isLoading) {
     return (
@@ -20,7 +22,7 @@ export default function AvatarPicker({ selectedAvatar, onSelectAvatar }: Props) 
   if (!avatars || avatars.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        No avatars available
+        {t('avatars.noAvatarsAvailable')}
       </div>
     );
   }
@@ -44,7 +46,7 @@ export default function AvatarPicker({ selectedAvatar, onSelectAvatar }: Props) 
           <DentalAvatarImage
             avatarId={avatar.id}
             alt={avatar.name}
-            className="w-full h-full"
+            className="w-full h-full object-cover"
           />
         </button>
       ))}

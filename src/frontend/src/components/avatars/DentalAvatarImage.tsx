@@ -17,11 +17,15 @@ export default function DentalAvatarImage({ avatarId, alt = 'Avatar', className 
     );
   }
 
+  // Convert SVG string to data URI for reliable rendering
+  const svgDataUri = `data:image/svg+xml;base64,${btoa(avatar.svg)}`;
+
   return (
-    <div
-      className={className}
-      dangerouslySetInnerHTML={{ __html: avatar.svg }}
+    <img
+      src={svgDataUri}
+      alt={alt}
       title={avatar.name}
+      className={className}
     />
   );
 }

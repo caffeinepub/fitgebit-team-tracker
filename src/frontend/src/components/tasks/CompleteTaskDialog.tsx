@@ -59,7 +59,7 @@ export default function CompleteTaskDialog({ open, onClose, task }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="bg-white dark:bg-gray-800">
         <DialogHeader>
           <DialogTitle>{t('tasks.markDone')}</DialogTitle>
         </DialogHeader>

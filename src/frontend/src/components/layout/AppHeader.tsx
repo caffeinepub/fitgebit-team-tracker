@@ -39,14 +39,9 @@ export default function AppHeader() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {t('app.title')}
-                </h1>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {t('app.subtitle')}
-                </p>
-              </div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                {t('app.title')}
+              </h1>
             </div>
 
             <div className="flex items-center gap-3">

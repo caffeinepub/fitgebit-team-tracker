@@ -2,12 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-replace-the-current-post-login-role-auto-assignment-first-manager-confirmation-flow-with-an-explicit-role-choice-flow-assistant-or-manager-where-manager-access-requires-entering-the-token-icpmaxi313",
-      "featureTitle": "Replace the current post-login role auto-assignment/first-manager confirmation flow with an explicit role-choice flow (Assistant or Manager) where Manager access requires entering the token \"ICPmaxi313\".",
+      "featureId": "feature-make-the-task-create-and-task-completion-popup-windows-fully-opaque-no-see-through-transparency-in-both-light-and-dark-mode",
+      "featureTitle": "Make the Task Create and Task Completion popup windows fully opaque (no see-through/transparency) in both light and dark mode.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/auth/RoleChoiceScreen.tsx",
-        "frontend/src/hooks/useRoleSelection.ts"
+        "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+        "frontend/src/components/tasks/CreateTaskDialog.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -19,100 +18,13 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-20"
+        "REQ-28"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-revise-the-login-screen-ui-to-include-role-selection-assistant-manager-and-when-manager-is-selected-a-token-input-field-keep-internet-identity-as-the-authentication-mechanism",
-      "featureTitle": "Revise the login screen UI to include role selection (Assistant/Manager) and, when Manager is selected, a token input field; keep Internet Identity as the authentication mechanism.",
-      "files": [
-        "frontend/src/components/auth/LoginScreen.tsx",
-        "frontend/src/components/auth/RoleChoiceScreen.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-22"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-remove-the-firstmanagerconfirmdialog-flow-from-the-authenticated-app-startup-and-replace-it-with-the-new-role-choice-token-flow-so-that-app-tsx-never-triggers-the-old-manager-confirmation-dialog",
-      "featureTitle": "Remove the FirstManagerConfirmDialog flow from the authenticated app startup and replace it with the new role-choice/token flow so that App.tsx never triggers the old manager confirmation dialog.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/auth/FirstManagerConfirmDialog.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-23"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-profile-onboarding-to-require-a-username-and-initials-of-length-2-3-characters-on-first-login-and-prevent-saving-if-initials-are-not-2-or-3-characters",
-      "featureTitle": "Update profile onboarding to require a username and initials of length 2–3 characters on first login, and prevent saving if initials are not 2 or 3 characters.",
-      "files": [
-        "frontend/src/components/profile/ProfileOnboardingModal.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-24"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-replace-the-existing-48-avatar-static-manifest-and-paginated-avatar-picker-with-exactly-16-simple-cute-dental-svg-avatars-served-from-the-canister-as-svg-strings-or-via-canister-urls-and-displayed-in-a-single-grid-with-no-pagination",
-      "featureTitle": "Replace the existing 48-avatar static manifest and paginated avatar picker with exactly 16 simple cute dental SVG avatars, served from the canister as SVG strings (or via canister URLs) and displayed in a single grid with no pagination.",
-      "files": [
-        "frontend/src/components/avatars/AvatarPicker.tsx",
-        "frontend/src/components/avatars/DentalAvatarImage.tsx",
-        "frontend/src/components/avatars/avatarManifest.ts",
-        "frontend/src/components/layout/AppHeader.tsx",
-        "frontend/src/components/manager/UserPicker.tsx",
-        "frontend/src/hooks/useDentalAvatars.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-25"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-adjust-i18n-translation-keys-for-any-new-or-changed-user-facing-text-introduced-by-the-role-choice-login-token-flow-and-the-updated-onboarding-validations-english-dutch-french-remain-supported",
-      "featureTitle": "Add/adjust i18n translation keys for any new or changed user-facing text introduced by the role-choice login/token flow and the updated onboarding validations (English, Dutch, French remain supported).",
+      "featureId": "feature-remove-the-word-optional-everywhere-it-appears-in-tasks-and-overtime-sections-including-labels-placeholders-and-any-supporting-helper-text-while-keeping-the-underlying-fields-optional",
+      "featureTitle": "Remove the word “optional” everywhere it appears in Tasks and Overtime sections, including labels/placeholders and any supporting helper text, while keeping the underlying fields optional.",
       "files": [
         "frontend/src/i18n/translations.ts"
       ],
@@ -126,15 +38,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-26"
+        "REQ-29"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-replace-the-app-s-logo-branding-mark-with-a-cute-tooth-icon-with-no-text-and-use-it-on-the-login-screen-in-place-of-the-current-sparkles-icon",
-      "featureTitle": "Replace the app’s logo/branding mark with a cute tooth icon with no text, and use it on the login screen in place of the current Sparkles icon.",
+      "featureId": "feature-update-branding-text-so-that-the-app-displays-only-fitgebit-next-to-under-the-logo-remove-extra-text-such-as-the-subtitle-in-the-header-and-login-screen",
+      "featureTitle": "Update branding text so that the app displays only “FitGebit” next to/under the logo (remove extra text such as the subtitle) in the header and login screen.",
       "files": [
-        "frontend/src/components/auth/LoginScreen.tsx"
+        "frontend/src/components/auth/LoginScreen.tsx",
+        "frontend/src/components/layout/AppHeader.tsx",
+        "frontend/src/i18n/translations.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -146,7 +60,29 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-27"
+        "REQ-30"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-avatar-picker-so-the-existing-16-dental-avatars-reliably-render-and-are-visible-in-the-avatar-grid-no-placeholders-blank-cells-and-remove-any-remaining-hard-coded-non-i18n-empty-state-text-in-the-avatar-picker",
+      "featureTitle": "Fix the avatar picker so the existing 16 dental avatars reliably render and are visible in the avatar grid (no placeholders/blank cells) and remove any remaining hard-coded non-i18n empty-state text in the avatar picker.",
+      "files": [
+        "frontend/src/components/avatars/AvatarPicker.tsx",
+        "frontend/src/components/avatars/DentalAvatarImage.tsx",
+        "frontend/src/i18n/translations.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-31"
       ],
       "confidence": "high"
     }

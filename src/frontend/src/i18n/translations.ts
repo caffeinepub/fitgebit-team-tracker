@@ -3,7 +3,7 @@ export type Language = 'en' | 'nl' | 'fr';
 export const translations = {
   en: {
     app: {
-      title: 'FitGebit Team Tracker',
+      title: 'FitGebit',
       subtitle: 'Dental Practice Management',
     },
     auth: {
@@ -58,14 +58,14 @@ export const translations = {
       completed: 'Completed',
       pending: 'Pending',
       markDone: 'Mark Done',
-      completionComment: 'Comment (optional)',
+      completionComment: 'Comment',
       complete: 'Complete',
       noTasks: 'No tasks yet',
       createFirst: 'Create your first task',
       completedBy: 'Completed by',
       at: 'at',
-      beforePhoto: 'Before Photo (optional)',
-      afterPhoto: 'After Photo (optional)',
+      beforePhoto: 'Before Photo',
+      afterPhoto: 'After Photo',
       photos: 'Photos',
     },
     overtime: {
@@ -74,7 +74,7 @@ export const translations = {
       deduct: 'Deduct Overtime',
       minutes: 'Minutes',
       date: 'Date',
-      comment: 'Comment (optional)',
+      comment: 'Comment',
       submit: 'Submit',
       history: 'History',
       totals: 'Totals',
@@ -137,10 +137,13 @@ export const translations = {
       next: 'Next',
       previous: 'Previous',
     },
+    avatars: {
+      noAvatarsAvailable: 'No avatars available',
+    },
   },
   nl: {
     app: {
-      title: 'FitGebit Team Tracker',
+      title: 'FitGebit',
       subtitle: 'Tandartspraktijk Beheer',
     },
     auth: {
@@ -195,14 +198,14 @@ export const translations = {
       completed: 'Voltooid',
       pending: 'In behandeling',
       markDone: 'Markeer als Klaar',
-      completionComment: 'Opmerking (optioneel)',
+      completionComment: 'Opmerking',
       complete: 'Voltooien',
       noTasks: 'Nog geen taken',
       createFirst: 'Maak uw eerste taak aan',
       completedBy: 'Voltooid door',
       at: 'om',
-      beforePhoto: 'Voor Foto (optioneel)',
-      afterPhoto: 'Na Foto (optioneel)',
+      beforePhoto: 'Voor Foto',
+      afterPhoto: 'Na Foto',
       photos: "Foto's",
     },
     overtime: {
@@ -211,7 +214,7 @@ export const translations = {
       deduct: 'Overuren Aftrekken',
       minutes: 'Minuten',
       date: 'Datum',
-      comment: 'Opmerking (optioneel)',
+      comment: 'Opmerking',
       submit: 'Indienen',
       history: 'Geschiedenis',
       totals: 'Totalen',
@@ -274,10 +277,13 @@ export const translations = {
       next: 'Volgende',
       previous: 'Vorige',
     },
+    avatars: {
+      noAvatarsAvailable: 'Geen avatars beschikbaar',
+    },
   },
   fr: {
     app: {
-      title: 'FitGebit Team Tracker',
+      title: 'FitGebit',
       subtitle: 'Gestion de Cabinet Dentaire',
     },
     auth: {
@@ -332,14 +338,14 @@ export const translations = {
       completed: 'Terminé',
       pending: 'En attente',
       markDone: 'Marquer comme Terminé',
-      completionComment: 'Commentaire (optionnel)',
+      completionComment: 'Commentaire',
       complete: 'Terminer',
       noTasks: 'Aucune tâche pour le moment',
       createFirst: 'Créez votre première tâche',
       completedBy: 'Terminé par',
       at: 'à',
-      beforePhoto: 'Photo Avant (optionnel)',
-      afterPhoto: 'Photo Après (optionnel)',
+      beforePhoto: 'Photo Avant',
+      afterPhoto: 'Photo Après',
       photos: 'Photos',
     },
     overtime: {
@@ -348,13 +354,13 @@ export const translations = {
       deduct: 'Déduire des Heures Supplémentaires',
       minutes: 'Minutes',
       date: 'Date',
-      comment: 'Commentaire (optionnel)',
+      comment: 'Commentaire',
       submit: 'Soumettre',
       history: 'Historique',
       totals: 'Totaux',
       totalMinutes: 'Total Minutes',
       workdays: 'Jours de Travail',
-      noEntries: "Aucune entrée d'heures supplémentaires pour le moment",
+      noEntries: 'Aucune entrée pour le moment',
       addFirst: 'Ajoutez votre première entrée',
     },
     managerSection: {
@@ -367,8 +373,8 @@ export const translations = {
     },
     badges: {
       title: 'Badges',
-      earned: 'Gagné',
-      locked: 'Verrouillé',
+      earned: 'Gagnés',
+      locked: 'Verrouillés',
       firstOvertime: 'Premières Heures Supplémentaires',
       firstOvertimeDesc: 'Enregistrez vos premières heures supplémentaires',
       overtimeVeteran: 'Vétéran des Heures Supplémentaires',
@@ -410,6 +416,9 @@ export const translations = {
       back: 'Retour',
       next: 'Suivant',
       previous: 'Précédent',
+    },
+    avatars: {
+      noAvatarsAvailable: 'Aucun avatar disponible',
     },
   },
 };

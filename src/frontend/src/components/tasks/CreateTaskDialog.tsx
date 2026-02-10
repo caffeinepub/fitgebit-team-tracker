@@ -44,7 +44,7 @@ export default function CreateTaskDialog({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="bg-white dark:bg-gray-800">
         <DialogHeader>
           <DialogTitle>{t('tasks.createTask')}</DialogTitle>
         </DialogHeader>

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
+  "projectStateVersion": 9,
   "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set username and 2–3 initials. Replace the avatar set: remove existing 48 SVGs and use exactly 16 simple cute dental SVG icons, stored as strings in the canister and returned as a list/URLs, shown in a single grid. Logo is a cute tooth icon (no text).",
   "architectural_notes": [
     "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
@@ -19,7 +19,6 @@
     "Build/app generation attempts failed multiple times during this conversation (needs investigation or scope reduction to unblock)."
   ],
   "isFixRequest": true,
-  "imageRequirements": "## Required Images\n- Cute tooth icon logo, no text (app-logo-tooth.dim_256x256.png)",
   "existing_features": [
     {
       "id": "feature-implement-internet-identity-login-and-an-authenticated-app-shell-for-fitgebit-team-tracker-including-automatic-role-assignment-the-first-ever-authenticated-user-deployer-becomes-manager-after-a-first-login-confirmation-and-all-other-users-default-to-assistant",
@@ -228,6 +227,38 @@
         "REQ-27"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-make-the-task-create-and-task-completion-popup-windows-fully-opaque-no-see-through-transparency-in-both-light-and-dark-mode",
+      "title": "Make the Task Create and Task Completion popup windows fully opaque (no see-through/transparency) in both light and dark mode.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-word-optional-everywhere-it-appears-in-tasks-and-overtime-sections-including-labels-placeholders-and-any-supporting-helper-text-while-keeping-the-underlying-fields-optional",
+      "title": "Remove the word “optional” everywhere it appears in Tasks and Overtime sections, including labels/placeholders and any supporting helper text, while keeping the underlying fields optional.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-branding-text-so-that-the-app-displays-only-fitgebit-next-to-under-the-logo-remove-extra-text-such-as-the-subtitle-in-the-header-and-login-screen",
+      "title": "Update branding text so that the app displays only “FitGebit” next to/under the logo (remove extra text such as the subtitle) in the header and login screen.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-avatar-picker-so-the-existing-16-dental-avatars-reliably-render-and-are-visible-in-the-avatar-grid-no-placeholders-blank-cells-and-remove-any-remaining-hard-coded-non-i18n-empty-state-text-in-the-avatar-picker",
+      "title": "Fix the avatar picker so the existing 16 dental avatars reliably render and are visible in the avatar grid (no placeholders/blank cells) and remove any remaining hard-coded non-i18n empty-state text in the avatar picker.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -297,6 +328,30 @@
       "reqIds": [
         "REQ-21"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "UI fix: make Task Create and Task Completion popup/modal backgrounds opaque (not see-through)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "UI text cleanup: remove the word “optional” anywhere it appears in Tasks or Overtime sections",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Branding/header text: remove extra text next to the logo; display only “FitGebit”",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Bug fix: avatar picker should correctly display the existing 16 dental avatars (currently not visible)",
+      "reqIds": [],
       "status": "pending"
     }
   ],

@@ -1,169 +1,95 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Role-choice login with manager token, onboarding initials validation, tooth logo, and canister-served dental SVG avatars (frontend-only)",
+  "title": "UI polish: opaque dialogs, remove “optional” wording, avatar visibility, and simplified branding",
   "requirements": [
     {
-      "id": "REQ-20",
-      "summary": "Replace post-login implicit role assignment with an explicit Assistant/Manager role-choice step (Manager requires token) and remove any reliance on the legacy first-manager confirmation behavior in the UI flow.",
+      "id": "REQ-28",
+      "summary": "Make Task Create and Task Completion dialogs fully opaque in light/dark mode (no translucent dialog surface).",
       "acceptanceCriteria": [
-        "After Internet Identity authentication, the user must be prompted to choose a role: Assistant or Manager.",
-        "Selecting Manager requires entering the exact token \"ICPmaxi313\"; invalid token prevents proceeding as Manager and shows a user-facing error message.",
-        "Selecting Assistant never requires a token.",
-        "The previous 'first user becomes Manager' behavior and UI confirmation are no longer used anywhere in the app flow."
+        "When CreateTaskDialog is open, the dialog content background is fully opaque (no alpha/translucent background showing underlying page).",
+        "When CompleteTaskDialog is open, the dialog content background is fully opaque (no alpha/translucent background showing underlying page).",
+        "The change applies in both light and dark mode."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/auth/RoleChoiceScreen.tsx",
-          "operation": "create",
-          "description": "Create an authenticated-only role-choice screen that lets the user choose Assistant or Manager, conditionally shows a token field for Manager, calls backend role-selection capabilities (selectRoleAssistant/selectRoleManager), shows a localized error for invalid token, and on success refreshes cached authz/profile queries. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useRoleSelection.ts",
-          "operation": "create",
-          "description": "Add React Query mutations for role selection (Assistant/Manager) that call the backend actor methods, handle/normalize errors for UI display, and invalidate role/admin queries on success. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/components/tasks/CreateTaskDialog.tsx",
           "operation": "modify",
-          "description": "Replace the current showManagerConfirm logic with the new role-choice gating: when authenticated and the caller role is 'guest', render RoleChoiceScreen instead of any legacy first-manager confirmation UI; only proceed to onboarding or AppShell once role selection is complete. Verify the component's usage instructions before implementing."
+          "description": "Pass an explicit, fully-opaque surface background to the shadcn DialogContent (e.g., non-alpha background classes for light and dark) so the create-task popup is not see-through. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+          "operation": "modify",
+          "description": "Pass an explicit, fully-opaque surface background to the shadcn DialogContent (e.g., non-alpha background classes for light and dark) so the complete-task popup is not see-through. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-22",
-      "summary": "Revise the login UI to clearly present Assistant/Manager selection and require a token input when Manager is selected, while keeping Internet Identity as the only authentication mechanism and using i18n for all strings.",
+      "id": "REQ-29",
+      "summary": "Remove the word “optional” from Tasks and Overtime UI labels/placeholders while keeping fields optional and strings i18n-driven.",
       "acceptanceCriteria": [
-        "Login screen presents Assistant and Manager options clearly.",
-        "When Manager is selected, a token input field is displayed and required to proceed as Manager.",
-        "The screen still uses Internet Identity for authentication; no third-party auth is added.",
-        "All new/updated user-facing strings are integrated via the existing i18n system."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/auth/LoginScreen.tsx",
-          "operation": "modify",
-          "description": "Update the unauthenticated login UI to include Assistant/Manager selection and conditional Manager token input (without changing Internet Identity auth); persist the user’s intended selection locally (e.g., sessionStorage) so RoleChoiceScreen can prefill after authentication. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/auth/RoleChoiceScreen.tsx",
-          "operation": "modify",
-          "description": "Consume any pre-auth persisted role/token choice from LoginScreen to prefill the authenticated role-choice step, while still allowing the user to change selection before submitting. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-23",
-      "summary": "Remove the FirstManagerConfirmDialog startup flow and ensure authenticated users without a selected role are routed to the new role-choice step.",
-      "acceptanceCriteria": [
-        "The app no longer displays the existing first-manager confirmation dialog at any time.",
-        "Authenticated users who have not yet selected a role are routed to the new role-choice step instead.",
-        "After successful role choice, the app proceeds to profile onboarding (if needed) and then the main app shell."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/auth/FirstManagerConfirmDialog.tsx",
-          "operation": "delete",
-          "description": "Remove the legacy first-manager confirmation dialog component to prevent any accidental reuse."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Remove imports/usages/state related to FirstManagerConfirmDialog; ensure the authenticated flow is: (1) role-choice if role is guest, (2) profile onboarding if profile is missing, (3) AppShell otherwise. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-24",
-      "summary": "Require username and 2–3 character initials during first-login profile onboarding; enforce validation, keep initials uppercase, and block saving until valid.",
-      "acceptanceCriteria": [
-        "The profile onboarding form rejects initials with length < 2 or > 3.",
-        "Initials continue to be stored uppercase.",
-        "Validation errors are shown to the user and block the Save action until the form is valid."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/profile/ProfileOnboardingModal.tsx",
-          "operation": "modify",
-          "description": "Add explicit validation for initials length (2–3) with localized inline error messaging; keep onChange uppercasing; disable Save unless username is non-empty and initials length is valid; avoid sending invalid data. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-25",
-      "summary": "Replace the 48-avatar static manifest and paginated picker with a canister-fetched set of exactly 16 dental SVG avatars rendered in a single grid without pagination, and update all avatar displays to use canister-served data.",
-      "acceptanceCriteria": [
-        "The avatar set is exactly 16 items; the previous 48-avatar set is removed from the UI selection flow.",
-        "Avatars are stored in the backend canister as SVG strings (not only as frontend static files).",
-        "Frontend fetches the avatar list from the backend and renders all 16 in a single grid (no pagination controls).",
-        "Avatar images reliably render (fix the current issue where SVG avatars are not showing/loading).",
-        "User profiles continue to store an avatar identifier, and existing UI that displays a user’s avatar uses the canister-served avatar data."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useDentalAvatars.ts",
-          "operation": "create",
-          "description": "Add a React Query hook to fetch the dental avatar list from the backend (getAllDentalAvatars), cache it, and provide helpers to lookup an avatar by id; include a client-side assertion/guard that the list length is 16 and handle mismatch gracefully in UI. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/avatars/DentalAvatarImage.tsx",
-          "operation": "create",
-          "description": "Create a reusable avatar renderer that takes an avatar id and renders the corresponding SVG reliably (e.g., via inline SVG rendering) using cached canister data, with a loading/fallback state. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/avatars/AvatarPicker.tsx",
-          "operation": "modify",
-          "description": "Rewrite AvatarPicker to use canister-fetched dental avatars (exactly 16) and render them in a single grid with no pagination controls; ensure selection highlights and click-to-select continue to work with avatar ids. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/avatars/avatarManifest.ts",
-          "operation": "delete",
-          "description": "Remove the static 48-avatar manifest (and its path resolver) to ensure the UI no longer depends on frontend static avatar assets."
-        },
-        {
-          "path": "frontend/src/components/layout/AppHeader.tsx",
-          "operation": "modify",
-          "description": "Replace usage of getAvatarPath/static avatar paths with DentalAvatarImage so the logged-in user’s avatar renders from canister-served SVG data. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/manager/UserPicker.tsx",
-          "operation": "modify",
-          "description": "Replace usage of getAvatarPath/static avatar paths with DentalAvatarImage so user avatars in manager user selection render from canister-served SVG data. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-26",
-      "summary": "Add/adjust i18n keys for the new role-choice/token flow and onboarding initials validation across English, Dutch, and French.",
-      "acceptanceCriteria": [
-        "All new strings introduced by the updated login/role flow and onboarding validation are translated in en/nl/fr dictionaries.",
-        "No UI shows missing translation placeholders for the updated screens."
+        "Tasks UI no longer shows '(optional)' for the completion comment field.",
+        "Tasks UI no longer shows '(optional)' for Before Photo and After Photo labels.",
+        "Overtime UI no longer shows '(optional)' for the comment field.",
+        "All updated user-facing strings remain routed through i18n (no new hard-coded English strings introduced for these labels)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/i18n/translations.ts",
           "operation": "modify",
-          "description": "Add translation keys for role choice (assistant/manager labels, token field label/placeholder, proceed/confirm actions, invalid token error) and initials validation errors (2–3 characters) in en/nl/fr; keep legacy keys if still referenced elsewhere. Verify the component's usage instructions before implementing."
+          "description": "Update existing i18n strings used by Tasks and Overtime to remove '(optional)' wording (tasks.completionComment, tasks.beforePhoto, tasks.afterPhoto, overtime.comment) while keeping the underlying fields optional; ensure changes are in English at minimum and remain key-driven."
         }
       ]
     },
     {
-      "id": "REQ-27",
-      "summary": "Replace the login screen branding mark with the provided cute tooth icon (no text) and ensure it loads in light/dark mode.",
+      "id": "REQ-30",
+      "summary": "Simplify branding so only “FitGebit” appears next to/under the logo in header and login screen, with title from i18n.",
       "acceptanceCriteria": [
-        "Login screen displays the provided tooth icon logo (no text) instead of the Sparkles icon.",
-        "The logo is included as a static asset in the frontend and loads in both light and dark modes."
+        "AppHeader shows only the single title text “FitGebit” and does not render any subtitle/secondary line.",
+        "LoginScreen shows only the single title text “FitGebit” and does not render any subtitle/secondary line.",
+        "The displayed title is driven from i18n (update the English translation for app.title to “FitGebit”)."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/app-logo-tooth.dim_256x256.png",
-          "operation": "create",
-          "description": "Add the generated tooth logo asset at frontend/public/assets/generated/app-logo-tooth.dim_256x256.png and ensure it is committed/available as a static frontend asset."
+          "path": "frontend/src/components/layout/AppHeader.tsx",
+          "operation": "modify",
+          "description": "Remove the subtitle/secondary branding text rendering near the logo so the header shows only the app title from i18n."
         },
         {
           "path": "frontend/src/components/auth/LoginScreen.tsx",
           "operation": "modify",
-          "description": "Replace the Sparkles icon mark with an <img> using frontend/public/assets/generated/app-logo-tooth.dim_256x256.png (no text) and ensure styling works in light/dark mode. Verify the component's usage instructions before implementing."
+          "description": "Remove the subtitle/secondary branding text under the title so the login screen shows only the app title from i18n."
+        },
+        {
+          "path": "frontend/src/i18n/translations.ts",
+          "operation": "modify",
+          "description": "Update the English translation for app.title to exactly “FitGebit” (keeping title i18n-driven)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "summary": "Fix avatar picker rendering so all 16 existing dental avatars display reliably, and ensure empty-state text is i18n-driven.",
+      "acceptanceCriteria": [
+        "AvatarPicker renders an SVG image for each avatar returned by getAllDentalAvatars; grid items are not blank and do not show the '?' fallback when avatar data is present.",
+        "If avatars cannot be loaded or the list is empty, the empty-state message is translated via i18n (no hard-coded 'No avatars available' text).",
+        "No changes increase the avatar count beyond the existing 16."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/avatars/DentalAvatarImage.tsx",
+          "operation": "modify",
+          "description": "Improve SVG rendering reliability by rendering avatar.svg in a way that respects sizing/styling (e.g., as an <img> using a data URI) so grid cells do not appear blank when svg data exists; keep the existing fallback only for truly missing avatar data."
+        },
+        {
+          "path": "frontend/src/components/avatars/AvatarPicker.tsx",
+          "operation": "modify",
+          "description": "Replace the hard-coded empty-state string with an i18n translation key, and wire the component to use the i18n hook for that message."
+        },
+        {
+          "path": "frontend/src/i18n/translations.ts",
+          "operation": "modify",
+          "description": "Add/adjust an i18n key for the avatar picker empty state (English text) and use it from AvatarPicker; ensure no avatar-count changes are introduced (still the existing 16 from backend)."
         }
       ]
     }
