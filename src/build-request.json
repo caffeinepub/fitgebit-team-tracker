@@ -1,95 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Fix avatar rendering, add task descriptions, and display overtime totals as days/hours/minutes",
+  "title": "Ensure weekly/monthly task completion persists until scheduled or manual reset",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-54",
-      "text": "Fix dental avatar rendering so avatars reliably display across the app (avatar picker, profile onboarding/settings, header/user menu, and manager user picker) instead of appearing missing/not showing.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "The avatars are currently not showing"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All 16 dental SVG avatars render as visible images (not blank cells and not broken/missing image links) in AvatarPicker.",
-        "Profile avatar rendering works for users who have selected a dental SVG avatar (including in header/user menu and manager user picker).",
-        "If an avatar SVG is invalid/missing, the UI shows a deterministic fallback (no empty/blank area).",
-        "No console errors are produced during normal avatar rendering (excluding intentional warning logs for unexpected avatar counts)."
-      ]
-    },
-    {
-      "id": "REQ-55",
-      "text": "Add a multi-line task description field that appears directly under the task title when creating a task, allowing users to describe the task in detail; persist this description in the backend task model and display it under the task title on task cards.",
+      "id": "REQ-57",
+      "text": "Keep the current Tasks mode (task types: weekly/monthly/urgent only) and ensure completed weekly and monthly tasks remain completed across app refreshes until their next scheduled reset window or until the user manually reactivates/resets them.",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-5"
+          "recent-messages"
         ],
         "quotes": [
-          "Place a comment/description box directly under each task title",
-          "This allows users to explain the task in detail",
-          "Should support multi-line text input"
+          "Keep current mode, make sure the completed tasks stay completed untill the weekly or monthly or manual reset."
         ]
       },
       "acceptanceCriteria": [
-        "Create Task dialog includes a multi-line text input placed directly under the title input.",
-        "Submitting a new task stores the description and it is returned by the backend in `getTasks()`.",
-        "Task cards render the description directly under the task title (when a description is present).",
-        "Existing tasks created before this change continue to load without errors (description treated as empty/missing).",
-        "All new user-facing text added for this feature uses i18n keys with English strings present."
+        "After a user marks a weekly task complete, refreshing/reopening the app does not change it back to incomplete unless it is now past the next weekly reset boundary.",
+        "After a user marks a monthly task complete, refreshing/reopening the app does not change it back to incomplete unless it is now past the next monthly reset boundary.",
+        "Urgent tasks are never auto-reset by the recurring reset logic; they remain completed until manually reset.",
+        "The backend remains the source of truth: `getTasks()` returns `isCompleted=true` for completed tasks until a legitimate reset occurs (scheduled reset boundary or manual reset)."
       ]
     },
     {
-      "id": "REQ-56",
-      "text": "Update overtime totals display to convert total minutes into a composite format using 60 minutes = 1 hour and 8 hours = 1 day, and show totals in the format \"X day(s), Y hour(s), Z minute(s)\" (e.g., 550 minutes displays as \"1 day, 1 hour, 10 minutes\").",
-      "target": "frontend",
+      "id": "REQ-58",
+      "text": "Update the backend recurring reset logic (`resetRecurringTasksIfNeeded`) so it only resets tasks that are actually due for reset (weekly: Monday boundary; monthly: first Monday of the month boundary), and does not prematurely reset tasks simply because the app opened/refreshed.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "recent-messages"
         ],
         "quotes": [
-          "60 minutes = 1 hour (when minutes ≥ 60, subtract 60 from minutes and add 1 to hours)",
-          "8 hours = 1 day (when hours ≥ 8, subtract 8 from hours and add 1 to days)",
-          "Example: 550 minutes should display as \"1 day, 1 hour, 10 minutes\""
+          "make sure the completed tasks stay completed untill the weekly or monthly or manual reset."
         ]
       },
       "acceptanceCriteria": [
-        "OvertimeTotals converts summed signed minutes into (days, hours, minutes) using 8 hours/day and 60 minutes/hour.",
-        "Example validation: total of 550 minutes displays as \"1 day, 1 hour, 10 minutes\".",
-        "The composite display works for totals >= 0 and totals < 0 (negative totals retain a leading minus sign and use absolute values for components).",
-        "Manager overtime page (which reuses OvertimeTotals) reflects the same composite display for the selected user."
+        "Calling `resetRecurringTasksIfNeeded` multiple times within the same weekly/monthly period does not reset already-completed weekly/monthly tasks.",
+        "At the first app open after the weekly reset boundary (Monday, using clinic local time as previously specified in this conversation), completed weekly tasks are reset to incomplete and `lastResetAt` is updated.",
+        "At the first app open after the monthly reset boundary (first Monday of the month, using clinic local time as previously specified in this conversation), completed monthly tasks are reset to incomplete and `lastResetAt` is updated.",
+        "The function does not reset urgent tasks.",
+        "No new user-facing error messages are introduced by this change; any traps remain developer-focused and existing patterns are preserved."
+      ]
+    },
+    {
+      "id": "REQ-59",
+      "text": "Update the frontend task reset trigger so that opening the Tasks page does not cause premature resets; the UI must reflect the backend’s persisted completion state and only change when the backend determines a reset is due or when a user manually resets/reactivates a task.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "when someone refreshes the app it should still be marked done till next day or week or month."
+        ]
+      },
+      "acceptanceCriteria": [
+        "On TasksPage mount, tasks that were completed in the current week/month remain shown as completed after the reset check runs.",
+        "If the backend determines a reset is due, the UI updates accordingly after the reset mutation finishes and tasks refetch.",
+        "If the reset mutation fails, the UI still shows the previously fetched task completion states (no forced local flip to incomplete)."
       ]
     }
   ],
   "constraints": [
     "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not edit files under frontend/src/components/ui or any other frontend immutable paths listed in SYSTEM_CONTEXT; compose existing UI components instead.",
-    "Apply the user’s UI instructions only to the UI element corresponding to XPath /html[1]/body[1]/div[3]/div[2]/div[4] (identify the owning React component and confine layout changes accordingly).",
-    "Use English for any new/changed user-facing text introduced by these changes (via i18n keys)."
+    "Do not edit any files under frontend/src/components/ui, or other paths listed in SYSTEM_CONTEXT.frontend.immutablePaths.",
+    "Use English for any new/changed user-facing text introduced by this change (and follow the existing i18n pattern if UI text changes are required)."
   ],
   "nonGoals": [
-    "Do not add new authentication methods (Internet Identity remains the only auth mechanism).",
-    "Do not add real-time features (WebSockets, push notifications, chat).",
-    "Do not change overtime entry creation rules (date validation, add/deduct semantics) beyond updating totals display formatting.",
-    "Do not redesign the overall navigation or add new app sections."
+    "Do not reintroduce daily tasks or daily reset behavior.",
+    "Do not change the task domain model beyond what is needed to correctly persist and reset completion state for weekly/monthly tasks.",
+    "Do not add new UI features like completion history/audit log, task reactivation buttons, or popup title changes unless explicitly requested again."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -7,13 +7,13 @@ import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 
 import Storage "blob-storage/Storage";
-import Migration "migration";
+
 
 import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-(with migration = Migration.run)
+
 actor {
   // User Profile (using custom role for display, but authorization uses AccessControl roles)
   public type ProfileRole = {

@@ -1,85 +1,57 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T10:11:28.824Z",
+  "generatedAt": "2026-02-10T13:15:37.222Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 3,
-    "implemented": 3,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-54",
-        "summary": "Fix dental avatar rendering so avatars reliably display across the app (avatar picker, profile onboarding/settings, header/user menu, and manager user picker) instead of appearing missing/not showing.",
+        "id": "REQ-57",
+        "summary": "Keep the current Tasks mode (task types: weekly/monthly/urgent only) and ensure completed weekly and monthly tasks remain completed across app refreshes until their next scheduled reset window or until the user manually reactivates/resets them.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/avatars/DentalAvatarImage.tsx",
-          "frontend/src/components/avatars/AvatarPicker.tsx",
-          "frontend/src/components/avatars/ProfileAvatar.tsx",
-          "frontend/src/hooks/useDentalAvatars.ts"
+          "frontend/src/pages/TasksPage.tsx",
+          "frontend/src/hooks/useTasks.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/avatars/DentalAvatarImage.tsx",
-          "frontend/src/components/avatars/AvatarPicker.tsx",
-          "frontend/src/components/avatars/ProfileAvatar.tsx",
-          "frontend/src/hooks/useDentalAvatars.ts"
+          "frontend/src/pages/TasksPage.tsx",
+          "frontend/src/hooks/useTasks.ts"
         ]
       },
       {
-        "id": "REQ-55",
-        "summary": "Add a multi-line task description field that appears directly under the task title when creating a task, allowing users to describe the task in detail; persist this description in the backend task model and display it under the task title on task cards.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/tasks/CreateTaskDialog.tsx",
-          "frontend/src/hooks/useTasks.ts",
-          "frontend/src/components/tasks/TaskCard.tsx",
-          "frontend/src/i18n/translations.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/tasks/CreateTaskDialog.tsx",
-          "frontend/src/hooks/useTasks.ts",
-          "frontend/src/components/tasks/TaskCard.tsx",
-          "frontend/src/i18n/translations.ts"
-        ]
+        "id": "REQ-58",
+        "summary": "Update the backend recurring reset logic (`resetRecurringTasksIfNeeded`) so it only resets tasks that are actually due for reset (weekly: Monday boundary; monthly: first Monday of the month boundary), and does not prematurely reset tasks simply because the app opened/refreshed.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-56",
-        "summary": "Update overtime totals display to convert total minutes into a composite format using 60 minutes = 1 hour and 8 hours = 1 day, and show totals in the format \"X day(s), Y hour(s), Z minute(s)\" (e.g., 550 minutes displays as \"1 day, 1 hour, 10 minutes\").",
+        "id": "REQ-59",
+        "summary": "Update the frontend task reset trigger so that opening the Tasks page does not cause premature resets; the UI must reflect the backend’s persisted completion state and only change when the backend determines a reset is due or when a user manually resets/reactivates a task.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/overtime/OvertimeTotals.tsx",
-          "frontend/src/i18n/translations.ts",
-          "frontend/src/pages/manager/ManagerOvertimePage.tsx"
+          "frontend/src/pages/TasksPage.tsx",
+          "frontend/src/hooks/useTasks.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/overtime/OvertimeTotals.tsx",
-          "frontend/src/i18n/translations.ts"
+          "frontend/src/pages/TasksPage.tsx",
+          "frontend/src/hooks/useTasks.ts"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/avatars/AvatarPicker.tsx",
-    "frontend/src/components/avatars/DentalAvatarImage.tsx",
-    "frontend/src/components/avatars/ProfileAvatar.tsx",
-    "frontend/src/components/overtime/OvertimeTotals.tsx",
-    "frontend/src/components/tasks/CreateTaskDialog.tsx",
-    "frontend/src/components/tasks/TaskCard.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useDentalAvatars.ts",
     "frontend/src/hooks/useTasks.ts",
-    "frontend/src/i18n/translations.ts",
+    "frontend/src/pages/TasksPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,79 +1,40 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T10:11:28.820Z",
-  "summary": "REQ-56 composite overtime display is implemented in OvertimeTotals. Task description UI and frontend wiring are added, and backend task types now include a description field plus a migration module. Avatar rendering is reworked to use encoded SVG data URIs with a deterministic fallback component, and AvatarPicker/ProfileAvatar are updated to use it. However, some requirements are only partially evidenced (notably backend API changes for tasks and avatar rendering across all specified app surfaces), and there are a couple of implemented behaviors not requested (making task description required; migration populating a placeholder description).",
+  "generatedAt": "2026-02-10T13:15:37.218Z",
+  "summary": "Diff implements frontend-side changes to delay the recurring reset trigger until after the initial tasks fetch, plus optimistic completion updates and an automatic reset+retry on a specific completion error. However, no backend changes are shown for the required reset logic updates, and the new automatic reset+retry behavior was not requested and may conflict with the goal of avoiding premature resets.",
   "missing_requirements": [
     {
-      "id": "REQ-54",
-      "requirement": "Fix dental avatar rendering so avatars reliably display across the app (avatar picker, profile onboarding/settings, header/user menu, and manager user picker).",
-      "reason": "Diff shows fixes in AvatarPicker and ProfileAvatar via DentalAvatarImage, but there is no direct evidence in the provided diff summary that the manager user picker and header/user menu (or any other avatar surfaces) were updated to use the new renderer, beyond a high-level file summary note that AppHeader uses ProfileAvatar.",
+      "id": "REQ-58",
+      "requirement": "Update the backend recurring reset logic (resetRecurringTasksIfNeeded) so it only resets tasks that are actually due for reset (weekly: Monday boundary; monthly: first Monday boundary), does not reset on mere refresh, updates lastResetAt appropriately, and never resets urgent tasks.",
+      "reason": "The diff contains no changes to the backend (backend/main.mo) or any Motoko logic; only frontend files were modified. Therefore there is no evidence the backend reset boundary logic or lastResetAt handling was implemented/adjusted.",
       "evidence": [
-        "frontend/src/components/avatars/AvatarPicker.tsx",
-        "frontend/src/components/avatars/DentalAvatarImage.tsx",
-        "frontend/src/components/avatars/ProfileAvatar.tsx",
-        "frontend-file-summaries.txt"
+        "File diff summary shows only frontend files modified; no backend/main.mo changes present."
       ]
     },
     {
-      "id": "REQ-55",
-      "requirement": "Persist task description in the backend task model and return it from getTasks(); existing tasks created before this change load without errors (description treated as empty/missing).",
-      "reason": "While backend Task type now includes `description : Text` and the frontend expects `task.description`, the diff snippet does not show the actual `createTask` and `getTasks` implementations being updated to accept/store/return description. Also, the migration sets a non-empty placeholder description for existing tasks, which conflicts with the requirement that old tasks treat description as empty/missing.",
+      "id": "REQ-57",
+      "requirement": "Ensure completed weekly/monthly tasks remain completed across refreshes until the next scheduled reset boundary or manual reset, with the backend as source of truth (getTasks returns isCompleted=true until legitimate reset), and urgent tasks are never auto-reset.",
+      "reason": "This requirement depends on backend persistence and correct reset behavior. The diff does not show any backend changes to ensure getTasks() continues to return persisted completion state across refreshes and that resets only occur at proper boundaries (and not for urgent tasks). Frontend changes alone cannot guarantee backend source-of-truth behavior.",
       "evidence": [
-        "backend/main.mo",
-        "backend/migration.mo",
-        "frontend/src/hooks/useTasks.ts",
-        "frontend/src/components/tasks/TaskCard.tsx"
-      ]
-    },
-    {
-      "id": "REQ-55",
-      "requirement": "All new user-facing text added for this feature uses i18n keys with English strings present.",
-      "reason": "English strings for the new description-related keys are shown, but the file is truncated and there is no evidence for Dutch/French completeness in the diff excerpt (the BuildRequest only mandates English for new/changed text, but the AC explicitly requires i18n keys with English strings present; this is evidenced for EN, not fully verifiable for other languages).",
-      "evidence": [
-        "frontend/src/i18n/translations.ts"
-      ]
-    },
-    {
-      "id": "REQ-56",
-      "requirement": "Show overtime totals in the format \"X day(s), Y hour(s), Z minute(s)\".",
-      "reason": "The formatter omits zero-value components (e.g., it may display \"10 minutes\" instead of \"0 days, 0 hours, 10 minutes\"), which may not satisfy the strict \"X day(s), Y hour(s), Z minute(s)\" format requirement.",
-      "evidence": [
-        "frontend/src/components/overtime/OvertimeTotals.tsx"
+        "File diff summary shows only frontend files modified; no backend/main.mo changes present."
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Task description is enforced as required in the Create Task dialog (validation error if empty).",
-      "reason": "REQ-55 asks to add a description field and persist/display it, but does not require that description be mandatory; the diff adds required-field validation and a specific error key/message.",
+      "description": "Automatic handling of an 'obsolete weekly task' completion error by calling resetRecurringTasksIfNeeded() and retrying completeTask().",
+      "reason": "BuildRequest did not ask for any new automatic retry behavior on completion errors, nor for triggering resets during completion. It specifically emphasizes avoiding premature resets on page open/refresh and keeping backend as source of truth; this introduces new reset triggering conditions beyond the requested TasksPage mount behavior.",
       "evidence": [
-        "frontend/src/components/tasks/CreateTaskDialog.tsx",
-        "frontend/src/i18n/translations.ts"
-      ]
-    },
-    {
-      "description": "Migration populates existing tasks' new description field with the literal placeholder text \"Please update this description\".",
-      "reason": "REQ-55 acceptance criteria specifies existing tasks should treat description as empty/missing; pre-filling a placeholder changes legacy task data and will cause descriptions to appear even when users did not enter them.",
-      "evidence": [
-        "backend/migration.mo"
+        "frontend/src/hooks/useTasks.ts: added try/catch around actor.completeTask with conditional \"obsolete\"+\"weekly\" handling that calls actor.resetRecurringTasksIfNeeded() then retries completeTask"
       ]
     }
   ],
   "confidence": 0.74,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/avatars/AvatarPicker.tsx",
-    "frontend/src/components/avatars/DentalAvatarImage.tsx",
-    "frontend/src/components/avatars/ProfileAvatar.tsx",
-    "frontend/src/components/overtime/OvertimeTotals.tsx",
-    "frontend/src/components/tasks/CreateTaskDialog.tsx",
-    "frontend/src/components/tasks/TaskCard.tsx",
-    "frontend/src/hooks/useDentalAvatars.ts",
     "frontend/src/hooks/useTasks.ts",
-    "frontend/src/i18n/translations.ts",
+    "frontend/src/pages/TasksPage.tsx",
     "project_state.json"
   ]
 }

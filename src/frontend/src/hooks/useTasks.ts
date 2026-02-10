@@ -131,7 +131,14 @@ export function useResetRecurringTasks() {
       await actor.resetRecurringTasksIfNeeded();
     },
     onSuccess: () => {
+      // Only refetch tasks if the reset actually changed something
+      // The backend will only reset tasks if the reset boundary has passed
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+    onError: (error) => {
+      // Silently handle errors - don't affect the UI
+      console.error('Reset recurring tasks error:', error);
+      // Don't invalidate queries on error - keep showing the last fetched state
     },
   });
 }

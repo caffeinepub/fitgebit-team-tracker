@@ -2,36 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-dental-avatar-rendering-so-avatars-reliably-display-across-the-app-avatar-picker-profile-onboarding-settings-header-user-menu-and-manager-user-picker-instead-of-appearing-missing-not-showing",
-      "featureTitle": "Fix dental avatar rendering so avatars reliably display across the app (avatar picker, profile onboarding/settings, header/user menu, and manager user picker) instead of appearing missing/not showing.",
+      "featureId": "feature-keep-the-current-tasks-mode-task-types-weekly-monthly-urgent-only-and-ensure-completed-weekly-and-monthly-tasks-remain-completed-across-app-refreshes-until-their-next-scheduled-reset-window-or-until-the-user-manually-reactivates-resets-them",
+      "featureTitle": "Keep the current Tasks mode (task types: weekly/monthly/urgent only) and ensure completed weekly and monthly tasks remain completed across app refreshes until their next scheduled reset window or until the user manually reactivates/resets them.",
       "files": [
-        "frontend/src/components/avatars/AvatarPicker.tsx",
-        "frontend/src/components/avatars/DentalAvatarImage.tsx",
-        "frontend/src/components/avatars/ProfileAvatar.tsx",
-        "frontend/src/hooks/useDentalAvatars.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-54"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-multi-line-task-description-field-that-appears-directly-under-the-task-title-when-creating-a-task-allowing-users-to-describe-the-task-in-detail-persist-this-description-in-the-backend-task-model-and-display-it-under-the-task-title-on-task-cards",
-      "featureTitle": "Add a multi-line task description field that appears directly under the task title when creating a task, allowing users to describe the task in detail; persist this description in the backend task model and display it under the task title on task cards.",
-      "files": [
-        "frontend/src/components/tasks/CreateTaskDialog.tsx",
-        "frontend/src/components/tasks/TaskCard.tsx",
         "frontend/src/hooks/useTasks.ts",
-        "frontend/src/i18n/translations.ts"
+        "frontend/src/pages/TasksPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -43,16 +18,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-55"
+        "REQ-57"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-overtime-totals-display-to-convert-total-minutes-into-a-composite-format-using-60-minutes-1-hour-and-8-hours-1-day-and-show-totals-in-the-format-x-day-s-y-hour-s-z-minute-s-e-g-550-minutes-displays-as-1-day-1-hour-10-minutes",
-      "featureTitle": "Update overtime totals display to convert total minutes into a composite format using 60 minutes = 1 hour and 8 hours = 1 day, and show totals in the format \"X day(s), Y hour(s), Z minute(s)\" (e.g., 550 minutes displays as \"1 day, 1 hour, 10 minutes\").",
+      "featureId": "feature-update-the-frontend-task-reset-trigger-so-that-opening-the-tasks-page-does-not-cause-premature-resets-the-ui-must-reflect-the-backend-s-persisted-completion-state-and-only-change-when-the-backend-determines-a-reset-is-due-or-when-a-user-manually-resets-reactivates-a-task",
+      "featureTitle": "Update the frontend task reset trigger so that opening the Tasks page does not cause premature resets; the UI must reflect the backend’s persisted completion state and only change when the backend determines a reset is due or when a user manually resets/reactivates a task.",
       "files": [
-        "frontend/src/components/overtime/OvertimeTotals.tsx",
-        "frontend/src/i18n/translations.ts"
+        "frontend/src/hooks/useTasks.ts",
+        "frontend/src/pages/TasksPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -64,7 +39,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-56"
+        "REQ-59"
       ],
       "confidence": "high"
     }

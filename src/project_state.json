@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 19,
+  "projectStateVersion": 21,
   "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set name/username and 2–3 initials. Profile must support either an uploaded profile picture or an auto-generated cute dental-themed avatar (pastel palette, unique per user, initials visible). Avatars/photos must load reliably across the app; profile UI must be persistent and not disappear after updates. Logo is a cute tooth icon (no text).",
   "architectural_notes": [
     "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
@@ -23,7 +23,8 @@
     "Overtime submission fails with error message: \"Overtime functionality is currently unavailable\" (UI loads but save/submit fails at the end).",
     "All avatars appear as missing/broken image links across the app (not just in the picker).",
     "Overtime submission error: \"Invalid nat argument: BigInt(-6)\" when attempting to deduct/store negative minutes (backend likely using Nat).",
-    "Task completion error: \"Invalid task: This weekly task is obsolete and must be reset before completion\" blocking marking tasks done."
+    "Task completion error: \"Invalid task: This weekly task is obsolete and must be reset before completion\" blocking marking tasks done.",
+    "Task completion state does not persist correctly across app refresh; completed tasks can appear reset prematurely instead of staying done until weekly/monthly reset or manual reactivation."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -410,6 +411,22 @@
         "REQ-56"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-keep-the-current-tasks-mode-task-types-weekly-monthly-urgent-only-and-ensure-completed-weekly-and-monthly-tasks-remain-completed-across-app-refreshes-until-their-next-scheduled-reset-window-or-until-the-user-manually-reactivates-resets-them",
+      "title": "Keep the current Tasks mode (task types: weekly/monthly/urgent only) and ensure completed weekly and monthly tasks remain completed across app refreshes until their next scheduled reset window or until the user manually reactivates/resets them.",
+      "reqIds": [
+        "REQ-57"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-task-reset-trigger-so-that-opening-the-tasks-page-does-not-cause-premature-resets-the-ui-must-reflect-the-backend-s-persisted-completion-state-and-only-change-when-the-backend-determines-a-reset-is-due-or-when-a-user-manually-resets-reactivates-a-task",
+      "title": "Update the frontend task reset trigger so that opening the Tasks page does not cause premature resets; the UI must reflect the backend’s persisted completion state and only change when the backend determines a reset is due or when a user manually resets/reactivates a task.",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -595,6 +612,38 @@
       "id": "AR-38",
       "summary": "Overtime totals display: convert minutes into a composite \"X days, Y hours, Z minutes\" format using 60 min = 1 hour and 8 hours = 1 day (e.g., 550 min -> 1 day, 1 hour, 10 minutes)",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Tasks: persist completion state so weekly/monthly tasks remain marked done across app refresh until their next scheduled reset window or until manually reactivated",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Tasks: add a 'Reactivate task' button directly in the task list for completed tasks (works for any task type)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Tasks UI: show the task title clearly in the task completion popup so users know which task they're marking done",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Manager: add a persistent, searchable task completion history/audit log (task name, who completed, timestamp, task type)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Update the backend recurring reset logic (`resetRecurringTasksIfNeeded`) so it only resets tasks that are actually due for reset (weekly: Monday boundary; monthly: first Monday of the month boundary), and does not prematurely reset tasks simply because the app opened/refreshed.",
+      "reqIds": [
+        "REQ-58"
+      ],
       "status": "pending"
     }
   ],

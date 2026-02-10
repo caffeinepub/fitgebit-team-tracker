@@ -8,16 +8,22 @@ import CreateTaskDialog from '../components/tasks/CreateTaskDialog';
 
 export default function TasksPage() {
   const { t } = useI18n();
-  const { data: tasks = [], isLoading } = useGetTasks();
+  const { data: tasks = [], isLoading, isFetched } = useGetTasks();
   const { mutateAsync: resetRecurringTasks } = useResetRecurringTasks();
   const [showCreate, setShowCreate] = useState(false);
+  const [resetChecked, setResetChecked] = useState(false);
 
-  // Reset recurring tasks when the page mounts (app opens)
+  // Reset recurring tasks only after initial fetch completes
+  // This ensures we don't interfere with the initial render of task completion states
   useEffect(() => {
-    resetRecurringTasks().catch((error) => {
-      console.error('Failed to reset recurring tasks:', error);
-    });
-  }, [resetRecurringTasks]);
+    if (isFetched && !resetChecked) {
+      setResetChecked(true);
+      resetRecurringTasks().catch((error) => {
+        console.error('Failed to reset recurring tasks:', error);
+        // Don't show error to user - this is a background check
+      });
+    }
+  }, [isFetched, resetChecked, resetRecurringTasks]);
 
   if (isLoading) {
     return (

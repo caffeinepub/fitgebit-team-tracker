@@ -1,97 +1,48 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix dental avatar rendering, add task descriptions, and display overtime totals as days/hours/minutes",
+  "title": "Persist task completion state by deferring recurring reset triggers to backend-due windows",
   "requirements": [
     {
-      "id": "REQ-54",
-      "summary": "Make dental SVG avatars render reliably across avatar picker, onboarding/settings, header/user menu, and manager user picker with deterministic fallbacks and no console errors.",
+      "id": "REQ-57",
+      "summary": "Ensure weekly/monthly task completion status shown in the UI stays consistent across refreshes by relying on backend-provided persisted state and avoiding any frontend-driven premature resets.",
       "acceptanceCriteria": [
-        "All 16 dental SVG avatars render as visible images (not blank cells and not broken/missing image links) in AvatarPicker.",
-        "Profile avatar rendering works for users who have selected a dental SVG avatar (including in header/user menu and manager user picker).",
-        "If an avatar SVG is invalid/missing, the UI shows a deterministic fallback (no empty/blank area).",
-        "No console errors are produced during normal avatar rendering (excluding intentional warning logs for unexpected avatar counts)."
+        "After a user marks a weekly task complete, refreshing/reopening the app does not change it back to incomplete unless it is now past the next weekly reset boundary.",
+        "After a user marks a monthly task complete, refreshing/reopening the app does not change it back to incomplete unless it is now past the next monthly reset boundary.",
+        "Urgent tasks are never auto-reset by the recurring reset logic; they remain completed until manually reset.",
+        "The backend remains the source of truth: `getTasks()` returns `isCompleted=true` for completed tasks until a legitimate reset occurs (scheduled reset boundary or manual reset)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/avatars/DentalAvatarImage.tsx",
+          "path": "frontend/src/pages/TasksPage.tsx",
           "operation": "modify",
-          "description": "Harden DentalAvatarImage rendering by replacing DOM-manipulating img onError fallback with React-state-driven fallback rendering, improving SVG validation/normalization for data-URI usage, and ensuring a deterministic non-emoji fallback (e.g., simple inline SVG placeholder) for missing/invalid avatars to prevent blank cells and avoid console errors."
-        },
-        {
-          "path": "frontend/src/components/avatars/AvatarPicker.tsx",
-          "operation": "modify",
-          "description": "Ensure AvatarPicker always renders a visible cell for every returned avatar (including during transient lookup states) and passes stable alt/title; keep existing grid structure but confirm DentalAvatarImage sizing classes produce visible content for all 16 avatars."
-        },
-        {
-          "path": "frontend/src/components/avatars/ProfileAvatar.tsx",
-          "operation": "modify",
-          "description": "Ensure ProfileAvatar uses a safe dental avatar path when a dental avatar id is present but not yet available in cache (render deterministic fallback via DentalAvatarImage rather than producing empty output), so header/user menu and manager user picker remain reliable."
-        },
-        {
-          "path": "frontend/src/hooks/useDentalAvatars.ts",
-          "operation": "modify",
-          "description": "Stabilize dental avatar query behavior to reduce missing-avatar flashes (e.g., ensure consistent caching and avoid throwing on empty results in a way that could cascade into blank UI); keep the existing warning for unexpected counts and avoid producing console errors during normal rendering."
-        }
-      ]
-    },
-    {
-      "id": "REQ-55",
-      "summary": "Add a multi-line task description field under the task title in Create Task, submit it when creating tasks, and display it under titles on task cards with i18n coverage.",
-      "acceptanceCriteria": [
-        "Create Task dialog includes a multi-line text input placed directly under the title input.",
-        "Submitting a new task stores the description and it is returned by the backend in `getTasks()`.",
-        "Task cards render the description directly under the task title (when a description is present).",
-        "Existing tasks created before this change continue to load without errors (description treated as empty/missing).",
-        "All new user-facing text added for this feature uses i18n keys with English strings present."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/tasks/CreateTaskDialog.tsx",
-          "operation": "modify",
-          "description": "Add a multi-line description field directly under the title input (confine the layout change to the specific Create Task dialog content area corresponding to XPath /html[1]/body[1]/div[3]/div[2]/div[4]); use an existing shadcn-ui textarea component (verify the component's usage instructions before implementing) and wire the description value into the submit payload using i18n keys for label/placeholder."
+          "description": "Adjust Tasks page behavior so it displays the initially fetched `getTasks()` results as the source of truth and triggers the recurring reset check in a way that does not cause UI to locally flip completion state on refresh (e.g., run the reset check only after tasks have been fetched at least once, and do not block rendering on the reset check)."
         },
         {
           "path": "frontend/src/hooks/useTasks.ts",
           "operation": "modify",
-          "description": "Update useCreateTask to accept and send `description` along with `title` and `taskType` using the current frontend backend interface signature, and keep cache invalidation behavior unchanged."
-        },
-        {
-          "path": "frontend/src/components/tasks/TaskCard.tsx",
-          "operation": "modify",
-          "description": "Render the task description directly under the task title on the card when a non-empty description is present, without altering unrelated task completion UI."
-        },
-        {
-          "path": "frontend/src/i18n/translations.ts",
-          "operation": "modify",
-          "description": "Add i18n keys (English required) for the new task description UI text (e.g., tasks.description label/placeholder/help), ensuring new user-facing strings are referenced via t(...)."
+          "description": "Refine the recurring reset mutation and related cache behavior to ensure task completion state remains derived from the latest successful `getTasks()` fetch and is not overridden by any local assumptions; keep urgent tasks unaffected by any frontend sorting/logic (no frontend auto-reset)."
         }
       ]
     },
     {
-      "id": "REQ-56",
-      "summary": "Update overtime totals to display summed minutes as a composite of days/hours/minutes using 8 hours/day and 60 minutes/hour, supporting negative totals.",
+      "id": "REQ-59",
+      "summary": "Update the frontend recurring reset trigger so opening Tasks does not cause premature resets and the UI only changes when backend state changes or when the user manually resets/reactivates a task.",
       "acceptanceCriteria": [
-        "OvertimeTotals converts summed signed minutes into (days, hours, minutes) using 8 hours/day and 60 minutes/hour.",
-        "Example validation: total of 550 minutes displays as \"1 day, 1 hour, 10 minutes\".",
-        "The composite display works for totals >= 0 and totals < 0 (negative totals retain a leading minus sign and use absolute values for components).",
-        "Manager overtime page (which reuses OvertimeTotals) reflects the same composite display for the selected user."
+        "On TasksPage mount, tasks that were completed in the current week/month remain shown as completed after the reset check runs.",
+        "If the backend determines a reset is due, the UI updates accordingly after the reset mutation finishes and tasks refetch.",
+        "If the reset mutation fails, the UI still shows the previously fetched task completion states (no forced local flip to incomplete)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/overtime/OvertimeTotals.tsx",
+          "path": "frontend/src/pages/TasksPage.tsx",
           "operation": "modify",
-          "description": "Replace/augment the existing hours/workdays computation with composite (days, hours, minutes) formatting derived from total signed minutes (8h/day, 60m/h), including correct negative handling (leading minus sign with absolute component breakdown), and display in the required \"X day(s), Y hour(s), Z minute(s)\" format."
+          "description": "Change the mount-time reset behavior to avoid any perceived \"reset on open\" effect: trigger the reset check only once per page visit after the initial tasks query has settled, and ensure errors are handled without altering already-rendered task completion state."
         },
         {
-          "path": "frontend/src/i18n/translations.ts",
+          "path": "frontend/src/hooks/useTasks.ts",
           "operation": "modify",
-          "description": "Add i18n keys (English required) for any new overtime composite labels/unit text introduced by the composite totals display (e.g., overtime.totalComposite and/or unit labels), ensuring all new user-facing strings use t(...)."
-        },
-        {
-          "path": "frontend/src/pages/manager/ManagerOvertimePage.tsx",
-          "operation": "modify",
-          "description": "Confirm ManagerOvertimePage continues to reuse OvertimeTotals without additional changes and that the updated composite totals display is visible for the selected user."
+          "description": "Ensure `useResetRecurringTasks` does not perform any optimistic updates to tasks; on success it should refetch tasks to reflect backend decisions, and on failure it should leave the existing tasks cache untouched so the UI continues to show the last fetched completion state."
         }
       ]
     }
