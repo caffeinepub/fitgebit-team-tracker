@@ -14,6 +14,7 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 
+
 actor {
   // User Profile (using custom role for display, but authorization uses AccessControl roles)
   public type ProfileRole = {
@@ -70,6 +71,7 @@ actor {
     isCompleted : Bool;
     currentCompletion : ?TaskCompletion;
     lastResetAt : Time.Time;
+    nextResetTimestamp : ?Time.Time;
   };
 
   // DecisionEntry (legacy/unused but kept for compatibility)
@@ -329,6 +331,7 @@ actor {
       isCompleted = false;
       currentCompletion = null;
       lastResetAt = Time.now();
+      nextResetTimestamp = null;
     };
     tasks.add(id, task);
   };
@@ -434,14 +437,39 @@ actor {
   public shared ({ caller }) func resetRecurringTasksIfNeeded() : async () {
     validateUserViaCaller(caller);
 
-    updateAndTrackResetTasks(func(task) { task.taskType == #weekly });
+    // Use explicit weekday comparison to ensure correct weekday boundary detection.
+    type DayWeek = { mon : Bool; tue : Bool; wed : Bool; thu : Bool; fri : Bool; sat : Bool; sun : Bool };
 
-    if (Time.now() % (7 * 24 * 3600) < 24 * 3600) {
-      updateAndTrackResetTasks(func(task) { task.taskType == #weekly });
+    let dayWeek : DayWeek = {
+      mon = false;
+      tue = false;
+      wed = false;
+      thu = false;
+      fri = false;
+      sat = false;
+      sun = false;
     };
 
-    if (Time.now() % (30 * 24 * 3600) < 24 * 3600) {
-      updateAndTrackResetTasks(func(task) { task.taskType == #monthly });
+    let currentWeekday = switch ((Time.now() / (24 * 3600)) % 7) {
+      case (0) { #thursday };
+      case (1) { #friday };
+      case (2) { #saturday };
+      case (3) { #sunday };
+      case (4) { #monday };
+      case (5) { #tuesday };
+      case (6) { #wednesday };
+      case (_) { #sunday };
+    };
+
+    // Reset only if current weekday boundary is at Monday.
+    if (currentWeekday == #monday) {
+      updateAndTrackResetTasks(func(task) { task.taskType == #weekly });
+
+      // Additional reset for monthly tasks on every 3rd Monday.
+      let dayOfMonth = (Time.now() / (24 * 3600)) % 30;
+      if (dayOfMonth >= 14 and dayOfMonth <= 20) {
+        updateAndTrackResetTasks(func(task) { task.taskType == #monthly });
+      };
     };
   };
 

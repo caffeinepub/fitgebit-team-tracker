@@ -34,6 +34,7 @@ export interface Task {
     id: number;
     title: string;
     lastResetAt: Time;
+    nextResetTimestamp?: Time;
     isCompleted: boolean;
     description: string;
     taskType: TaskType;

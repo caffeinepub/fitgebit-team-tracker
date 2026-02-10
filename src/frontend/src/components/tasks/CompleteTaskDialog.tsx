@@ -62,6 +62,7 @@ export default function CompleteTaskDialog({ open, onClose, task }: Props) {
       <DialogContent className="bg-white dark:bg-gray-800">
         <DialogHeader>
           <DialogTitle>{t('tasks.markDone')}</DialogTitle>
+          <p className="text-sm text-muted-foreground mt-1">{task.title}</p>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">

@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-keep-the-current-tasks-mode-task-types-weekly-monthly-urgent-only-and-ensure-completed-weekly-and-monthly-tasks-remain-completed-across-app-refreshes-until-their-next-scheduled-reset-window-or-until-the-user-manually-reactivates-resets-them",
-      "featureTitle": "Keep the current Tasks mode (task types: weekly/monthly/urgent only) and ensure completed weekly and monthly tasks remain completed across app refreshes until their next scheduled reset window or until the user manually reactivates/resets them.",
+      "featureId": "feature-update-the-task-completion-dialog-mark-done-popup-to-display-the-current-task-s-title-as-a-smaller-subtitle-style-line-near-the-top-of-the-dialog-so-users-can-clearly-confirm-which-task-they-are-marking-done",
+      "featureTitle": "Update the task completion dialog (mark-done popup) to display the current task’s title as a smaller subtitle-style line near the top of the dialog, so users can clearly confirm which task they are marking done.",
       "files": [
-        "frontend/src/hooks/useTasks.ts",
-        "frontend/src/pages/TasksPage.tsx"
+        "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+        "frontend/src/components/tasks/TaskCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,15 +18,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-57"
+        "REQ-63"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-frontend-task-reset-trigger-so-that-opening-the-tasks-page-does-not-cause-premature-resets-the-ui-must-reflect-the-backend-s-persisted-completion-state-and-only-change-when-the-backend-determines-a-reset-is-due-or-when-a-user-manually-resets-reactivates-a-task",
-      "featureTitle": "Update the frontend task reset trigger so that opening the Tasks page does not cause premature resets; the UI must reflect the backend’s persisted completion state and only change when the backend determines a reset is due or when a user manually resets/reactivates a task.",
+      "featureId": "feature-add-a-clearly-visible-per-task-manual-reset-button-that-is-accessible-to-assistants-in-the-task-list-ui-the-button-must-be-present-not-missing-and-must-reset-the-task-back-to-not-done-by-calling-the-existing-resettask-mutation-so-the-task-becomes-incomplete-again-after-the-action-completes",
+      "featureTitle": "Add a clearly visible per-task manual reset button that is accessible to Assistants in the task list UI. The button must be present (not missing) and must reset the task back to “not done” by calling the existing resetTask mutation so the task becomes incomplete again after the action completes.",
       "files": [
-        "frontend/src/hooks/useTasks.ts",
+        "frontend/src/components/tasks/TaskCard.tsx",
+        "frontend/src/components/tasks/TaskList.tsx",
+        "frontend/src/i18n/translations.ts",
         "frontend/src/pages/TasksPage.tsx"
       ],
       "components": [
@@ -39,7 +41,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-59"
+        "REQ-64"
       ],
       "confidence": "high"
     }

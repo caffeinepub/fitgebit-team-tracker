@@ -1,46 +1,43 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T13:15:37.222Z",
+  "generatedAt": "2026-02-10T17:09:46.208Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
+    "total": 2,
     "implemented": 2,
     "items": [
       {
-        "id": "REQ-57",
-        "summary": "Keep the current Tasks mode (task types: weekly/monthly/urgent only) and ensure completed weekly and monthly tasks remain completed across app refreshes until their next scheduled reset window or until the user manually reactivates/resets them.",
+        "id": "REQ-63",
+        "summary": "Update the task completion dialog (mark-done popup) to display the current task’s title as a smaller subtitle-style line near the top of the dialog, so users can clearly confirm which task they are marking done.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/TasksPage.tsx",
-          "frontend/src/hooks/useTasks.ts"
+          "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+          "frontend/src/components/tasks/TaskCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/TasksPage.tsx",
-          "frontend/src/hooks/useTasks.ts"
+          "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+          "frontend/src/components/tasks/TaskCard.tsx"
         ]
       },
       {
-        "id": "REQ-58",
-        "summary": "Update the backend recurring reset logic (`resetRecurringTasksIfNeeded`) so it only resets tasks that are actually due for reset (weekly: Monday boundary; monthly: first Monday of the month boundary), and does not prematurely reset tasks simply because the app opened/refreshed.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-59",
-        "summary": "Update the frontend task reset trigger so that opening the Tasks page does not cause premature resets; the UI must reflect the backend’s persisted completion state and only change when the backend determines a reset is due or when a user manually resets/reactivates a task.",
+        "id": "REQ-64",
+        "summary": "Add a clearly visible per-task manual reset button that is accessible to Assistants in the task list UI. The button must be present (not missing) and must reset the task back to “not done” by calling the existing resetTask mutation so the task becomes incomplete again after the action completes.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/i18n/translations.ts",
           "frontend/src/pages/TasksPage.tsx",
-          "frontend/src/hooks/useTasks.ts"
+          "frontend/src/components/tasks/TaskList.tsx",
+          "frontend/src/components/tasks/TaskCard.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/i18n/translations.ts",
           "frontend/src/pages/TasksPage.tsx",
-          "frontend/src/hooks/useTasks.ts"
+          "frontend/src/components/tasks/TaskList.tsx",
+          "frontend/src/components/tasks/TaskCard.tsx"
         ]
       }
     ]
@@ -50,7 +47,10 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/hooks/useTasks.ts",
+    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+    "frontend/src/components/tasks/TaskCard.tsx",
+    "frontend/src/components/tasks/TaskList.tsx",
+    "frontend/src/i18n/translations.ts",
     "frontend/src/pages/TasksPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",

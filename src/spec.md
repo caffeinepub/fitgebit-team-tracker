@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Ensure weekly and monthly task completion persists across refresh/reopen until the next scheduled reset boundary (weekly: Monday; monthly: first Monday) or a manual reset, with the backend as the source of truth.
+**Goal:** Make task completion actions clearer by showing the task title in the “mark done” dialog and provide Assistants with a visible per-task reset control to set completed tasks back to not done.
 
 **Planned changes:**
-- Update backend recurring reset logic to only reset weekly/monthly tasks when the relevant reset boundary has passed, and never reset urgent tasks.
-- Ensure `getTasks()` continues to return persisted completion state (`isCompleted=true`) for weekly/monthly tasks until a legitimate scheduled reset or manual reset occurs.
-- Update the frontend so opening the Tasks page does not cause premature resets; the UI reflects backend state and only changes after a backend-determined reset or a user manual reset.
-- Adjust frontend behavior on reset failure to keep displaying previously fetched completion states (no forced local flip).
+- Update the task completion (mark-done) dialog to include the current task’s title as a smaller subtitle-style line near the top (not the main dialog title), matching the task card title and preserving full opacity in light/dark mode.
+- Add a clearly visible per-task reset button/control on task cards for Assistants in the task list, available wherever the task list is shown.
+- Wire the reset control to the existing `resetTask` mutation/hooks so that, after success, the task updates to “not completed” in the list while keeping existing React Query caching behavior intact.
+- Add any new user-facing reset label(s) via the existing i18n system with English text (e.g., `tasks.resetTask`).
 
-**User-visible outcome:** Completed weekly/monthly tasks remain marked as done after refresh/reopen until the next weekly/monthly reset boundary (or manual reset), and urgent tasks stay completed until manually reset.
+**User-visible outcome:** When marking a task done, users see the task title in the confirmation dialog, and Assistants can reset any completed task directly from its task card to make it incomplete again.

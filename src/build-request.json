@@ -1,78 +1,71 @@
 {
   "kind": "build_request",
-  "title": "Ensure weekly/monthly task completion persists until scheduled or manual reset",
+  "title": "Show task title in completion popup and add visible per-task reset button for assistants",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-57",
-      "text": "Keep the current Tasks mode (task types: weekly/monthly/urgent only) and ensure completed weekly and monthly tasks remain completed across app refreshes until their next scheduled reset window or until the user manually reactivates/resets them.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "Keep current mode, make sure the completed tasks stay completed untill the weekly or monthly or manual reset."
-        ]
-      },
-      "acceptanceCriteria": [
-        "After a user marks a weekly task complete, refreshing/reopening the app does not change it back to incomplete unless it is now past the next weekly reset boundary.",
-        "After a user marks a monthly task complete, refreshing/reopening the app does not change it back to incomplete unless it is now past the next monthly reset boundary.",
-        "Urgent tasks are never auto-reset by the recurring reset logic; they remain completed until manually reset.",
-        "The backend remains the source of truth: `getTasks()` returns `isCompleted=true` for completed tasks until a legitimate reset occurs (scheduled reset boundary or manual reset)."
-      ]
-    },
-    {
-      "id": "REQ-58",
-      "text": "Update the backend recurring reset logic (`resetRecurringTasksIfNeeded`) so it only resets tasks that are actually due for reset (weekly: Monday boundary; monthly: first Monday of the month boundary), and does not prematurely reset tasks simply because the app opened/refreshed.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "make sure the completed tasks stay completed untill the weekly or monthly or manual reset."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Calling `resetRecurringTasksIfNeeded` multiple times within the same weekly/monthly period does not reset already-completed weekly/monthly tasks.",
-        "At the first app open after the weekly reset boundary (Monday, using clinic local time as previously specified in this conversation), completed weekly tasks are reset to incomplete and `lastResetAt` is updated.",
-        "At the first app open after the monthly reset boundary (first Monday of the month, using clinic local time as previously specified in this conversation), completed monthly tasks are reset to incomplete and `lastResetAt` is updated.",
-        "The function does not reset urgent tasks.",
-        "No new user-facing error messages are introduced by this change; any traps remain developer-focused and existing patterns are preserved."
-      ]
-    },
-    {
-      "id": "REQ-59",
-      "text": "Update the frontend task reset trigger so that opening the Tasks page does not cause premature resets; the UI must reflect the backend’s persisted completion state and only change when the backend determines a reset is due or when a user manually resets/reactivates a task.",
+      "id": "REQ-63",
+      "text": "Update the task completion dialog (mark-done popup) to display the current task’s title as a smaller subtitle-style line near the top of the dialog, so users can clearly confirm which task they are marking done.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-1"
         ],
         "quotes": [
-          "when someone refreshes the app it should still be marked done till next day or week or month."
+          "When clicking 'mark done' I want the popup to also show the title of the task at hand, so no mistakes are made",
+          "smaller subtitle-style placement"
         ]
       },
       "acceptanceCriteria": [
-        "On TasksPage mount, tasks that were completed in the current week/month remain shown as completed after the reset check runs.",
-        "If the backend determines a reset is due, the UI updates accordingly after the reset mutation finishes and tasks refetch.",
-        "If the reset mutation fails, the UI still shows the previously fetched task completion states (no forced local flip to incomplete)."
+        "When the completion dialog is opened from any task card, the dialog shows the selected task’s title in the dialog content/header area as a smaller subtitle-style element (not as the main dialog title).",
+        "The displayed title matches the task title shown on the task card (no truncation beyond existing UI constraints, no mismatched task).",
+        "The completion dialog remains fully opaque in both light and dark mode (no see-through background regression)."
+      ]
+    },
+    {
+      "id": "REQ-64",
+      "text": "Add a clearly visible per-task manual reset button that is accessible to Assistants in the task list UI. The button must be present (not missing) and must reset the task back to “not done” by calling the existing resetTask mutation so the task becomes incomplete again after the action completes.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "I don't see this button that's why I asked for it again",
+          "it should be visible to all assistants",
+          "Add a manual reset button for each task. This should allow me to manually reset any task back to \"not done\" status, regardless of whether it's a daily, weekly, monthly, or urgent task."
+        ]
+      },
+      "acceptanceCriteria": [
+        "For a completed task, Assistants can see a reset control on the task card without needing to open any other screen.",
+        "Clicking the reset control triggers the existing frontend resetTask flow (via the current hooks) and, after success, the task displays as not completed in the list.",
+        "The reset control is not hidden for Assistants (based on role) anywhere the task list is displayed.",
+        "Any new user-facing label(s) introduced for this reset action use the i18n system and have English text present (e.g., a key like tasks.resetTask)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not edit any files under frontend/src/components/ui, or other paths listed in SYSTEM_CONTEXT.frontend.immutablePaths.",
-    "Use English for any new/changed user-facing text introduced by this change (and follow the existing i18n pattern if UI text changes are required)."
+    "Do not modify files under frontend/src/components/ui (Shadcn components are read-only).",
+    "Keep the existing React Query task caching behavior (placeholderData / invalidateQueries) intact except where required to surface the reset action reliably.",
+    "Use English for any new/changed user-facing text introduced by this change (and route it through the existing i18n key system)."
   ],
   "nonGoals": [
-    "Do not reintroduce daily tasks or daily reset behavior.",
-    "Do not change the task domain model beyond what is needed to correctly persist and reset completion state for weekly/monthly tasks.",
-    "Do not add new UI features like completion history/audit log, task reactivation buttons, or popup title changes unless explicitly requested again."
+    "Do not redesign the overall tasks page layout beyond adding the requested subtitle and reset control.",
+    "Do not change backend task reset semantics or data model as part of this request.",
+    "Do not add new task types or alter task sorting/reset boundary logic as part of this request."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

@@ -6,9 +6,10 @@ import TaskCard from './TaskCard';
 
 interface Props {
   tasks: Task[];
+  canResetTasks?: boolean;
 }
 
-export default function TaskList({ tasks }: Props) {
+export default function TaskList({ tasks, canResetTasks = false }: Props) {
   const { t } = useI18n();
 
   const sortedTasks = useMemo(() => {
@@ -48,7 +49,7 @@ export default function TaskList({ tasks }: Props) {
   return (
     <div className="space-y-4">
       {sortedTasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
+        <TaskCard key={task.id} task={task} canResetTasks={canResetTasks} />
       ))}
     </div>
   );

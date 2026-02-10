@@ -1,21 +1,26 @@
 import { useState } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { useGetUserProfile } from '../../hooks/useUserProfile';
+import { useResetTask } from '../../hooks/useTasks';
+import { useNotify } from '../../hooks/useNotify';
 import type { Task } from '../../backend';
 import { TaskType } from '../../backend';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Camera } from 'lucide-react';
+import { CheckCircle2, Camera, RotateCcw } from 'lucide-react';
 import CompleteTaskDialog from './CompleteTaskDialog';
 
 interface Props {
   task: Task;
+  canResetTasks?: boolean;
 }
 
-export default function TaskCard({ task }: Props) {
+export default function TaskCard({ task, canResetTasks = false }: Props) {
   const { t } = useI18n();
+  const { success, handleError } = useNotify();
   const [showComplete, setShowComplete] = useState(false);
+  const { mutateAsync: resetTask, isPending: isResetting } = useResetTask();
 
   const completedByProfile = useGetUserProfile(task.currentCompletion?.completedBy || null);
 
@@ -34,6 +39,15 @@ export default function TaskCard({ task }: Props) {
   const cardBorderClass = task.isCompleted 
     ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/10'
     : typeColors[task.taskType];
+
+  const handleReset = async () => {
+    try {
+      await resetTask(task.id);
+      success(t('common.success'));
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   return (
     <>
@@ -61,11 +75,25 @@ export default function TaskCard({ task }: Props) {
                 )}
               </div>
             </div>
-            {!task.isCompleted && (
-              <Button onClick={() => setShowComplete(true)} size="sm">
-                {t('tasks.markDone')}
-              </Button>
-            )}
+            <div className="flex flex-col gap-2">
+              {!task.isCompleted && (
+                <Button onClick={() => setShowComplete(true)} size="sm">
+                  {t('tasks.markDone')}
+                </Button>
+              )}
+              {task.isCompleted && canResetTasks && (
+                <Button 
+                  onClick={handleReset} 
+                  size="sm" 
+                  variant="outline"
+                  disabled={isResetting}
+                  className="gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  {isResetting ? t('common.loading') : t('tasks.resetTask')}
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
         {task.isCompleted && task.currentCompletion && (

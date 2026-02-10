@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 21,
+  "projectStateVersion": 25,
   "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set name/username and 2–3 initials. Profile must support either an uploaded profile picture or an auto-generated cute dental-themed avatar (pastel palette, unique per user, initials visible). Avatars/photos must load reliably across the app; profile UI must be persistent and not disappear after updates. Logo is a cute tooth icon (no text).",
   "architectural_notes": [
     "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
@@ -427,6 +427,30 @@
         "REQ-59"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-tasks-page-reset-trigger-flow-to-preserve-the-backend-s-completion-state-on-load-keep-the-background-reset-check-but-ensure-that-a-page-refresh-cannot-cause-completed-tasks-to-visually-revert-unless-the-backend-determines-a-reset-is-due-any-user-facing-error-messaging-introduced-changed-by-this-fix-must-be-in-english",
+      "title": "Update the frontend Tasks page reset trigger flow to preserve the backend’s completion state on load: keep the background reset check, but ensure that a page refresh cannot cause completed tasks to visually revert unless the backend determines a reset is due. Any user-facing error messaging introduced/changed by this fix must be in English.",
+      "reqIds": [
+        "REQ-62"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-task-completion-dialog-mark-done-popup-to-display-the-current-task-s-title-as-a-smaller-subtitle-style-line-near-the-top-of-the-dialog-so-users-can-clearly-confirm-which-task-they-are-marking-done",
+      "title": "Update the task completion dialog (mark-done popup) to display the current task’s title as a smaller subtitle-style line near the top of the dialog, so users can clearly confirm which task they are marking done.",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-clearly-visible-per-task-manual-reset-button-that-is-accessible-to-assistants-in-the-task-list-ui-the-button-must-be-present-not-missing-and-must-reset-the-task-back-to-not-done-by-calling-the-existing-resettask-mutation-so-the-task-becomes-incomplete-again-after-the-action-completes",
+      "title": "Add a clearly visible per-task manual reset button that is accessible to Assistants in the task list UI. The button must be present (not missing) and must reset the task back to “not done” by calling the existing resetTask mutation so the task becomes incomplete again after the action completes.",
+      "reqIds": [
+        "REQ-64"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -644,6 +668,28 @@
       "reqIds": [
         "REQ-58"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-45",
+      "summary": "Fix the backend recurring reset logic so that calling `resetRecurringTasksIfNeeded()` does not reset completed tasks unless the appropriate reset boundary has actually been reached (weekly tasks: Monday boundary; monthly tasks: first Monday of the month boundary). Completed tasks must remain completed across page refreshes until their next scheduled reset window.",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-46",
+      "summary": "Ensure the backend’s task listing endpoint returns the persisted completion state without applying any implicit reset-on-read behavior (i.e., `getTasks()` must not change task state as a side effect).",
+      "reqIds": [
+        "REQ-61"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Tasks UI: add a clearly visible manual reset/reactivate button for each task so assistants can set any task back to \"not done\" regardless of task type; place it near where the Reactivate button should be.",
+      "reqIds": [],
       "status": "pending"
     }
   ],

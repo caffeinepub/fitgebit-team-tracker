@@ -1,48 +1,58 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Persist task completion state by deferring recurring reset triggers to backend-due windows",
+  "title": "Task completion dialog subtitle + per-task reset button for assistants",
   "requirements": [
     {
-      "id": "REQ-57",
-      "summary": "Ensure weekly/monthly task completion status shown in the UI stays consistent across refreshes by relying on backend-provided persisted state and avoiding any frontend-driven premature resets.",
+      "id": "REQ-63",
+      "summary": "Show the selected task title as a smaller subtitle line in the task completion (mark-done) dialog.",
       "acceptanceCriteria": [
-        "After a user marks a weekly task complete, refreshing/reopening the app does not change it back to incomplete unless it is now past the next weekly reset boundary.",
-        "After a user marks a monthly task complete, refreshing/reopening the app does not change it back to incomplete unless it is now past the next monthly reset boundary.",
-        "Urgent tasks are never auto-reset by the recurring reset logic; they remain completed until manually reset.",
-        "The backend remains the source of truth: `getTasks()` returns `isCompleted=true` for completed tasks until a legitimate reset occurs (scheduled reset boundary or manual reset)."
+        "When the completion dialog is opened from any task card, the dialog shows the selected task’s title in the dialog content/header area as a smaller subtitle-style element (not as the main dialog title).",
+        "The displayed title matches the task title shown on the task card (no truncation beyond existing UI constraints, no mismatched task).",
+        "The completion dialog remains fully opaque in both light and dark mode (no see-through background regression)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/TasksPage.tsx",
+          "path": "frontend/src/components/tasks/CompleteTaskDialog.tsx",
           "operation": "modify",
-          "description": "Adjust Tasks page behavior so it displays the initially fetched `getTasks()` results as the source of truth and triggers the recurring reset check in a way that does not cause UI to locally flip completion state on refresh (e.g., run the reset check only after tasks have been fetched at least once, and do not block rendering on the reset check)."
+          "description": "Render the current task.title in the dialog header/content as a smaller subtitle-style line beneath the existing dialog title while keeping the DialogContent background fully opaque in light/dark mode."
         },
         {
-          "path": "frontend/src/hooks/useTasks.ts",
+          "path": "frontend/src/components/tasks/TaskCard.tsx",
           "operation": "modify",
-          "description": "Refine the recurring reset mutation and related cache behavior to ensure task completion state remains derived from the latest successful `getTasks()` fetch and is not overridden by any local assumptions; keep urgent tasks unaffected by any frontend sorting/logic (no frontend auto-reset)."
+          "description": "Ensure the completion dialog continues to be opened with the correct task instance so the subtitle always reflects the same task title shown on the card."
         }
       ]
     },
     {
-      "id": "REQ-59",
-      "summary": "Update the frontend recurring reset trigger so opening Tasks does not cause premature resets and the UI only changes when backend state changes or when the user manually resets/reactivates a task.",
+      "id": "REQ-64",
+      "summary": "Add a visible per-task reset control for Assistants on completed task cards that calls the existing resetTask mutation and updates the list state after success.",
       "acceptanceCriteria": [
-        "On TasksPage mount, tasks that were completed in the current week/month remain shown as completed after the reset check runs.",
-        "If the backend determines a reset is due, the UI updates accordingly after the reset mutation finishes and tasks refetch.",
-        "If the reset mutation fails, the UI still shows the previously fetched task completion states (no forced local flip to incomplete)."
+        "For a completed task, Assistants can see a reset control on the task card without needing to open any other screen.",
+        "Clicking the reset control triggers the existing frontend resetTask flow (via the current hooks) and, after success, the task displays as not completed in the list.",
+        "The reset control is not hidden for Assistants (based on role) anywhere the task list is displayed.",
+        "Any new user-facing label(s) introduced for this reset action use the i18n system and have English text present (e.g., a key like tasks.resetTask)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/TasksPage.tsx",
+          "path": "frontend/src/i18n/translations.ts",
           "operation": "modify",
-          "description": "Change the mount-time reset behavior to avoid any perceived \"reset on open\" effect: trigger the reset check only once per page visit after the initial tasks query has settled, and ensure errors are handled without altering already-rendered task completion state."
+          "description": "Add a new i18n key for the reset action label (e.g., tasks.resetTask) with English text present, and wire it into existing translation dictionaries."
         },
         {
-          "path": "frontend/src/hooks/useTasks.ts",
+          "path": "frontend/src/pages/TasksPage.tsx",
           "operation": "modify",
-          "description": "Ensure `useResetRecurringTasks` does not perform any optimistic updates to tasks; on success it should refetch tasks to reflect backend decisions, and on failure it should leave the existing tasks cache untouched so the UI continues to show the last fetched completion state."
+          "description": "Fetch the caller user profile and derive an isAssistant flag (based on ProfileRole) to pass down to the task list so the reset control is available to all Assistants wherever the task list is rendered on this page."
+        },
+        {
+          "path": "frontend/src/components/tasks/TaskList.tsx",
+          "operation": "modify",
+          "description": "Extend TaskList props to accept an Assistant capability flag (e.g., canResetTasks) and pass it through to each TaskCard so completed tasks can expose the reset control consistently."
+        },
+        {
+          "path": "frontend/src/components/tasks/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Use the existing useResetTask hook to add a clearly visible reset button on completed task cards when the caller is an Assistant; label the control via i18n and keep existing React Query caching behavior (invalidateQueries/placeholderData) intact so the task re-renders as not completed after reset succeeds."
         }
       ]
     }

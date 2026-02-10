@@ -1,39 +1,46 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T13:15:37.218Z",
-  "summary": "Diff implements frontend-side changes to delay the recurring reset trigger until after the initial tasks fetch, plus optimistic completion updates and an automatic reset+retry on a specific completion error. However, no backend changes are shown for the required reset logic updates, and the new automatic reset+retry behavior was not requested and may conflict with the goal of avoiding premature resets.",
-  "missing_requirements": [
+  "generatedAt": "2026-02-10T17:09:46.204Z",
+  "summary": "REQ-63 appears implemented by adding the selected task title as a small subtitle in the completion dialog header and explicitly setting an opaque light/dark background. REQ-64 appears implemented by adding a per-task reset button on completed task cards (shown when canResetTasks is true), wired to the existing useResetTask hook, with an i18n label tasks.resetTask added in English. However, the diff also introduces unrequested behavior changes around task sorting and reset-boundary/reset-recurring logic (and possibly React Query cache behavior) that were explicitly called out as non-goals/constraints.",
+  "missing_requirements": [],
+  "hallucinated_features": [
     {
-      "id": "REQ-58",
-      "requirement": "Update the backend recurring reset logic (resetRecurringTasksIfNeeded) so it only resets tasks that are actually due for reset (weekly: Monday boundary; monthly: first Monday boundary), does not reset on mere refresh, updates lastResetAt appropriately, and never resets urgent tasks.",
-      "reason": "The diff contains no changes to the backend (backend/main.mo) or any Motoko logic; only frontend files were modified. Therefore there is no evidence the backend reset boundary logic or lastResetAt handling was implemented/adjusted.",
+      "description": "Changed task list sorting logic (completed tasks forced to bottom; type-priority sorting urgent>weekly>monthly with ID tie-breaker).",
+      "reason": "Not requested; also conflicts with the non-goal to not alter task sorting/reset boundary logic.",
       "evidence": [
-        "File diff summary shows only frontend files modified; no backend/main.mo changes present."
+        "frontend/src/components/tasks/TaskList.tsx"
       ]
     },
     {
-      "id": "REQ-57",
-      "requirement": "Ensure completed weekly/monthly tasks remain completed across refreshes until the next scheduled reset boundary or manual reset, with the backend as source of truth (getTasks returns isCompleted=true until legitimate reset), and urgent tasks are never auto-reset.",
-      "reason": "This requirement depends on backend persistence and correct reset behavior. The diff does not show any backend changes to ensure getTasks() continues to return persisted completion state across refreshes and that resets only occur at proper boundaries (and not for urgent tasks). Frontend changes alone cannot guarantee backend source-of-truth behavior.",
+      "description": "Introduced/modified recurring task reset boundary check logic on TasksPage (detecting nextResetTimestamp/lastResetAt and calling resetRecurringTasks conditionally).",
+      "reason": "Not requested and appears to alter/introduce reset-boundary logic, which is explicitly listed as a non-goal.",
       "evidence": [
-        "File diff summary shows only frontend files modified; no backend/main.mo changes present."
+        "frontend/src/pages/TasksPage.tsx"
       ]
-    }
-  ],
-  "hallucinated_features": [
+    },
     {
-      "description": "Automatic handling of an 'obsolete weekly task' completion error by calling resetRecurringTasksIfNeeded() and retrying completeTask().",
-      "reason": "BuildRequest did not ask for any new automatic retry behavior on completion errors, nor for triggering resets during completion. It specifically emphasizes avoiding premature resets on page open/refresh and keeping backend as source of truth; this introduces new reset triggering conditions beyond the requested TasksPage mount behavior.",
+      "description": "Altered React Query reset mutation caching behavior to use refetchQueries instead of invalidateQueries.",
+      "reason": "Not requested by REQ-63/REQ-64; may conflict with the constraint to keep existing React Query caching behavior (placeholderData/invalidateQueries) intact except as required.",
       "evidence": [
-        "frontend/src/hooks/useTasks.ts: added try/catch around actor.completeTask with conditional \"obsolete\"+\"weekly\" handling that calls actor.resetRecurringTasksIfNeeded() then retries completeTask"
+        "frontend-file-summaries.txt (mentions: \"improved reset mutation that uses refetchQueries instead of invalidateQueries\")"
+      ]
+    },
+    {
+      "description": "Reset capability broadened to all authenticated users (\"all users can reset\") rather than specifically targeting Assistants.",
+      "reason": "REQ-64 only requires Assistants have access; expanding to all roles is an unrequested permission/behavior change (even if it may not break acceptance criteria).",
+      "evidence": [
+        "frontend/src/pages/TasksPage.tsx (comment and canResetTasks = !!userProfile)"
       ]
     }
   ],
   "confidence": 0.74,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/hooks/useTasks.ts",
+    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+    "frontend/src/components/tasks/TaskCard.tsx",
+    "frontend/src/components/tasks/TaskList.tsx",
+    "frontend/src/i18n/translations.ts",
     "frontend/src/pages/TasksPage.tsx",
     "project_state.json"
   ]
