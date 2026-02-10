@@ -57,7 +57,9 @@ export const ProfileRole = IDL.Variant({
 });
 export const UserProfile = IDL.Record({
   'username' : IDL.Text,
+  'profilePhoto' : IDL.Opt(ExternalBlob),
   'role' : ProfileRole,
+  'initials' : IDL.Text,
   'avatar' : IDL.Nat32,
 });
 export const DecisionType = IDL.Variant({
@@ -137,6 +139,11 @@ export const idlService = IDL.Service({
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getDecisionEntries' : IDL.Func([], [IDL.Vec(DecisionEntry)], ['query']),
+  'getProfilePhoto' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(ExternalBlob)],
+      ['query'],
+    ),
   'getTasks' : IDL.Func([], [IDL.Vec(Task)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
@@ -145,11 +152,13 @@ export const idlService = IDL.Service({
     ),
   'initializeAvatars' : IDL.Func([], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'removeProfilePhoto' : IDL.Func([], [], []),
   'resetRecurringTasksIfNeeded' : IDL.Func([], [], []),
   'resetTask' : IDL.Func([IDL.Nat32], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'selectRoleAssistant' : IDL.Func([], [], []),
   'selectRoleManager' : IDL.Func([IDL.Text], [], []),
+  'uploadProfilePhoto' : IDL.Func([ExternalBlob], [], []),
 });
 
 export const idlInitArgs = [];
@@ -204,7 +213,9 @@ export const idlFactory = ({ IDL }) => {
   });
   const UserProfile = IDL.Record({
     'username' : IDL.Text,
+    'profilePhoto' : IDL.Opt(ExternalBlob),
     'role' : ProfileRole,
+    'initials' : IDL.Text,
     'avatar' : IDL.Nat32,
   });
   const DecisionType = IDL.Variant({
@@ -284,6 +295,11 @@ export const idlFactory = ({ IDL }) => {
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getDecisionEntries' : IDL.Func([], [IDL.Vec(DecisionEntry)], ['query']),
+    'getProfilePhoto' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(ExternalBlob)],
+        ['query'],
+      ),
     'getTasks' : IDL.Func([], [IDL.Vec(Task)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
@@ -292,11 +308,13 @@ export const idlFactory = ({ IDL }) => {
       ),
     'initializeAvatars' : IDL.Func([], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'removeProfilePhoto' : IDL.Func([], [], []),
     'resetRecurringTasksIfNeeded' : IDL.Func([], [], []),
     'resetTask' : IDL.Func([IDL.Nat32], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'selectRoleAssistant' : IDL.Func([], [], []),
     'selectRoleManager' : IDL.Func([IDL.Text], [], []),
+    'uploadProfilePhoto' : IDL.Func([ExternalBlob], [], []),
   });
 };
 

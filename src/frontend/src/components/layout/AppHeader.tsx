@@ -4,9 +4,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useI18n } from '../../hooks/useI18n';
 import { useGetCallerUserProfile } from '../../hooks/useUserProfile';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Settings, LogOut, Award } from 'lucide-react';
-import DentalAvatarImage from '../avatars/DentalAvatarImage';
+import ProfileAvatar from '../avatars/ProfileAvatar';
 import ProfileSettingsPanel from '../profile/ProfileSettingsPanel';
 import BadgeShelf from '../badges/BadgeShelf';
 import ThemeToggle from './ThemeToggle';
@@ -39,23 +45,24 @@ export default function AppHeader() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                {t('app.title')}
-              </h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('app.title')}</h1>
             </div>
 
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <LanguageSelector />
-              
+
               {profile && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center gap-2 h-auto py-2">
-                      <DentalAvatarImage
-                        avatarId={profile.avatar}
-                        alt={profile.username}
-                        className="w-8 h-8 rounded-full border-2 border-teal-400"
+                      <ProfileAvatar
+                        profilePhoto={profile.profilePhoto}
+                        dentalAvatarId={profile.avatar}
+                        initials={profile.initials}
+                        username={profile.username}
+                        size={32}
+                        className="border-2 border-teal-400"
                       />
                       <div className="text-left hidden sm:block">
                         <div className="text-sm font-medium">{profile.username}</div>

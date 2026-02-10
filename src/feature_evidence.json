@@ -2,11 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-make-the-task-create-and-task-completion-popup-windows-fully-opaque-no-see-through-transparency-in-both-light-and-dark-mode",
-      "featureTitle": "Make the Task Create and Task Completion popup windows fully opaque (no see-through/transparency) in both light and dark mode.",
+      "featureId": "feature-fix-the-authenticated-app-flow-so-the-profile-ui-cannot-disappear-ensure-the-app-deterministically-shows-exactly-one-of-loginscreen-rolechoicescreen-profileonboardingmodal-appshell-based-on-internet-identity-auth-state-role-state-and-profile-state-and-add-a-safe-fallback-ui-when-the-role-profile-queries-error-or-return-unexpected-values",
+      "featureTitle": "Fix the authenticated app flow so the profile UI cannot disappear: ensure the app deterministically shows exactly one of (LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, AppShell) based on Internet Identity auth state, role state, and profile state, and add a safe fallback UI when the role/profile queries error or return unexpected values.",
       "files": [
-        "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-        "frontend/src/components/tasks/CreateTaskDialog.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
+        "frontend/src/components/common/QueryErrorFallback.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,15 +19,18 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-28"
+        "REQ-34"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-remove-the-word-optional-everywhere-it-appears-in-tasks-and-overtime-sections-including-labels-placeholders-and-any-supporting-helper-text-while-keeping-the-underlying-fields-optional",
-      "featureTitle": "Remove the word “optional” everywhere it appears in Tasks and Overtime sections, including labels/placeholders and any supporting helper text, while keeping the underlying fields optional.",
+      "featureId": "feature-update-profile-onboarding-to-require-both-username-and-initials-2-3-characters-and-to-let-the-user-choose-one-of-a-upload-a-profile-photo-b-choose-a-dental-svg-avatar-or-c-use-an-auto-generated-pastel-dental-avatar-with-initials-prevent-saving-until-the-required-fields-are-valid",
+      "featureTitle": "Update profile onboarding to require both username and initials (2–3 characters) and to let the user choose one of: (A) upload a profile photo, (B) choose a dental SVG avatar, or (C) use an auto-generated pastel dental avatar with initials; prevent saving until the required fields are valid.",
       "files": [
-        "frontend/src/i18n/translations.ts"
+        "frontend/src/components/avatars/GeneratedDentalAvatar.tsx",
+        "frontend/src/components/profile/ProfileOnboardingModal.tsx",
+        "frontend/src/components/profile/ProfilePhotoField.tsx",
+        "frontend/src/hooks/useUserProfile.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -38,17 +42,38 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-29"
+        "REQ-37"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-branding-text-so-that-the-app-displays-only-fitgebit-next-to-under-the-logo-remove-extra-text-such-as-the-subtitle-in-the-header-and-login-screen",
-      "featureTitle": "Update branding text so that the app displays only “FitGebit” next to/under the logo (remove extra text such as the subtitle) in the header and login screen.",
+      "featureId": "feature-update-profile-settings-so-users-can-edit-username-initials-and-avatar-photo-allow-uploading-replacing-removing-a-profile-photo-and-ensure-the-settings-sheet-remains-fully-opaque-in-both-light-and-dark-mode",
+      "featureTitle": "Update Profile Settings so users can edit username, initials, and avatar/photo: allow uploading/replacing/removing a profile photo, and ensure the settings sheet remains fully opaque in both light and dark mode.",
       "files": [
-        "frontend/src/components/auth/LoginScreen.tsx",
+        "frontend/src/components/profile/ProfileSettingsPanel.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-38"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-single-reusable-avatar-renderer-component-for-the-app-that-displays-in-priority-order-uploaded-profile-photo-if-present-selected-dental-svg-avatar-auto-generated-pastel-dental-avatar-with-initials-then-replace-existing-usages-that-assume-profile-avatar-is-always-a-dental-svg-id-e-g-header-user-menu-manager-user-picker-task-manager-views-where-profiles-are-shown",
+      "featureTitle": "Implement a single reusable avatar renderer component for the app that displays, in priority order: uploaded profile photo (if present) → selected dental SVG avatar → auto-generated pastel dental avatar with initials; then replace existing usages that assume `profile.avatar` is always a dental SVG ID (e.g., header user menu, manager user picker, task/manager views where profiles are shown).",
+      "files": [
+        "frontend/src/components/avatars/DentalAvatarImage.tsx",
+        "frontend/src/components/avatars/ProfileAvatar.tsx",
         "frontend/src/components/layout/AppHeader.tsx",
-        "frontend/src/i18n/translations.ts"
+        "frontend/src/components/manager/UserPicker.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -60,16 +85,35 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-30"
+        "REQ-39"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-avatar-picker-so-the-existing-16-dental-avatars-reliably-render-and-are-visible-in-the-avatar-grid-no-placeholders-blank-cells-and-remove-any-remaining-hard-coded-non-i18n-empty-state-text-in-the-avatar-picker",
-      "featureTitle": "Fix the avatar picker so the existing 16 dental avatars reliably render and are visible in the avatar grid (no placeholders/blank cells) and remove any remaining hard-coded non-i18n empty-state text in the avatar picker.",
+      "featureId": "feature-make-dental-avatar-availability-reliable-by-ensuring-the-backend-avatar-list-is-initialized-and-non-empty-for-all-deployments-guarantee-that-getalldentalavatars-returns-the-full-expected-set-16-without-requiring-a-manual-one-time-call-from-the-frontend",
+      "featureTitle": "Make dental avatar availability reliable by ensuring the backend avatar list is initialized and non-empty for all deployments: guarantee that `getAllDentalAvatars()` returns the full expected set (16) without requiring a manual one-time call from the frontend.",
       "files": [
         "frontend/src/components/avatars/AvatarPicker.tsx",
-        "frontend/src/components/avatars/DentalAvatarImage.tsx",
+        "frontend/src/hooks/useDentalAvatars.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-40"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-adjust-i18n-translation-keys-for-all-new-changed-profile-and-photo-upload-ui-text-english-dutch-french-and-remove-outdated-role-confirmation-strings-that-are-no-longer-used-in-the-ui-flow",
+      "featureTitle": "Add/adjust i18n translation keys for all new/changed profile and photo-upload UI text (English, Dutch, French), and remove outdated role-confirmation strings that are no longer used in the UI flow.",
+      "files": [
         "frontend/src/i18n/translations.ts"
       ],
       "components": [
@@ -82,7 +126,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-31"
+        "REQ-41"
       ],
       "confidence": "high"
     }

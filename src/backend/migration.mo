@@ -1,15 +1,58 @@
-import List "mo:core/List";
 import Map "mo:core/Map";
 import Nat32 "mo:core/Nat32";
 import Time "mo:core/Time";
-import Iter "mo:core/Iter";
-import Principal "mo:core/Principal";
-import AccessControl "authorization/access-control";
+import List "mo:core/List";
 import Storage "blob-storage/Storage";
+import AccessControl "authorization/access-control";
 
 module {
-  // New simplified types
-  public type DecisionEntry = {
+  type ProfileRole = {
+    #manager;
+    #assistant;
+  };
+
+  type DentalAvatar = {
+    id : Nat32;
+    name : Text;
+    svg : Text;
+  };
+
+  type TaskType = {
+    #weekly;
+    #monthly;
+    #urgent;
+  };
+
+  type RepeatInterval = {
+    #daily;
+    #weekly;
+    #monthly;
+  };
+
+  type DecisionType = {
+    #valid;
+    #invalid;
+    #critical;
+  };
+
+  type TaskCompletion = {
+    completedBy : Principal;
+    comment : ?Text;
+    beforePhoto : ?Storage.ExternalBlob;
+    afterPhoto : ?Storage.ExternalBlob;
+    completedAt : Time.Time;
+  };
+
+  type Task = {
+    id : Nat32;
+    title : Text;
+    taskType : TaskType;
+    isCompleted : Bool;
+    currentCompletion : ?TaskCompletion;
+    lastResetAt : Time.Time;
+  };
+
+  type DecisionEntry = {
     id : Nat32;
     createdBy : Principal;
     createdAt : Time.Time;
@@ -26,121 +69,53 @@ module {
     completionTimestamp : ?Time.Time;
   };
 
-  public type RepeatInterval = {
-    #daily;
-    #weekly;
-    #monthly;
-  };
-
-  public type DecisionType = {
-    #valid;
-    #invalid;
-    #critical;
-  };
-
-  public type UserProfile = {
+  type OldUserProfile = {
     username : Text;
     avatar : Nat32;
-    role : {
-      #manager;
-      #assistant;
-    };
+    role : ProfileRole;
   };
 
-  public type TaskType = {
-    #weekly;
-    #monthly;
-    #urgent;
-  };
-
-  public type TaskCompletion = {
-    completedBy : Principal;
-    comment : ?Text;
-    beforePhoto : ?Storage.ExternalBlob;
-    afterPhoto : ?Storage.ExternalBlob;
-    completedAt : Time.Time;
-  };
-
-  public type Task = {
-    id : Nat32;
-    title : Text;
-    taskType : TaskType;
-    isCompleted : Bool;
-    currentCompletion : ?TaskCompletion;
-    lastResetAt : Time.Time;
-  };
-
-  // Old types for migration
-  type OldTask = {
-    id : Nat32;
-    title : Text;
-    frequency : {
-      #daily;
-      #weekly;
-      #monthly;
-    };
-    dueDate : Time.Time;
-    priority : {
-      #low;
-      #normal;
-      #high;
-    };
-    assignee : Principal;
-    isCompleted : Bool;
-    completionComment : ?Text;
-    completionPhoto : ?Storage.ExternalBlob;
+  type NewUserProfile = {
+    username : Text;
+    initials : Text;
+    avatar : Nat32;
+    profilePhoto : ?Storage.ExternalBlob;
+    role : ProfileRole;
   };
 
   type OldActor = {
-    tasks : Map.Map<Nat32, OldTask>;
+    tasks : Map.Map<Nat32, Task>;
     decisionEntries : List.List<DecisionEntry>;
-    userProfiles : Map.Map<Principal, UserProfile>;
+    userProfiles : Map.Map<Principal, OldUserProfile>;
     nextTaskId : Nat32;
-    nextOvertimeId : Nat32; // obsolete field
-    overtimeEntries : List.List<{ // obsolete type
-      id : Nat32;
-      userId : Principal;
-      minutes : Nat32;
-      isAddition : Bool;
-      timestamp : Time.Time;
-      comment : ?Text;
-      photo : ?Storage.ExternalBlob;
-    }>;
+    dentalAvatars : Map.Map<Nat32, DentalAvatar>;
     accessControlState : AccessControl.AccessControlState;
   };
 
   type NewActor = {
     tasks : Map.Map<Nat32, Task>;
     decisionEntries : List.List<DecisionEntry>;
-    userProfiles : Map.Map<Principal, UserProfile>;
+    userProfiles : Map.Map<Principal, NewUserProfile>;
     nextTaskId : Nat32;
+    dentalAvatars : Map.Map<Nat32, DentalAvatar>;
     accessControlState : AccessControl.AccessControlState;
   };
 
   public func run(old : OldActor) : NewActor {
-    let migratedTasks = old.tasks.map<Nat32, OldTask, Task>(
-      func(_id, oldTask) {
+    // Migrate user profiles, integrating new fields with defaults
+    let newUserProfiles = old.userProfiles.map<Principal, OldUserProfile, NewUserProfile>(
+      func(_principal, oldProfile) {
         {
-          id = oldTask.id;
-          title = oldTask.title;
-          taskType = switch (oldTask.frequency) {
-            case (#daily) { #weekly };
-            case (#weekly) { #weekly };
-            case (#monthly) { #monthly };
-          };
-          isCompleted = oldTask.isCompleted;
-          currentCompletion = ?{
-            completedBy = oldTask.assignee;
-            comment = oldTask.completionComment;
-            beforePhoto = oldTask.completionPhoto;
-            afterPhoto = null;
-            completedAt = Time.now();
-          };
-          lastResetAt = Time.now();
+          oldProfile with
+          initials = "";
+          profilePhoto = null;
         };
       }
     );
-    // Explicitly drop overtimeEntries and nextOvertimeId as they are no longer used
-    { old with tasks = migratedTasks };
+
+    {
+      old with
+      userProfiles = newUserProfiles;
+    };
   };
 };

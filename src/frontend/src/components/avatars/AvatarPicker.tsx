@@ -1,5 +1,6 @@
-import { useGetDentalAvatars } from '../../hooks/useDentalAvatars';
+import { useGetDentalAvatars, useInitializeAvatars } from '../../hooks/useDentalAvatars';
 import { useI18n } from '../../hooks/useI18n';
+import { Button } from '@/components/ui/button';
 import DentalAvatarImage from './DentalAvatarImage';
 
 interface Props {
@@ -8,10 +9,11 @@ interface Props {
 }
 
 export default function AvatarPicker({ selectedAvatar, onSelectAvatar }: Props) {
-  const { data: avatars, isLoading } = useGetDentalAvatars();
+  const { data: avatars, isLoading, isError, error, refetch } = useGetDentalAvatars();
+  const { mutate: initializeAvatars, isPending: isInitializing } = useInitializeAvatars();
   const { t } = useI18n();
 
-  if (isLoading) {
+  if (isLoading || isInitializing) {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal-500 border-t-transparent"></div>
@@ -19,10 +21,25 @@ export default function AvatarPicker({ selectedAvatar, onSelectAvatar }: Props) 
     );
   }
 
+  if (isError) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-destructive mb-4">{t('avatars.loadError')}</p>
+        <p className="text-sm text-muted-foreground mb-4">{error?.message}</p>
+        <Button onClick={() => refetch()} variant="outline">
+          {t('common.retry')}
+        </Button>
+      </div>
+    );
+  }
+
   if (!avatars || avatars.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        {t('avatars.noAvatarsAvailable')}
+      <div className="text-center py-8">
+        <p className="text-muted-foreground mb-4">{t('avatars.noAvatarsAvailable')}</p>
+        <Button onClick={() => initializeAvatars()} variant="outline">
+          {t('avatars.initialize')}
+        </Button>
       </div>
     );
   }
@@ -35,19 +52,16 @@ export default function AvatarPicker({ selectedAvatar, onSelectAvatar }: Props) 
           onClick={() => onSelectAvatar(avatar.id)}
           className={`
             relative aspect-square rounded-xl overflow-hidden border-2 transition-all
-            hover:scale-105 hover:shadow-lg
-            ${selectedAvatar === avatar.id 
-              ? 'border-teal-500 ring-2 ring-teal-300 dark:ring-teal-700' 
-              : 'border-gray-200 dark:border-gray-700'
+            hover:scale-105 hover:shadow-lg bg-white dark:bg-gray-800
+            ${
+              selectedAvatar === avatar.id
+                ? 'border-teal-500 ring-2 ring-teal-300 dark:ring-teal-700'
+                : 'border-gray-200 dark:border-gray-700'
             }
           `}
           title={avatar.name}
         >
-          <DentalAvatarImage
-            avatarId={avatar.id}
-            alt={avatar.name}
-            className="w-full h-full object-cover"
-          />
+          <DentalAvatarImage avatarId={avatar.id} alt={avatar.name} className="w-full h-full object-cover" />
         </button>
       ))}
     </div>

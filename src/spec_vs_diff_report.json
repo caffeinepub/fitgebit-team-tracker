@@ -1,41 +1,116 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T00:42:22.690Z",
-  "summary": "All four requested UI polish items appear to be implemented: task dialogs are set to opaque backgrounds in light/dark mode, “(optional)” wording is removed via i18n strings in tasks/overtime, branding shows only the i18n-driven app title “FitGebit” in header and login, and the avatar picker now renders avatars via an SVG-to-data-URI image component with an i18n empty state. However, the diff also includes changes that were not requested (notably role selection/manager token flow on the login screen, and multiple broader functional changes referenced in the file summaries).",
-  "missing_requirements": [],
+  "generatedAt": "2026-02-10T01:33:13.592Z",
+  "summary": "Diff implements new profile fields (initials + optional profilePhoto), adds migration module, adds reusable avatar renderer with generated initials-based fallback, updates onboarding/settings to handle initials + photo upload, and adjusts authenticated flow with error fallback. However, several acceptance criteria appear unmet (notably deterministic onboarding gating, backend photo constraints/ownership enforcement visibility, avatar self-heal without manual init, and i18n coverage), and there are likely unrequested changes to Tasks/Overtime beyond avatar rendering.",
+  "missing_requirements": [
+    {
+      "id": "REQ-34",
+      "requirement": "Deterministically show exactly one of (LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, AppShell) and ensure onboarding cannot be skipped by transient loading states when profile is missing; add safe fallback UI with retry on role/profile query errors.",
+      "reason": "AuthenticatedAppFlow renders AppShell even when the profile is still loading/unfetched; if the profile is actually missing, the user can transiently see AppShell before ProfileOnboardingModal appears, which contradicts the requirement that onboarding 'always renders and cannot be skipped by transient loading states'.",
+      "evidence": [
+        "frontend/src/components/auth/AuthenticatedAppFlow.tsx"
+      ]
+    },
+    {
+      "id": "REQ-35",
+      "requirement": "Provide a state migration so existing stored profiles are upgraded without data loss and get a sensible default for new fields (initials + optional profile photo).",
+      "reason": "Migration sets `initials = \"\"` for all existing profiles, which does not meet the stated constraint that initials must be 2–3 characters and does not appear to be a 'sensible default' if the frontend/backend requires 2–3 characters.",
+      "evidence": [
+        "backend/migration.mo"
+      ]
+    },
+    {
+      "id": "REQ-35",
+      "requirement": "Validate initials length (2–3) in backend endpoints that save profiles and reject invalid values with a clear trap message.",
+      "reason": "The diff shows `UserProfile` extended with `initials`, but the modified backend file excerpt does not show any validation logic or trap messages for invalid initials in `saveCallerUserProfile` (or equivalent).",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-36",
+      "requirement": "Backend APIs for profile photo upload/retrieval/deletion using blob storage mixin, enforcing owner-only modifications and basic constraints (image-only, max size) with clear errors.",
+      "reason": "Frontend hooks call `actor.uploadProfilePhoto` and `actor.removeProfilePhoto`, but the backend diff excerpt does not show these APIs, nor any enforcement of owner-only access or validation constraints (image-only/max size) on the backend.",
+      "evidence": [
+        "frontend/src/hooks/useUserProfile.ts",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-40",
+      "requirement": "Guarantee `getAllDentalAvatars()` returns 16 consistently on fresh deployments without requiring a manual one-time call from the frontend; backend should self-heal or return a clear error.",
+      "reason": "Frontend explicitly provides a manual 'initialize' action when avatars are empty, implying avatars may not be initialized automatically; backend excerpt shows an `initializeAvatars()` method but does not show automatic initialization/self-healing in `getAllDentalAvatars()`.",
+      "evidence": [
+        "frontend/src/components/avatars/AvatarPicker.tsx",
+        "frontend/src/hooks/useDentalAvatars.ts",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-41",
+      "requirement": "No newly introduced UI strings are hard-coded outside the translation system; add/adjust i18n keys for all new/changed profile/photo-upload text; remove outdated role-confirmation strings no longer used.",
+      "reason": "Multiple new user-facing strings appear hard-coded in components rather than using `t(...)` (e.g., loading text, error messages, and preview alt). Also, translations still include role confirmation strings (e.g., manager confirm) despite the requirement to remove outdated ones (cannot confirm usage removal from diff).",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
+        "frontend/src/components/common/QueryErrorFallback.tsx",
+        "frontend/src/components/profile/ProfilePhotoField.tsx",
+        "frontend/src/i18n/translations.ts"
+      ]
+    },
+    {
+      "id": "REQ-38",
+      "requirement": "Ensure the Profile Settings sheet remains fully opaque in both light and dark mode.",
+      "reason": "ProfileSettingsPanel was modified, but the truncated diff does not show `SheetContent` styling/classes to confirm the sheet background is fully opaque in both themes.",
+      "evidence": [
+        "frontend/src/components/profile/ProfileSettingsPanel.tsx"
+      ]
+    }
+  ],
   "hallucinated_features": [
     {
-      "description": "Login screen adds role selection (Assistant/Manager) UI and stores pending role/token in sessionStorage as part of login flow.",
-      "reason": "BuildRequest only asked to simplify branding text on the login screen (show only “FitGebit”) and did not request any new/changed authentication/role flows (explicit non-goal).",
+      "description": "Changed/rewrote Tasks UI and behavior (e.g., simplified task creation dialog, task sorting, completion details rendering changes) beyond avatar rendering.",
+      "reason": "BuildRequest non-goal says not to redesign Tasks beyond updating avatar rendering where profiles are displayed, but the diff summary indicates multiple Tasks components were changed substantially.",
       "evidence": [
-        "frontend/src/components/auth/LoginScreen.tsx"
+        "frontend-file-summaries.txt (frontend/src/components/tasks/CreateTaskDialog.tsx, TaskCard.tsx, TaskList.tsx, CompleteTaskDialog.tsx, frontend/src/pages/TasksPage.tsx)"
       ]
     },
     {
-      "description": "Broader product/feature changes unrelated to UI polish, including: overtime hooks returning empty data due to backend removal; task sorting/type priority changes; recurring task reset on mount; manager stats/audit log/CSV export changes; and other behavior changes listed across tasks/manager/overtime components.",
-      "reason": "These changes are not part of REQ-28..REQ-31 and conflict with the BuildRequest non-goals (no business-logic changes) and constraint that backend/migrations are not expected for UI-only changes.",
+      "description": "Changed/disabled Overtime functionality via hooks returning empty data and updated Overtime UI components.",
+      "reason": "BuildRequest non-goal says not to redesign Overtime beyond avatar rendering where profiles are displayed; the diff summary indicates overtime hooks/UI were altered for backwards compatibility/removed backend integration.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend-file-summaries.txt (frontend/src/hooks/useOvertime.ts, frontend/src/components/overtime/OvertimeForm.tsx, OvertimeHistory.tsx, OvertimeTotals.tsx)"
       ]
     },
     {
-      "description": "Introduces/keeps an app subtitle translation key (app.subtitle: \"Dental Practice Management\").",
-      "reason": "REQ-30 requested removing extra branding text such as subtitles from header/login rendering; while the UI may no longer render it, keeping/updating subtitle content was not requested and may be unnecessary scope.",
+      "description": "Added a new manual avatar initialization UX ('Initialize' button) to populate dental avatars.",
+      "reason": "REQ-40 specifically targets removing the need for a manual one-time call from the frontend; adding a manual initialize flow is an extra UX not requested and potentially conflicts with the requirement intent.",
       "evidence": [
-        "frontend/src/i18n/translations.ts"
+        "frontend/src/components/avatars/AvatarPicker.tsx",
+        "frontend/src/hooks/useDentalAvatars.ts"
       ]
     }
   ],
   "confidence": 0.68,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/auth/LoginScreen.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
     "frontend/src/components/avatars/AvatarPicker.tsx",
     "frontend/src/components/avatars/DentalAvatarImage.tsx",
+    "frontend/src/components/avatars/GeneratedDentalAvatar.tsx",
+    "frontend/src/components/avatars/ProfileAvatar.tsx",
+    "frontend/src/components/common/QueryErrorFallback.tsx",
     "frontend/src/components/layout/AppHeader.tsx",
-    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-    "frontend/src/components/tasks/CreateTaskDialog.tsx",
+    "frontend/src/components/manager/UserPicker.tsx",
+    "frontend/src/components/profile/ProfileOnboardingModal.tsx",
+    "frontend/src/components/profile/ProfilePhotoField.tsx",
+    "frontend/src/components/profile/ProfileSettingsPanel.tsx",
+    "frontend/src/hooks/useDentalAvatars.ts",
+    "frontend/src/hooks/useUserProfile.ts",
     "frontend/src/i18n/translations.ts",
     "project_state.json"
   ]

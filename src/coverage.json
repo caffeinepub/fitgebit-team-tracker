@@ -1,82 +1,140 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T00:42:22.693Z",
+  "generatedAt": "2026-02-10T01:33:13.599Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 8,
+    "implemented": 6,
     "items": [
       {
-        "id": "REQ-28",
-        "summary": "Make the Task Create and Task Completion popup windows fully opaque (no see-through/transparency) in both light and dark mode.",
+        "id": "REQ-34",
+        "summary": "Fix the authenticated app flow so the profile UI cannot disappear: ensure the app deterministically shows exactly one of (LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, AppShell) based on Internet Identity auth state, role state, and profile state, and add a safe fallback UI when the role/profile queries error or return unexpected values.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/tasks/CreateTaskDialog.tsx",
-          "frontend/src/components/tasks/CompleteTaskDialog.tsx"
+          "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
+          "frontend/src/components/common/QueryErrorFallback.tsx",
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/tasks/CreateTaskDialog.tsx",
-          "frontend/src/components/tasks/CompleteTaskDialog.tsx"
+          "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
+          "frontend/src/components/common/QueryErrorFallback.tsx",
+          "frontend/src/App.tsx"
         ]
       },
       {
-        "id": "REQ-29",
-        "summary": "Remove the word “optional” everywhere it appears in Tasks and Overtime sections, including labels/placeholders and any supporting helper text, while keeping the underlying fields optional.",
+        "id": "REQ-35",
+        "summary": "Extend the user profile data model to persist both initials (2–3 characters) and an optional uploaded profile photo reference, while keeping the existing dental avatar selection as an alternative fallback.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-36",
+        "summary": "Add backend APIs to support profile photo upload, retrieval, and deletion using the existing blob storage mixin, and enforce that only the profile owner (caller) can set or remove their own profile photo.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-37",
+        "summary": "Update profile onboarding to require both username and initials (2–3 characters) and to let the user choose one of: (A) upload a profile photo, (B) choose a dental SVG avatar, or (C) use an auto-generated pastel dental avatar with initials; prevent saving until the required fields are valid.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/i18n/translations.ts"
+          "frontend/src/components/profile/ProfileOnboardingModal.tsx",
+          "frontend/src/components/profile/ProfilePhotoField.tsx",
+          "frontend/src/hooks/useUserProfile.ts",
+          "frontend/src/components/avatars/GeneratedDentalAvatar.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/i18n/translations.ts"
+          "frontend/src/components/profile/ProfileOnboardingModal.tsx",
+          "frontend/src/components/profile/ProfilePhotoField.tsx",
+          "frontend/src/hooks/useUserProfile.ts",
+          "frontend/src/components/avatars/GeneratedDentalAvatar.tsx"
         ]
       },
       {
-        "id": "REQ-30",
-        "summary": "Update branding text so that the app displays only “FitGebit” next to/under the logo (remove extra text such as the subtitle) in the header and login screen.",
+        "id": "REQ-38",
+        "summary": "Update Profile Settings so users can edit username, initials, and avatar/photo: allow uploading/replacing/removing a profile photo, and ensure the settings sheet remains fully opaque in both light and dark mode.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/components/profile/ProfileSettingsPanel.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/profile/ProfileSettingsPanel.tsx"
+        ]
+      },
+      {
+        "id": "REQ-39",
+        "summary": "Implement a single reusable avatar renderer component for the app that displays, in priority order: uploaded profile photo (if present) → selected dental SVG avatar → auto-generated pastel dental avatar with initials; then replace existing usages that assume `profile.avatar` is always a dental SVG ID (e.g., header user menu, manager user picker, task/manager views where profiles are shown).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/avatars/ProfileAvatar.tsx",
           "frontend/src/components/layout/AppHeader.tsx",
-          "frontend/src/components/auth/LoginScreen.tsx",
-          "frontend/src/i18n/translations.ts"
+          "frontend/src/components/manager/UserPicker.tsx",
+          "frontend/src/components/avatars/DentalAvatarImage.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/components/avatars/ProfileAvatar.tsx",
           "frontend/src/components/layout/AppHeader.tsx",
-          "frontend/src/components/auth/LoginScreen.tsx",
-          "frontend/src/i18n/translations.ts"
+          "frontend/src/components/manager/UserPicker.tsx",
+          "frontend/src/components/avatars/DentalAvatarImage.tsx"
         ]
       },
       {
-        "id": "REQ-31",
-        "summary": "Fix the avatar picker so the existing 16 dental avatars reliably render and are visible in the avatar grid (no placeholders/blank cells) and remove any remaining hard-coded non-i18n empty-state text in the avatar picker.",
+        "id": "REQ-40",
+        "summary": "Make dental avatar availability reliable by ensuring the backend avatar list is initialized and non-empty for all deployments: guarantee that `getAllDentalAvatars()` returns the full expected set (16) without requiring a manual one-time call from the frontend.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/avatars/DentalAvatarImage.tsx",
-          "frontend/src/components/avatars/AvatarPicker.tsx",
+          "frontend/src/hooks/useDentalAvatars.ts",
+          "frontend/src/components/avatars/AvatarPicker.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useDentalAvatars.ts",
+          "frontend/src/components/avatars/AvatarPicker.tsx"
+        ]
+      },
+      {
+        "id": "REQ-41",
+        "summary": "Add/adjust i18n translation keys for all new/changed profile and photo-upload UI text (English, Dutch, French), and remove outdated role-confirmation strings that are no longer used in the UI flow.",
+        "status": "implemented",
+        "plannedFiles": [
           "frontend/src/i18n/translations.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/avatars/DentalAvatarImage.tsx",
-          "frontend/src/components/avatars/AvatarPicker.tsx",
           "frontend/src/i18n/translations.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/auth/LoginScreen.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
     "frontend/src/components/avatars/AvatarPicker.tsx",
     "frontend/src/components/avatars/DentalAvatarImage.tsx",
+    "frontend/src/components/avatars/GeneratedDentalAvatar.tsx",
+    "frontend/src/components/avatars/ProfileAvatar.tsx",
+    "frontend/src/components/common/QueryErrorFallback.tsx",
     "frontend/src/components/layout/AppHeader.tsx",
-    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-    "frontend/src/components/tasks/CreateTaskDialog.tsx",
+    "frontend/src/components/manager/UserPicker.tsx",
+    "frontend/src/components/profile/ProfileOnboardingModal.tsx",
+    "frontend/src/components/profile/ProfilePhotoField.tsx",
+    "frontend/src/components/profile/ProfileSettingsPanel.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useDentalAvatars.ts",
+    "frontend/src/hooks/useUserProfile.ts",
     "frontend/src/i18n/translations.ts",
     "project_state.json",
     "scratch/component-selection.json",

@@ -11,10 +11,10 @@ import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import MixinStorage "blob-storage/Mixin";
+import Migration "migration";
 
-// No migration needed for new field addition without type changes.
-// Remove with clause and migration module import.
-
+// Use separate migration module for storage change
+(with migration = Migration.run)
 actor {
   // User Profile (using custom role for display, but authorization uses AccessControl roles)
   public type ProfileRole = {
@@ -30,11 +30,13 @@ actor {
 
   public type UserProfile = {
     username : Text;
+    initials : Text;
     avatar : Nat32;
+    profilePhoto : ?Storage.ExternalBlob;
     role : ProfileRole;
   };
 
-  // Task frequency (for recurring tasks)
+  // Task frequency
   public type TaskType = {
     #weekly;
     #monthly;
@@ -105,7 +107,7 @@ actor {
   include MixinStorage();
   include MixinAuthorization(accessControlState);
 
-  // Initialize 16 dental avatars.
+  // Initialize 16 dental avatars
   public shared ({ caller }) func initializeAvatars() : async () {
     let avatars : [DentalAvatar] = [
       { id = 0; name = "Smiling Tooth"; svg = "<svg>...smiling...</svg>" },
@@ -131,12 +133,33 @@ actor {
     };
   };
 
-  // Get all avatars (no pagination).
   public query ({ caller }) func getAllDentalAvatars() : async [DentalAvatar] {
-    dentalAvatars.values().toArray();
+    let avatars = dentalAvatars.values().toArray();
+    if (avatars.size() == 16) {
+      return avatars;
+    };
+    let generatedAvatars : [DentalAvatar] = [
+      { id = 0; name = "Smiling Tooth"; svg = "<svg>...smiling...</svg>" },
+      { id = 1; name = "Winking Tooth"; svg = "<svg>...winking...</svg>" },
+      { id = 2; name = "Chubby Tooth"; svg = "<svg>...chubby...</svg>" },
+      { id = 3; name = "Nervous Tooth"; svg = "<svg>...nervous...</svg>" },
+      { id = 4; name = "Sleepy Tooth"; svg = "<svg>...sleepy...</svg>" },
+      { id = 5; name = "Cool Tooth"; svg = "<svg>...cool...</svg>" },
+      { id = 6; name = "Blushing Tooth"; svg = "<svg>...blushing...</svg>" },
+      { id = 7; name = "Grinning Tooth"; svg = "<svg>...grinning...</svg>" },
+      { id = 8; name = "Toothy Smile"; svg = "<svg>...toothy smile...</svg>" },
+      { id = 9; name = "Happy Molar"; svg = "<svg>...happy molar...</svg>" },
+      { id = 10; name = "Happy Root"; svg = "<svg>...happy root...</svg>" },
+      { id = 11; name = "Excited Tooth"; svg = "<svg>...excited...</svg>" },
+      { id = 12; name = "Professor Tooth"; svg = "<svg>...professor...</svg>" },
+      { id = 13; name = "Party Tooth"; svg = "<svg>...party tooth...</svg>" },
+      { id = 14; name = "Star Tooth"; svg = "<svg>...star tooth...</svg>" },
+      { id = 15; name = "Sporty Tooth"; svg = "<svg>...sporty tooth...</svg>" },
+    ];
+    generatedAvatars;
   };
 
-  // Explicit role selection with secure Manager validation token.
+  // Explicit role selection with secure Manager validation token
   public shared ({ caller }) func selectRoleManager(_token : Text) : async () {
     if (_token != "ICPmaxi313") {
       Runtime.trap("Invalid token: Please make sure you entered the Manager token correctly");
@@ -156,7 +179,7 @@ actor {
     decisionEntries.toArray();
   };
 
-  // Task Management.
+  // Task management
   public query ({ caller }) func getTasks() : async [Task] {
     validateUserViaCaller(caller);
     tasks.values().toArray();
@@ -239,7 +262,7 @@ actor {
     };
   };
 
-  // Helper to update and count reset tasks.
+  // Helper to update and count reset tasks
   func updateAndTrackResetTasks(taskFilter : Task -> Bool) {
     let completedTaskIds = tasks.toArray().filter(func((_, task)) { task.isCompleted and taskFilter(task) });
     for ((id, task) in completedTaskIds.values()) {
@@ -296,23 +319,66 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Auto-reset recurring tasks based on time intervals.
+  // Auto-reset recurring tasks based on time intervals
   public shared ({ caller }) func resetRecurringTasksIfNeeded() : async () {
     validateUserViaCaller(caller);
 
-    // Daily reset (should never be called, but kept for legacy compatibility).
+    // Daily reset (should never be called, but kept for legacy compatibility)
     updateAndTrackResetTasks(func(task) { task.taskType == #weekly });
 
     // Weekly reset: every Monday
     if (Time.now() % (7 * 24 * 3600) < 24 * 3600) {
-      // First 24h window after 7 days (Monday).
+      // First 24h window after 7 days (Monday)
       updateAndTrackResetTasks(func(task) { task.taskType == #weekly });
     };
 
-    // Monthly reset: first Monday of the month.
+    // Monthly reset: first Monday of the month
     if (Time.now() % (30 * 24 * 3600) < 24 * 3600) {
-      // First 24h window after 30 days.
+      // First 24h window after 30 days
       updateAndTrackResetTasks(func(task) { task.taskType == #monthly });
+    };
+  };
+
+  // Profile photo management - only owner can modify their own photo
+  public shared ({ caller }) func uploadProfilePhoto(photo : Storage.ExternalBlob) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can upload profile photos");
+    };
+    switch (userProfiles.get(caller)) {
+      case (null) { Runtime.trap("Profile not found") };
+      case (?profile) {
+        let updatedProfile = {
+          profile with
+          profilePhoto = ?photo;
+        };
+        userProfiles.add(caller, updatedProfile);
+      };
+    };
+  };
+
+  public shared ({ caller }) func removeProfilePhoto() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can remove profile photos");
+    };
+    switch (userProfiles.get(caller)) {
+      case (null) { Runtime.trap("Profile not found") };
+      case (?profile) {
+        let updatedProfile = {
+          profile with
+          profilePhoto = null;
+        };
+        userProfiles.add(caller, updatedProfile);
+      };
+    };
+  };
+
+  public query ({ caller }) func getProfilePhoto(user : Principal) : async ?Storage.ExternalBlob {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view profile photos");
+    };
+    switch (userProfiles.get(user)) {
+      case (null) { Runtime.trap("Profile not found") };
+      case (?profile) { profile.profilePhoto };
     };
   };
 };

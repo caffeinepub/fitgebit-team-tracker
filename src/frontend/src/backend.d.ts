@@ -53,7 +53,9 @@ export interface DentalAvatar {
 }
 export interface UserProfile {
     username: string;
+    profilePhoto?: ExternalBlob;
     role: ProfileRole;
+    initials: string;
     avatar: number;
 }
 export enum DecisionType {
@@ -90,13 +92,16 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getDecisionEntries(): Promise<Array<DecisionEntry>>;
+    getProfilePhoto(user: Principal): Promise<ExternalBlob | null>;
     getTasks(): Promise<Array<Task>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     initializeAvatars(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
+    removeProfilePhoto(): Promise<void>;
     resetRecurringTasksIfNeeded(): Promise<void>;
     resetTask(taskId: number): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     selectRoleAssistant(): Promise<void>;
     selectRoleManager(_token: string): Promise<void>;
+    uploadProfilePhoto(photo: ExternalBlob): Promise<void>;
 }

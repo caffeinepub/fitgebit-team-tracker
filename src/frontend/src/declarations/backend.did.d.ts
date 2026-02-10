@@ -57,7 +57,9 @@ export type TaskType = { 'urgent' : null } |
 export type Time = bigint;
 export interface UserProfile {
   'username' : string,
+  'profilePhoto' : [] | [ExternalBlob],
   'role' : ProfileRole,
+  'initials' : string,
   'avatar' : number,
 }
 export type UserRole = { 'admin' : null } |
@@ -103,15 +105,18 @@ export interface _SERVICE {
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getDecisionEntries' : ActorMethod<[], Array<DecisionEntry>>,
+  'getProfilePhoto' : ActorMethod<[Principal], [] | [ExternalBlob]>,
   'getTasks' : ActorMethod<[], Array<Task>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'initializeAvatars' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'removeProfilePhoto' : ActorMethod<[], undefined>,
   'resetRecurringTasksIfNeeded' : ActorMethod<[], undefined>,
   'resetTask' : ActorMethod<[number], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'selectRoleAssistant' : ActorMethod<[], undefined>,
   'selectRoleManager' : ActorMethod<[string], undefined>,
+  'uploadProfilePhoto' : ActorMethod<[ExternalBlob], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

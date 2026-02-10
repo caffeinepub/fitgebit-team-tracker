@@ -1,32 +1,13 @@
-import { useEffect } from 'react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useQueryClient } from '@tanstack/react-query';
 import { I18nProvider } from './i18n/I18nProvider';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
+import AuthenticatedAppFlow from './components/auth/AuthenticatedAppFlow';
 import LoginScreen from './components/auth/LoginScreen';
-import RoleChoiceScreen from './components/auth/RoleChoiceScreen';
-import ProfileOnboardingModal from './components/profile/ProfileOnboardingModal';
-import AppShell from './components/layout/AppShell';
-import { useGetCallerUserProfile } from './hooks/useUserProfile';
-import { useGetCallerUserRole } from './hooks/useAuthz';
 
 export default function App() {
   const { identity, isInitializing } = useInternetIdentity();
-  const queryClient = useQueryClient();
   const isAuthenticated = !!identity && !isInitializing;
-
-  const { data: userProfile, isLoading: profileLoading, isFetched: profileFetched } = useGetCallerUserProfile();
-  const { data: userRole, isLoading: roleLoading } = useGetCallerUserRole();
-
-  // Initialize avatars on first load
-  useEffect(() => {
-    if (isAuthenticated && !roleLoading) {
-      import('./hooks/useActor').then(({ useActor }) => {
-        // This will be handled by a one-time initialization in the backend
-      });
-    }
-  }, [isAuthenticated, roleLoading]);
 
   if (isInitializing) {
     return (
@@ -55,18 +36,10 @@ export default function App() {
     );
   }
 
-  // Show role choice if user is still a guest
-  const showRoleChoice = isAuthenticated && !roleLoading && userRole === 'guest';
-  
-  // Show profile setup if role is selected but no profile exists
-  const showProfileSetup = isAuthenticated && !roleLoading && userRole !== 'guest' && !profileLoading && profileFetched && userProfile === null;
-
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <I18nProvider>
-        {showRoleChoice && <RoleChoiceScreen />}
-        {showProfileSetup && <ProfileOnboardingModal />}
-        {!showRoleChoice && !showProfileSetup && <AppShell />}
+        <AuthenticatedAppFlow />
         <Toaster />
       </I18nProvider>
     </ThemeProvider>

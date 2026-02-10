@@ -1,94 +1,176 @@
 {
   "kind": "build_request",
-  "title": "UI polish: opaque task dialogs, remove “optional” wording, show avatars, and simplify branding text",
-  "priority": "normal",
+  "title": "Rebuild profile system to support initials + reliable avatars + optional uploaded profile photo (fix missing profile UI)",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-28",
-      "text": "Make the Task Create and Task Completion popup windows fully opaque (no see-through/transparency) in both light and dark mode.",
+      "id": "REQ-34",
+      "text": "Fix the authenticated app flow so the profile UI cannot disappear: ensure the app deterministically shows exactly one of (LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, AppShell) based on Internet Identity auth state, role state, and profile state, and add a safe fallback UI when the role/profile queries error or return unexpected values.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-2"
         ],
         "quotes": [
-          "The task UI is see through, can you make the background of the popup windows opaque.\n\n1. Task creatie on and task completion"
+          "The profile/avatar system is broken - avatars weren't displaying correctly, and now the entire profile UI has disappeared after the latest update."
         ]
       },
       "acceptanceCriteria": [
-        "When CreateTaskDialog is open, the dialog content background is fully opaque (no alpha/translucent background showing underlying page).",
-        "When CompleteTaskDialog is open, the dialog content background is fully opaque (no alpha/translucent background showing underlying page).",
-        "The change applies in both light and dark mode."
+        "When authenticated and role is not guest and the user profile is missing, ProfileOnboardingModal always renders and cannot be skipped by transient loading states.",
+        "When authenticated and role is guest, RoleChoiceScreen always renders.",
+        "If fetching role or profile fails, the user sees a visible error state with a retry action rather than a blank/missing UI.",
+        "No console errors are produced by the app flow on a fresh login + onboarding path."
       ]
     },
     {
-      "id": "REQ-29",
-      "text": "Remove the word “optional” everywhere it appears in Tasks and Overtime sections, including labels/placeholders and any supporting helper text, while keeping the underlying fields optional.",
-      "target": "frontend",
+      "id": "REQ-35",
+      "text": "Extend the user profile data model to persist both initials (2–3 characters) and an optional uploaded profile photo reference, while keeping the existing dental avatar selection as an alternative fallback.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-2"
         ],
         "quotes": [
-          "Remove the word optional and also remove the text next to the logo.",
-          "2. Wherever it's written in the task or overtime section"
+          "Each user profile must show: Name + Initials + Avatar/Picture",
+          "Users should be able to upload their own profile picture"
         ]
       },
       "acceptanceCriteria": [
-        "Tasks UI no longer shows '(optional)' for the completion comment field.",
-        "Tasks UI no longer shows '(optional)' for Before Photo and After Photo labels.",
-        "Overtime UI no longer shows '(optional)' for the comment field.",
-        "All updated user-facing strings remain routed through i18n (no new hard-coded English strings introduced for these labels)."
+        "Backend UserProfile type includes an `initials` field and an optional profile photo field (stored as a canister blob reference using existing blob storage types).",
+        "Existing endpoints that return profiles return the new fields.",
+        "Existing endpoints that save profiles validate initials length (2–3) and reject invalid values with a clear trap message.",
+        "A state migration is provided so existing stored profiles are upgraded without data loss (existing profiles get a sensible default for the new fields)."
       ]
     },
     {
-      "id": "REQ-30",
-      "text": "Update branding text so that the app displays only “FitGebit” next to/under the logo (remove extra text such as the subtitle) in the header and login screen.",
-      "target": "frontend",
+      "id": "REQ-36",
+      "text": "Add backend APIs to support profile photo upload, retrieval, and deletion using the existing blob storage mixin, and enforce that only the profile owner (caller) can set or remove their own profile photo.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-2"
         ],
         "quotes": [
-          "remove the text next to the logo. just FitGebit is fine"
+          "Users should be able to upload their own profile picture",
+          "Handle both uploaded images and generated avatars seamlessly"
         ]
       },
       "acceptanceCriteria": [
-        "AppHeader shows only the single title text “FitGebit” and does not render any subtitle/secondary line.",
-        "LoginScreen shows only the single title text “FitGebit” and does not render any subtitle/secondary line.",
-        "The displayed title is driven from i18n (update the English translation for app.title to “FitGebit”)."
+        "There is an authenticated API to upload a caller profile photo and return a blob reference suitable for storage in the caller’s profile.",
+        "There is an authenticated API to remove the caller’s profile photo (and, if applicable, delete the underlying blob).",
+        "Photo upload enforces basic constraints (image-only, maximum size limit) and returns a clear error if violated.",
+        "Unauthorized callers cannot modify another user’s profile photo."
       ]
     },
     {
-      "id": "REQ-31",
-      "text": "Fix the avatar picker so the existing 16 dental avatars reliably render and are visible in the avatar grid (no placeholders/blank cells) and remove any remaining hard-coded non-i18n empty-state text in the avatar picker.",
+      "id": "REQ-37",
+      "text": "Update profile onboarding to require both username and initials (2–3 characters) and to let the user choose one of: (A) upload a profile photo, (B) choose a dental SVG avatar, or (C) use an auto-generated pastel dental avatar with initials; prevent saving until the required fields are valid.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-2"
         ],
         "quotes": [
-          "Can you create a few avatars to choose from",
-          "No I just don't see them, 16 is fine if only I can see them"
+          "I need everyone to have a name + initials + avatar or picture they upload.",
+          "If no picture is uploaded, generate a cute dental-themed avatar automatically",
+          "Initials should be clearly visible on generated avatars"
         ]
       },
       "acceptanceCriteria": [
-        "AvatarPicker renders an SVG image for each avatar returned by getAllDentalAvatars; grid items are not blank and do not show the '?' fallback when avatar data is present.",
-        "If avatars cannot be loaded or the list is empty, the empty-state message is translated via i18n (no hard-coded 'No avatars available' text).",
-        "No changes increase the avatar count beyond the existing 16."
+        "Onboarding cannot be completed unless username is non-empty and initials length is 2 or 3 characters.",
+        "Onboarding provides a photo upload control and a way to remove/replace the selected photo before saving.",
+        "If the user does not upload a photo, the UI still allows saving by selecting a dental avatar or using the auto-generated avatar option.",
+        "Initials are visibly rendered on the auto-generated avatar preview.",
+        "All new/changed user-facing text uses the i18n system (English/NL/FR entries added/updated)."
+      ]
+    },
+    {
+      "id": "REQ-38",
+      "text": "Update Profile Settings so users can edit username, initials, and avatar/photo: allow uploading/replacing/removing a profile photo, and ensure the settings sheet remains fully opaque in both light and dark mode.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "The profile/avatar system is broken",
+          "Users should be able to upload their own profile picture"
+        ]
+      },
+      "acceptanceCriteria": [
+        "ProfileSettingsPanel shows current username and initials and allows editing both.",
+        "ProfileSettingsPanel shows current avatar/photo and allows changing via upload or selecting a dental avatar.",
+        "Removing a profile photo immediately falls back to the selected dental avatar or auto-generated avatar.",
+        "The settings sheet background is fully opaque (no see-through) in light and dark themes."
+      ]
+    },
+    {
+      "id": "REQ-39",
+      "text": "Implement a single reusable avatar renderer component for the app that displays, in priority order: uploaded profile photo (if present) → selected dental SVG avatar → auto-generated pastel dental avatar with initials; then replace existing usages that assume `profile.avatar` is always a dental SVG ID (e.g., header user menu, manager user picker, task/manager views where profiles are shown).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Ensure avatars load reliably and display correctly across the app",
+          "Handle both uploaded images and generated avatars seamlessly"
+        ]
+      },
+      "acceptanceCriteria": [
+        "AppHeader and Manager UserPicker (and any other profile avatar usages) display the uploaded photo when present.",
+        "If no photo is present, the renderer displays the selected dental SVG avatar reliably (no blank cells/placeholders).",
+        "If neither a photo nor a valid dental avatar is available, the renderer displays an auto-generated pastel dental avatar with visible initials.",
+        "No component directly constructs its own dental avatar data URI; all avatar rendering goes through the shared renderer."
+      ]
+    },
+    {
+      "id": "REQ-40",
+      "text": "Make dental avatar availability reliable by ensuring the backend avatar list is initialized and non-empty for all deployments: guarantee that `getAllDentalAvatars()` returns the full expected set (16) without requiring a manual one-time call from the frontend.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "avatars weren't displaying correctly"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On a fresh deployment, opening the avatar picker shows 16 avatars without requiring any user action besides normal app usage.",
+        "`getAllDentalAvatars()` returns 16 entries consistently.",
+        "If the avatar set is missing for any reason, the backend self-heals (initializes) or returns a clear error that the frontend can display (no silent empty grid)."
+      ]
+    },
+    {
+      "id": "REQ-41",
+      "text": "Add/adjust i18n translation keys for all new/changed profile and photo-upload UI text (English, Dutch, French), and remove outdated role-confirmation strings that are no longer used in the UI flow.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Use English for any user-facing text in the build request."
+        ]
+      },
+      "acceptanceCriteria": [
+        "All new labels/buttons/errors for profile photo upload/removal and initials editing are present in `frontend/src/i18n/translations.ts` for en/nl/fr.",
+        "No newly introduced UI strings are hard-coded outside the translation system.",
+        "Any unreachable/outdated user-facing strings related to removed profile flows are either removed or confirmed unused (no dead UI paths)."
       ]
     }
   ],
   "constraints": [
-    "Frontend files under frontend/src/components/ui must not be edited directly; only compose/override via props/classes in feature components.",
-    "Do not modify any immutable frontend paths listed in SYSTEM_CONTEXT.",
-    "Backend must remain a single Motoko actor in backend/main.mo; only add migration if strictly required (not expected for these UI-only changes).",
-    "Use English for any new/changed user-facing text included in this build request."
+    "Backend must remain a single Motoko actor in backend/main.mo; only add backend/migration.mo if required for existing stable state.",
+    "Do not edit files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
+    "Use the existing React Query + actor pattern (useActor) for all canister calls.",
+    "Use English for any new/changed user-facing text content defined as part of this build request (and still provide NL/FR translations in-app)."
   ],
   "nonGoals": [
-    "Creating new avatars or increasing the avatar set beyond the existing 16.",
-    "Changing task/overtime business logic or backend schemas.",
-    "Implementing new authentication/role flows (not requested in this update)."
+    "Do not add third-party authentication providers or external storage/CDNs for profile photos.",
+    "Do not add real-time features (websockets/push).",
+    "Do not redesign Tasks or Overtime features beyond updating avatar rendering where profiles are displayed."
   ],
   "imageRequirements": {
     "required": [],

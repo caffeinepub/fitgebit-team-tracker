@@ -1,95 +1,151 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "UI polish: opaque dialogs, remove “optional” wording, avatar visibility, and simplified branding",
+  "title": "Deterministic authenticated profile flow with robust avatar/photo rendering and initials support (frontend)",
   "requirements": [
     {
-      "id": "REQ-28",
-      "summary": "Make Task Create and Task Completion dialogs fully opaque in light/dark mode (no translucent dialog surface).",
+      "id": "REQ-34",
+      "summary": "Make the authenticated app flow deterministic (exactly one of LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, AppShell) with visible error + retry fallback for role/profile query failures.",
       "acceptanceCriteria": [
-        "When CreateTaskDialog is open, the dialog content background is fully opaque (no alpha/translucent background showing underlying page).",
-        "When CompleteTaskDialog is open, the dialog content background is fully opaque (no alpha/translucent background showing underlying page).",
-        "The change applies in both light and dark mode."
+        "When authenticated and role is not guest and the user profile is missing, ProfileOnboardingModal always renders and cannot be skipped by transient loading states.",
+        "When authenticated and role is guest, RoleChoiceScreen always renders.",
+        "If fetching role or profile fails, the user sees a visible error state with a retry action rather than a blank/missing UI.",
+        "No console errors are produced by the app flow on a fresh login + onboarding path."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/tasks/CreateTaskDialog.tsx",
-          "operation": "modify",
-          "description": "Pass an explicit, fully-opaque surface background to the shadcn DialogContent (e.g., non-alpha background classes for light and dark) so the create-task popup is not see-through. Verify the component's usage instructions before implementing."
+          "path": "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
+          "operation": "create",
+          "description": "Create a small state-machine-style gate component that decides and renders exactly one of: LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, or AppShell, based on Internet Identity auth state plus role/profile query states. Use the authorization component patterns (role-based flow and cache clearing expectations) to avoid modal flashing and missing UI; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/tasks/CompleteTaskDialog.tsx",
+          "path": "frontend/src/components/common/QueryErrorFallback.tsx",
+          "operation": "create",
+          "description": "Add a reusable, visible error state UI that shows an i18n error message and a retry button (calls provided refetch callbacks) for role/profile query failures, preventing blank/missing UI."
+        },
+        {
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Pass an explicit, fully-opaque surface background to the shadcn DialogContent (e.g., non-alpha background classes for light and dark) so the complete-task popup is not see-through. Verify the component's usage instructions before implementing."
+          "description": "Replace the current conditional rendering with the new deterministic AuthenticatedAppFlow, ensuring only one screen is mounted at a time; wire role/profile loading, error, and fetched states into that gate. Remove the no-op avatar initialization effect to avoid confusion and ensure no console errors."
         }
       ]
     },
     {
-      "id": "REQ-29",
-      "summary": "Remove the word “optional” from Tasks and Overtime UI labels/placeholders while keeping fields optional and strings i18n-driven.",
+      "id": "REQ-37",
+      "summary": "Update profile onboarding to require username + initials and allow choosing upload photo, dental avatar, or auto-generated avatar with initials, with validation and i18n.",
       "acceptanceCriteria": [
-        "Tasks UI no longer shows '(optional)' for the completion comment field.",
-        "Tasks UI no longer shows '(optional)' for Before Photo and After Photo labels.",
-        "Overtime UI no longer shows '(optional)' for the comment field.",
-        "All updated user-facing strings remain routed through i18n (no new hard-coded English strings introduced for these labels)."
+        "Onboarding cannot be completed unless username is non-empty and initials length is 2 or 3 characters.",
+        "Onboarding provides a photo upload control and a way to remove/replace the selected photo before saving.",
+        "If the user does not upload a photo, the UI still allows saving by selecting a dental avatar or using the auto-generated avatar option.",
+        "Initials are visibly rendered on the auto-generated avatar preview.",
+        "All new/changed user-facing text uses the i18n system (English/NL/FR entries added/updated)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/i18n/translations.ts",
+          "path": "frontend/src/components/profile/ProfileOnboardingModal.tsx",
           "operation": "modify",
-          "description": "Update existing i18n strings used by Tasks and Overtime to remove '(optional)' wording (tasks.completionComment, tasks.beforePhoto, tasks.afterPhoto, overtime.comment) while keeping the underlying fields optional; ensure changes are in English at minimum and remain key-driven."
+          "description": "Extend onboarding form to: (1) require username + initials (2–3 chars), (2) offer three avatar modes (upload photo / pick dental avatar / auto-generate), (3) show previews, and (4) prevent save until valid. Use blob-storage’s ExternalBlob on the frontend for photo selection/upload and prefer displaying via direct URL; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/profile/ProfilePhotoField.tsx",
+          "operation": "create",
+          "description": "Create a reusable profile photo selector UI for onboarding (and later settings): file input, replace/remove actions, basic client-side validation (image-only + size guidance), preview, and upload progress support. Use blob-storage ExternalBlob.withUploadProgress for upload progress UI; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useUserProfile.ts",
+          "operation": "modify",
+          "description": "Add React Query mutations for uploading and removing the caller profile photo (wrapping the existing actor functions), plus consistent cache invalidation for currentUserProfile and any photo-related queries. Keep using the existing React Query + useActor pattern."
+        },
+        {
+          "path": "frontend/src/components/avatars/GeneratedDentalAvatar.tsx",
+          "operation": "create",
+          "description": "Implement an auto-generated pastel dental-themed avatar renderer that visibly overlays initials (2–3 chars). This is used for the onboarding preview and as the final fallback avatar rendering throughout the app."
         }
       ]
     },
     {
-      "id": "REQ-30",
-      "summary": "Simplify branding so only “FitGebit” appears next to/under the logo in header and login screen, with title from i18n.",
+      "id": "REQ-38",
+      "summary": "Update Profile Settings to edit username, initials, and avatar/photo (upload/replace/remove) and ensure the settings sheet is fully opaque in light/dark mode.",
       "acceptanceCriteria": [
-        "AppHeader shows only the single title text “FitGebit” and does not render any subtitle/secondary line.",
-        "LoginScreen shows only the single title text “FitGebit” and does not render any subtitle/secondary line.",
-        "The displayed title is driven from i18n (update the English translation for app.title to “FitGebit”)."
+        "ProfileSettingsPanel shows current username and initials and allows editing both.",
+        "ProfileSettingsPanel shows current avatar/photo and allows changing via upload or selecting a dental avatar.",
+        "Removing a profile photo immediately falls back to the selected dental avatar or auto-generated avatar.",
+        "The settings sheet background is fully opaque (no see-through) in light and dark themes."
       ],
       "file_operations": [
+        {
+          "path": "frontend/src/components/profile/ProfileSettingsPanel.tsx",
+          "operation": "modify",
+          "description": "Add initials editing (2–3 chars) and integrate ProfilePhotoField for upload/replace/remove; keep dental avatar selection available. Ensure the sheet content uses fully opaque background classes in both light/dark (no transparency/backdrop blur bleed-through). Use blob-storage ExternalBlob patterns for photo display (direct URL) and upload; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-39",
+      "summary": "Create a shared avatar renderer that prioritizes uploaded photo → dental SVG avatar → generated initials avatar, and replace existing avatar usages across the app.",
+      "acceptanceCriteria": [
+        "AppHeader and Manager UserPicker (and any other profile avatar usages) display the uploaded photo when present.",
+        "If no photo is present, the renderer displays the selected dental SVG avatar reliably (no blank cells/placeholders).",
+        "If neither a photo nor a valid dental avatar is available, the renderer displays an auto-generated pastel dental avatar with visible initials.",
+        "No component directly constructs its own dental avatar data URI; all avatar rendering goes through the shared renderer."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/avatars/ProfileAvatar.tsx",
+          "operation": "create",
+          "description": "Create a single reusable ProfileAvatar component that renders, in priority order: uploaded profile photo (ExternalBlob direct URL) → dental SVG avatar by id → GeneratedDentalAvatar with initials. Use blob-storage ExternalBlob.getDirectURL for reliable image rendering; verify the component's usage instructions before implementing."
+        },
         {
           "path": "frontend/src/components/layout/AppHeader.tsx",
           "operation": "modify",
-          "description": "Remove the subtitle/secondary branding text rendering near the logo so the header shows only the app title from i18n."
+          "description": "Replace DentalAvatarImage usage with the shared ProfileAvatar so the header user menu consistently shows uploaded photos when present and otherwise falls back correctly."
         },
         {
-          "path": "frontend/src/components/auth/LoginScreen.tsx",
+          "path": "frontend/src/components/manager/UserPicker.tsx",
           "operation": "modify",
-          "description": "Remove the subtitle/secondary branding text under the title so the login screen shows only the app title from i18n."
+          "description": "Replace DentalAvatarImage usage with the shared ProfileAvatar so the manager user selector shows uploaded photos when present and otherwise falls back correctly."
         },
         {
-          "path": "frontend/src/i18n/translations.ts",
+          "path": "frontend/src/components/avatars/DentalAvatarImage.tsx",
           "operation": "modify",
-          "description": "Update the English translation for app.title to exactly “FitGebit” (keeping title i18n-driven)."
+          "description": "Refactor to ensure it is only responsible for dental SVG rendering by id (no other avatar logic), and ensure it never throws/creates console errors when avatar data is missing; fallback behavior should remain non-blank but minimal."
         }
       ]
     },
     {
-      "id": "REQ-31",
-      "summary": "Fix avatar picker rendering so all 16 existing dental avatars display reliably, and ensure empty-state text is i18n-driven.",
+      "id": "REQ-40",
+      "summary": "Make dental avatar availability reliable from the frontend by handling missing/empty avatar lists with automatic initialization attempts and a visible, retryable error state.",
       "acceptanceCriteria": [
-        "AvatarPicker renders an SVG image for each avatar returned by getAllDentalAvatars; grid items are not blank and do not show the '?' fallback when avatar data is present.",
-        "If avatars cannot be loaded or the list is empty, the empty-state message is translated via i18n (no hard-coded 'No avatars available' text).",
-        "No changes increase the avatar count beyond the existing 16."
+        "On a fresh deployment, opening the avatar picker shows 16 avatars without requiring any user action besides normal app usage.",
+        "`getAllDentalAvatars()` returns 16 entries consistently.",
+        "If the avatar set is missing for any reason, the backend self-heals (initializes) or returns a clear error that the frontend can display (no silent empty grid)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/avatars/DentalAvatarImage.tsx",
+          "path": "frontend/src/hooks/useDentalAvatars.ts",
           "operation": "modify",
-          "description": "Improve SVG rendering reliability by rendering avatar.svg in a way that respects sizing/styling (e.g., as an <img> using a data URI) so grid cells do not appear blank when svg data exists; keep the existing fallback only for truly missing avatar data."
+          "description": "Harden dental avatar fetching: if the returned list is empty or not the expected size, attempt a one-time canister initialization call and then refetch; surface a typed error state (instead of silent empty arrays) so the UI can show a clear message + retry."
         },
         {
           "path": "frontend/src/components/avatars/AvatarPicker.tsx",
           "operation": "modify",
-          "description": "Replace the hard-coded empty-state string with an i18n translation key, and wire the component to use the i18n hook for that message."
-        },
+          "description": "Update AvatarPicker to handle three states: loading, recoverable error (show i18n message + retry), and loaded grid. Ensure an empty/missing avatar set never results in a silent empty grid."
+        }
+      ]
+    },
+    {
+      "id": "REQ-41",
+      "summary": "Update i18n keys for new/changed profile and photo-upload UI text (en/nl/fr) and remove/confirm-unused outdated role-confirmation strings.",
+      "acceptanceCriteria": [
+        "All new labels/buttons/errors for profile photo upload/removal and initials editing are present in `frontend/src/i18n/translations.ts` for en/nl/fr.",
+        "No newly introduced UI strings are hard-coded outside the translation system.",
+        "Any unreachable/outdated user-facing strings related to removed profile flows are either removed or confirmed unused (no dead UI paths)."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/i18n/translations.ts",
           "operation": "modify",
-          "description": "Add/adjust an i18n key for the avatar picker empty state (English text) and use it from AvatarPicker; ensure no avatar-count changes are introduced (still the existing 16 from backend)."
+          "description": "Add/adjust translation keys for: profile photo upload/replace/remove, avatar mode selection (photo/avatar/generated), avatar initialization error + retry, initials validation messaging, and any new onboarding/settings helper text (en/nl/fr). Audit existing role-confirmation-related strings and remove those that are confirmed unused by the current UI flow."
         }
       ]
     }

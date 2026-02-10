@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 9,
-  "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set username and 2–3 initials. Replace the avatar set: remove existing 48 SVGs and use exactly 16 simple cute dental SVG icons, stored as strings in the canister and returned as a list/URLs, shown in a single grid. Logo is a cute tooth icon (no text).",
+  "projectStateVersion": 13,
+  "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set name/username and 2–3 initials. Profile must support either an uploaded profile picture or an auto-generated cute dental-themed avatar (pastel palette, unique per user, initials visible). Avatars/photos must load reliably across the app; profile UI must be persistent and not disappear after updates. Logo is a cute tooth icon (no text).",
   "architectural_notes": [
     "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
     "Localization: manual language selection (Dutch/French/English) with UI toggle.",
@@ -16,7 +16,10 @@
   ],
   "known_issues": [
     "Avatar SVGs are not currently showing/loading in the app (needs fix to asset storage/serving and picker rendering).",
-    "Build/app generation attempts failed multiple times during this conversation (needs investigation or scope reduction to unblock)."
+    "Build/app generation attempts failed multiple times during this conversation (needs investigation or scope reduction to unblock).",
+    "Profile settings popup/modal background is see-through (transparency issue).",
+    "Avatars are not visible in the Profile settings avatar picker/grid.",
+    "Profile UI disappeared after the latest update (profile settings/profile screen not showing)."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -259,6 +262,70 @@
         "REQ-31"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-make-the-profile-settings-popup-fully-opaque-not-see-through-in-both-light-and-dark-mode",
+      "title": "Make the Profile Settings popup fully opaque (not see-through) in both light and dark mode.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-dental-avatar-rendering-in-the-profile-settings-avatar-picker-so-that-all-16-avatars-reliably-display-no-blank-cells-placeholders-when-opening-profile-settings",
+      "title": "Fix dental avatar rendering in the Profile Settings avatar picker so that all 16 avatars reliably display (no blank cells/placeholders) when opening Profile Settings.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-authenticated-app-flow-so-the-profile-ui-cannot-disappear-ensure-the-app-deterministically-shows-exactly-one-of-loginscreen-rolechoicescreen-profileonboardingmodal-appshell-based-on-internet-identity-auth-state-role-state-and-profile-state-and-add-a-safe-fallback-ui-when-the-role-profile-queries-error-or-return-unexpected-values",
+      "title": "Fix the authenticated app flow so the profile UI cannot disappear: ensure the app deterministically shows exactly one of (LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, AppShell) based on Internet Identity auth state, role state, and profile state, and add a safe fallback UI when the role/profile queries error or return unexpected values.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-profile-onboarding-to-require-both-username-and-initials-2-3-characters-and-to-let-the-user-choose-one-of-a-upload-a-profile-photo-b-choose-a-dental-svg-avatar-or-c-use-an-auto-generated-pastel-dental-avatar-with-initials-prevent-saving-until-the-required-fields-are-valid",
+      "title": "Update profile onboarding to require both username and initials (2–3 characters) and to let the user choose one of: (A) upload a profile photo, (B) choose a dental SVG avatar, or (C) use an auto-generated pastel dental avatar with initials; prevent saving until the required fields are valid.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-profile-settings-so-users-can-edit-username-initials-and-avatar-photo-allow-uploading-replacing-removing-a-profile-photo-and-ensure-the-settings-sheet-remains-fully-opaque-in-both-light-and-dark-mode",
+      "title": "Update Profile Settings so users can edit username, initials, and avatar/photo: allow uploading/replacing/removing a profile photo, and ensure the settings sheet remains fully opaque in both light and dark mode.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-single-reusable-avatar-renderer-component-for-the-app-that-displays-in-priority-order-uploaded-profile-photo-if-present-selected-dental-svg-avatar-auto-generated-pastel-dental-avatar-with-initials-then-replace-existing-usages-that-assume-profile-avatar-is-always-a-dental-svg-id-e-g-header-user-menu-manager-user-picker-task-manager-views-where-profiles-are-shown",
+      "title": "Implement a single reusable avatar renderer component for the app that displays, in priority order: uploaded profile photo (if present) → selected dental SVG avatar → auto-generated pastel dental avatar with initials; then replace existing usages that assume `profile.avatar` is always a dental SVG ID (e.g., header user menu, manager user picker, task/manager views where profiles are shown).",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-dental-avatar-availability-reliable-by-ensuring-the-backend-avatar-list-is-initialized-and-non-empty-for-all-deployments-guarantee-that-getalldentalavatars-returns-the-full-expected-set-16-without-requiring-a-manual-one-time-call-from-the-frontend",
+      "title": "Make dental avatar availability reliable by ensuring the backend avatar list is initialized and non-empty for all deployments: guarantee that `getAllDentalAvatars()` returns the full expected set (16) without requiring a manual one-time call from the frontend.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-adjust-i18n-translation-keys-for-all-new-changed-profile-and-photo-upload-ui-text-english-dutch-french-and-remove-outdated-role-confirmation-strings-that-are-no-longer-used-in-the-ui-flow",
+      "title": "Add/adjust i18n translation keys for all new/changed profile and photo-upload UI text (English, Dutch, French), and remove outdated role-confirmation strings that are no longer used in the UI flow.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -352,6 +419,28 @@
       "id": "AR-18",
       "summary": "Bug fix: avatar picker should correctly display the existing 16 dental avatars (currently not visible)",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Profile system rebuild: require name + 2–3 initials; support uploaded profile picture or auto-generated cute pastel dental avatar with initials visible; ensure reliable rendering across app and persistence across updates",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Extend the user profile data model to persist both initials (2–3 characters) and an optional uploaded profile photo reference, while keeping the existing dental avatar selection as an alternative fallback.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-22",
+      "summary": "Add backend APIs to support profile photo upload, retrieval, and deletion using the existing blob storage mixin, and enforce that only the profile owner (caller) can set or remove their own profile photo.",
+      "reqIds": [
+        "REQ-36"
+      ],
       "status": "pending"
     }
   ],
