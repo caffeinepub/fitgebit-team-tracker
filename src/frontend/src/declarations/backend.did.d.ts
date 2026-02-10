@@ -31,6 +31,14 @@ export type DecisionType = { 'valid' : null } |
   { 'critical' : null };
 export interface DentalAvatar { 'id' : number, 'svg' : string, 'name' : string }
 export type ExternalBlob = Uint8Array;
+export interface OvertimeEntry {
+  'id' : number,
+  'date' : Time,
+  'approvedBy' : [] | [Principal],
+  'createdBy' : Principal,
+  'minutes' : bigint,
+  'approved' : boolean,
+}
 export type ProfileRole = { 'manager' : null } |
   { 'assistant' : null };
 export type RepeatInterval = { 'monthly' : null } |
@@ -41,6 +49,7 @@ export interface Task {
   'title' : string,
   'lastResetAt' : Time,
   'isCompleted' : boolean,
+  'description' : string,
   'taskType' : TaskType,
   'currentCompletion' : [] | [TaskCompletion],
 }
@@ -98,17 +107,19 @@ export interface _SERVICE {
     [number, [] | [string], [] | [ExternalBlob], [] | [ExternalBlob]],
     undefined
   >,
-  'createTask' : ActorMethod<[string, TaskType], undefined>,
+  'createOvertimeEntry' : ActorMethod<[bigint], OvertimeEntry>,
+  'createTask' : ActorMethod<[string, string, TaskType], undefined>,
   'exportTaskData' : ActorMethod<[], Array<Task>>,
   'getAllDentalAvatars' : ActorMethod<[], Array<DentalAvatar>>,
   'getAllUserProfiles' : ActorMethod<[], Array<[Principal, UserProfile]>>,
+  'getCallerOvertimeEntries' : ActorMethod<[], Array<OvertimeEntry>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getDecisionEntries' : ActorMethod<[], Array<DecisionEntry>>,
   'getProfilePhoto' : ActorMethod<[Principal], [] | [ExternalBlob]>,
   'getTasks' : ActorMethod<[], Array<Task>>,
+  'getUserOvertimeEntries' : ActorMethod<[Principal], Array<OvertimeEntry>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
-  'initializeAvatars' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'removeProfilePhoto' : ActorMethod<[], undefined>,
   'resetRecurringTasksIfNeeded' : ActorMethod<[], undefined>,

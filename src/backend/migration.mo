@@ -1,41 +1,47 @@
 import Map "mo:core/Map";
+import Array "mo:core/Array";
+import List "mo:core/List";
 import Nat32 "mo:core/Nat32";
 import Time "mo:core/Time";
-import List "mo:core/List";
+import Principal "mo:core/Principal";
 import Storage "blob-storage/Storage";
-import AccessControl "authorization/access-control";
 
 module {
-  type ProfileRole = {
+  public type ProfileRole = {
     #manager;
     #assistant;
   };
 
-  type DentalAvatar = {
+  public type DentalAvatar = {
     id : Nat32;
     name : Text;
     svg : Text;
   };
 
-  type TaskType = {
+  public type UserProfile = {
+    username : Text;
+    initials : Text;
+    avatar : Nat32;
+    profilePhoto : ?Storage.ExternalBlob;
+    role : ProfileRole;
+  };
+
+  public type OvertimeEntry = {
+    id : Nat32;
+    date : Time.Time;
+    minutes : Int;
+    createdBy : Principal;
+    approvedBy : ?Principal;
+    approved : Bool;
+  };
+
+  public type TaskType = {
     #weekly;
     #monthly;
     #urgent;
   };
 
-  type RepeatInterval = {
-    #daily;
-    #weekly;
-    #monthly;
-  };
-
-  type DecisionType = {
-    #valid;
-    #invalid;
-    #critical;
-  };
-
-  type TaskCompletion = {
+  public type TaskCompletion = {
     completedBy : Principal;
     comment : ?Text;
     beforePhoto : ?Storage.ExternalBlob;
@@ -43,7 +49,7 @@ module {
     completedAt : Time.Time;
   };
 
-  type Task = {
+  public type Task = {
     id : Nat32;
     title : Text;
     taskType : TaskType;
@@ -52,7 +58,7 @@ module {
     lastResetAt : Time.Time;
   };
 
-  type DecisionEntry = {
+  public type DecisionEntry = {
     id : Nat32;
     createdBy : Principal;
     createdAt : Time.Time;
@@ -69,53 +75,60 @@ module {
     completionTimestamp : ?Time.Time;
   };
 
-  type OldUserProfile = {
-    username : Text;
-    avatar : Nat32;
-    role : ProfileRole;
+  public type RepeatInterval = {
+    #daily;
+    #weekly;
+    #monthly;
   };
 
-  type NewUserProfile = {
-    username : Text;
-    initials : Text;
-    avatar : Nat32;
-    profilePhoto : ?Storage.ExternalBlob;
-    role : ProfileRole;
+  public type DecisionType = {
+    #valid;
+    #invalid;
+    #critical;
   };
 
-  type OldActor = {
+  public type OldActorState = {
     tasks : Map.Map<Nat32, Task>;
     decisionEntries : List.List<DecisionEntry>;
-    userProfiles : Map.Map<Principal, OldUserProfile>;
+    userProfiles : Map.Map<Principal, UserProfile>;
+    overtimeEntries : Map.Map<Principal, List.List<OvertimeEntry>>;
     nextTaskId : Nat32;
+    nextOvertimeId : Nat32;
     dentalAvatars : Map.Map<Nat32, DentalAvatar>;
-    accessControlState : AccessControl.AccessControlState;
   };
 
-  type NewActor = {
-    tasks : Map.Map<Nat32, Task>;
+  public type NewTask = {
+    id : Nat32;
+    title : Text;
+    description : Text;
+    taskType : TaskType;
+    isCompleted : Bool;
+    currentCompletion : ?TaskCompletion;
+    lastResetAt : Time.Time;
+  };
+
+  public type NewActorState = {
+    tasks : Map.Map<Nat32, NewTask>;
     decisionEntries : List.List<DecisionEntry>;
-    userProfiles : Map.Map<Principal, NewUserProfile>;
+    userProfiles : Map.Map<Principal, UserProfile>;
+    overtimeEntries : Map.Map<Principal, List.List<OvertimeEntry>>;
     nextTaskId : Nat32;
+    nextOvertimeId : Nat32;
     dentalAvatars : Map.Map<Nat32, DentalAvatar>;
-    accessControlState : AccessControl.AccessControlState;
   };
 
-  public func run(old : OldActor) : NewActor {
-    // Migrate user profiles, integrating new fields with defaults
-    let newUserProfiles = old.userProfiles.map<Principal, OldUserProfile, NewUserProfile>(
-      func(_principal, oldProfile) {
+  public func run(old : OldActorState) : NewActorState {
+    let newTasks = old.tasks.map<Nat32, Task, NewTask>(
+      func(_id, task) {
         {
-          oldProfile with
-          initials = "";
-          profilePhoto = null;
+          task with
+          description = "Please update this description";
         };
       }
     );
-
     {
       old with
-      userProfiles = newUserProfiles;
+      tasks = newTasks;
     };
   };
 };

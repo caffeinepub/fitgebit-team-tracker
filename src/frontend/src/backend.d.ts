@@ -22,11 +22,20 @@ export interface TaskCompletion {
     beforePhoto?: ExternalBlob;
     comment?: string;
 }
+export interface OvertimeEntry {
+    id: number;
+    date: Time;
+    approvedBy?: Principal;
+    createdBy: Principal;
+    minutes: bigint;
+    approved: boolean;
+}
 export interface Task {
     id: number;
     title: string;
     lastResetAt: Time;
     isCompleted: boolean;
+    description: string;
     taskType: TaskType;
     currentCompletion?: TaskCompletion;
 }
@@ -85,17 +94,19 @@ export enum UserRole {
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     completeTask(taskId: number, comment: string | null, beforePhoto: ExternalBlob | null, afterPhoto: ExternalBlob | null): Promise<void>;
-    createTask(title: string, taskType: TaskType): Promise<void>;
+    createOvertimeEntry(minutes: bigint): Promise<OvertimeEntry>;
+    createTask(title: string, description: string, taskType: TaskType): Promise<void>;
     exportTaskData(): Promise<Array<Task>>;
     getAllDentalAvatars(): Promise<Array<DentalAvatar>>;
     getAllUserProfiles(): Promise<Array<[Principal, UserProfile]>>;
+    getCallerOvertimeEntries(): Promise<Array<OvertimeEntry>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getDecisionEntries(): Promise<Array<DecisionEntry>>;
     getProfilePhoto(user: Principal): Promise<ExternalBlob | null>;
     getTasks(): Promise<Array<Task>>;
+    getUserOvertimeEntries(user: Principal): Promise<Array<OvertimeEntry>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
-    initializeAvatars(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     removeProfilePhoto(): Promise<void>;
     resetRecurringTasksIfNeeded(): Promise<void>;

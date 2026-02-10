@@ -2,98 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-authenticated-app-flow-so-the-profile-ui-cannot-disappear-ensure-the-app-deterministically-shows-exactly-one-of-loginscreen-rolechoicescreen-profileonboardingmodal-appshell-based-on-internet-identity-auth-state-role-state-and-profile-state-and-add-a-safe-fallback-ui-when-the-role-profile-queries-error-or-return-unexpected-values",
-      "featureTitle": "Fix the authenticated app flow so the profile UI cannot disappear: ensure the app deterministically shows exactly one of (LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, AppShell) based on Internet Identity auth state, role state, and profile state, and add a safe fallback UI when the role/profile queries error or return unexpected values.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
-        "frontend/src/components/common/QueryErrorFallback.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-34"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-profile-onboarding-to-require-both-username-and-initials-2-3-characters-and-to-let-the-user-choose-one-of-a-upload-a-profile-photo-b-choose-a-dental-svg-avatar-or-c-use-an-auto-generated-pastel-dental-avatar-with-initials-prevent-saving-until-the-required-fields-are-valid",
-      "featureTitle": "Update profile onboarding to require both username and initials (2–3 characters) and to let the user choose one of: (A) upload a profile photo, (B) choose a dental SVG avatar, or (C) use an auto-generated pastel dental avatar with initials; prevent saving until the required fields are valid.",
-      "files": [
-        "frontend/src/components/avatars/GeneratedDentalAvatar.tsx",
-        "frontend/src/components/profile/ProfileOnboardingModal.tsx",
-        "frontend/src/components/profile/ProfilePhotoField.tsx",
-        "frontend/src/hooks/useUserProfile.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-37"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-profile-settings-so-users-can-edit-username-initials-and-avatar-photo-allow-uploading-replacing-removing-a-profile-photo-and-ensure-the-settings-sheet-remains-fully-opaque-in-both-light-and-dark-mode",
-      "featureTitle": "Update Profile Settings so users can edit username, initials, and avatar/photo: allow uploading/replacing/removing a profile photo, and ensure the settings sheet remains fully opaque in both light and dark mode.",
-      "files": [
-        "frontend/src/components/profile/ProfileSettingsPanel.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-38"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-a-single-reusable-avatar-renderer-component-for-the-app-that-displays-in-priority-order-uploaded-profile-photo-if-present-selected-dental-svg-avatar-auto-generated-pastel-dental-avatar-with-initials-then-replace-existing-usages-that-assume-profile-avatar-is-always-a-dental-svg-id-e-g-header-user-menu-manager-user-picker-task-manager-views-where-profiles-are-shown",
-      "featureTitle": "Implement a single reusable avatar renderer component for the app that displays, in priority order: uploaded profile photo (if present) → selected dental SVG avatar → auto-generated pastel dental avatar with initials; then replace existing usages that assume `profile.avatar` is always a dental SVG ID (e.g., header user menu, manager user picker, task/manager views where profiles are shown).",
-      "files": [
-        "frontend/src/components/avatars/DentalAvatarImage.tsx",
-        "frontend/src/components/avatars/ProfileAvatar.tsx",
-        "frontend/src/components/layout/AppHeader.tsx",
-        "frontend/src/components/manager/UserPicker.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-39"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-make-dental-avatar-availability-reliable-by-ensuring-the-backend-avatar-list-is-initialized-and-non-empty-for-all-deployments-guarantee-that-getalldentalavatars-returns-the-full-expected-set-16-without-requiring-a-manual-one-time-call-from-the-frontend",
-      "featureTitle": "Make dental avatar availability reliable by ensuring the backend avatar list is initialized and non-empty for all deployments: guarantee that `getAllDentalAvatars()` returns the full expected set (16) without requiring a manual one-time call from the frontend.",
+      "featureId": "feature-fix-dental-avatar-rendering-so-avatars-reliably-display-across-the-app-avatar-picker-profile-onboarding-settings-header-user-menu-and-manager-user-picker-instead-of-appearing-missing-not-showing",
+      "featureTitle": "Fix dental avatar rendering so avatars reliably display across the app (avatar picker, profile onboarding/settings, header/user menu, and manager user picker) instead of appearing missing/not showing.",
       "files": [
         "frontend/src/components/avatars/AvatarPicker.tsx",
+        "frontend/src/components/avatars/DentalAvatarImage.tsx",
+        "frontend/src/components/avatars/ProfileAvatar.tsx",
         "frontend/src/hooks/useDentalAvatars.ts"
       ],
       "components": [
@@ -106,14 +20,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-40"
+        "REQ-54"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-adjust-i18n-translation-keys-for-all-new-changed-profile-and-photo-upload-ui-text-english-dutch-french-and-remove-outdated-role-confirmation-strings-that-are-no-longer-used-in-the-ui-flow",
-      "featureTitle": "Add/adjust i18n translation keys for all new/changed profile and photo-upload UI text (English, Dutch, French), and remove outdated role-confirmation strings that are no longer used in the UI flow.",
+      "featureId": "feature-add-a-multi-line-task-description-field-that-appears-directly-under-the-task-title-when-creating-a-task-allowing-users-to-describe-the-task-in-detail-persist-this-description-in-the-backend-task-model-and-display-it-under-the-task-title-on-task-cards",
+      "featureTitle": "Add a multi-line task description field that appears directly under the task title when creating a task, allowing users to describe the task in detail; persist this description in the backend task model and display it under the task title on task cards.",
       "files": [
+        "frontend/src/components/tasks/CreateTaskDialog.tsx",
+        "frontend/src/components/tasks/TaskCard.tsx",
+        "frontend/src/hooks/useTasks.ts",
         "frontend/src/i18n/translations.ts"
       ],
       "components": [
@@ -126,7 +43,28 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-41"
+        "REQ-55"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-overtime-totals-display-to-convert-total-minutes-into-a-composite-format-using-60-minutes-1-hour-and-8-hours-1-day-and-show-totals-in-the-format-x-day-s-y-hour-s-z-minute-s-e-g-550-minutes-displays-as-1-day-1-hour-10-minutes",
+      "featureTitle": "Update overtime totals display to convert total minutes into a composite format using 60 minutes = 1 hour and 8 hours = 1 day, and show totals in the format \"X day(s), Y hour(s), Z minute(s)\" (e.g., 550 minutes displays as \"1 day, 1 hour, 10 minutes\").",
+      "files": [
+        "frontend/src/components/overtime/OvertimeTotals.tsx",
+        "frontend/src/i18n/translations.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-56"
       ],
       "confidence": "high"
     }

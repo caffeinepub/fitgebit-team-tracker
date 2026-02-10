@@ -62,6 +62,10 @@ export const translations = {
       title: 'Tasks',
       createTask: 'Create Task',
       taskTitle: 'Task Title',
+      description: 'Description',
+      descriptionPlaceholder: 'Explain the task in detail...',
+      descriptionHint: 'Provide details about what needs to be done',
+      descriptionRequired: 'Task description is required',
       type: 'Type',
       weekly: 'Weekly',
       monthly: 'Monthly',
@@ -90,9 +94,13 @@ export const translations = {
       history: 'History',
       totals: 'Totals',
       totalMinutes: 'Total Minutes',
+      totalHours: 'Total Hours',
+      totalComposite: 'Total Time',
       workdays: 'Workdays',
       noEntries: 'No overtime entries yet',
       addFirst: 'Add your first entry',
+      entryCreated: 'Overtime entry created successfully',
+      exportSuccess: 'Overtime data exported successfully',
     },
     managerSection: {
       title: 'Manager Dashboard',
@@ -134,6 +142,7 @@ export const translations = {
       initialsLength: 'Initials must be 2-3 characters',
       invalidFileType: 'Please select an image file',
       fileTooLarge: 'File size must be less than 5MB',
+      weeklyTaskObsolete: 'This weekly task needs to be reset. Please try again.',
     },
     common: {
       save: 'Save',
@@ -218,6 +227,10 @@ export const translations = {
       title: 'Taken',
       createTask: 'Taak Aanmaken',
       taskTitle: 'Taak Titel',
+      description: 'Beschrijving',
+      descriptionPlaceholder: 'Leg de taak in detail uit...',
+      descriptionHint: 'Geef details over wat er gedaan moet worden',
+      descriptionRequired: 'Taakbeschrijving is verplicht',
       type: 'Type',
       weekly: 'Wekelijks',
       monthly: 'Maandelijks',
@@ -246,9 +259,13 @@ export const translations = {
       history: 'Geschiedenis',
       totals: 'Totalen',
       totalMinutes: 'Totaal Minuten',
+      totalHours: 'Totaal Uren',
+      totalComposite: 'Totale Tijd',
       workdays: 'Werkdagen',
       noEntries: 'Nog geen overuren ingevoerd',
       addFirst: 'Voeg uw eerste invoer toe',
+      entryCreated: 'Overuren succesvol toegevoegd',
+      exportSuccess: 'Overuren gegevens succesvol geëxporteerd',
     },
     managerSection: {
       title: 'Manager Dashboard',
@@ -290,6 +307,7 @@ export const translations = {
       initialsLength: 'Initialen moeten 2-3 tekens zijn',
       invalidFileType: 'Selecteer een afbeeldingsbestand',
       fileTooLarge: 'Bestandsgrootte moet minder dan 5MB zijn',
+      weeklyTaskObsolete: 'Deze wekelijkse taak moet worden gereset. Probeer het opnieuw.',
     },
     common: {
       save: 'Opslaan',
@@ -309,7 +327,7 @@ export const translations = {
     },
     avatars: {
       noAvatarsAvailable: 'Geen avatars beschikbaar',
-      loadError: 'Kan avatars niet laden',
+      loadError: 'Avatars laden mislukt',
       initialize: 'Initialiseer Avatars',
     },
   },
@@ -322,7 +340,7 @@ export const translations = {
       login: 'Connexion',
       logout: 'Déconnexion',
       loggingIn: 'Connexion...',
-      welcome: 'Bienvenue chez FitGebit',
+      welcome: 'Bienvenue sur FitGebit',
       loginPrompt: 'Veuillez vous connecter avec Internet Identity pour continuer',
       loginButton: 'Se connecter avec Internet Identity',
       selectRole: 'Sélectionnez Votre Rôle',
@@ -374,6 +392,10 @@ export const translations = {
       title: 'Tâches',
       createTask: 'Créer une Tâche',
       taskTitle: 'Titre de la Tâche',
+      description: 'Description',
+      descriptionPlaceholder: 'Expliquez la tâche en détail...',
+      descriptionHint: 'Fournissez des détails sur ce qui doit être fait',
+      descriptionRequired: 'La description de la tâche est requise',
       type: 'Type',
       weekly: 'Hebdomadaire',
       monthly: 'Mensuel',
@@ -402,9 +424,13 @@ export const translations = {
       history: 'Historique',
       totals: 'Totaux',
       totalMinutes: 'Total Minutes',
+      totalHours: 'Total Heures',
+      totalComposite: 'Temps Total',
       workdays: 'Jours de Travail',
       noEntries: 'Aucune entrée pour le moment',
       addFirst: 'Ajoutez votre première entrée',
+      entryCreated: 'Entrée créée avec succès',
+      exportSuccess: 'Données exportées avec succès',
     },
     managerSection: {
       title: 'Tableau de Bord Manager',
@@ -416,8 +442,8 @@ export const translations = {
     },
     badges: {
       title: 'Badges',
-      earned: 'Gagnés',
-      locked: 'Verrouillés',
+      earned: 'Gagné',
+      locked: 'Verrouillé',
       firstOvertime: 'Premières Heures Supplémentaires',
       firstOvertimeDesc: 'Enregistrez vos premières heures supplémentaires',
       overtimeVeteran: 'Vétéran des Heures Supplémentaires',
@@ -433,7 +459,7 @@ export const translations = {
       title: 'Confidentialité & Données',
       export: 'Exporter Mes Données',
       delete: 'Supprimer Mon Profil',
-      deleteConfirm: 'Êtes-vous sûr? Cela ne peut pas être annulé.',
+      deleteConfirm: 'Êtes-vous sûr? Cette action est irréversible.',
       deleteButton: 'Oui, Supprimer',
     },
     errors: {
@@ -443,9 +469,10 @@ export const translations = {
       required: 'Ce champ est requis',
       futureDate: 'Les dates futures ne sont pas autorisées',
       invalidMinutes: 'Veuillez entrer un nombre de minutes valide',
-      initialsLength: 'Les initiales doivent comporter 2-3 caractères',
+      initialsLength: 'Les initiales doivent contenir 2-3 caractères',
       invalidFileType: 'Veuillez sélectionner un fichier image',
       fileTooLarge: 'La taille du fichier doit être inférieure à 5MB',
+      weeklyTaskObsolete: 'Cette tâche hebdomadaire doit être réinitialisée. Veuillez réessayer.',
     },
     common: {
       save: 'Enregistrer',
@@ -470,3 +497,14 @@ export const translations = {
     },
   },
 };
+
+export function getTranslation(lang: Language, key: string): string {
+  const keys = key.split('.');
+  let value: any = translations[lang];
+  
+  for (const k of keys) {
+    value = value?.[k];
+  }
+  
+  return value || key;
+}

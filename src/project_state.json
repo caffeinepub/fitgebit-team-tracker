@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 13,
+  "projectStateVersion": 19,
   "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set name/username and 2–3 initials. Profile must support either an uploaded profile picture or an auto-generated cute dental-themed avatar (pastel palette, unique per user, initials visible). Avatars/photos must load reliably across the app; profile UI must be persistent and not disappear after updates. Logo is a cute tooth icon (no text).",
   "architectural_notes": [
     "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
@@ -19,7 +19,11 @@
     "Build/app generation attempts failed multiple times during this conversation (needs investigation or scope reduction to unblock).",
     "Profile settings popup/modal background is see-through (transparency issue).",
     "Avatars are not visible in the Profile settings avatar picker/grid.",
-    "Profile UI disappeared after the latest update (profile settings/profile screen not showing)."
+    "Profile UI disappeared after the latest update (profile settings/profile screen not showing).",
+    "Overtime submission fails with error message: \"Overtime functionality is currently unavailable\" (UI loads but save/submit fails at the end).",
+    "All avatars appear as missing/broken image links across the app (not just in the picker).",
+    "Overtime submission error: \"Invalid nat argument: BigInt(-6)\" when attempting to deduct/store negative minutes (backend likely using Nat).",
+    "Task completion error: \"Invalid task: This weekly task is obsolete and must be reset before completion\" blocking marking tasks done."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -326,6 +330,86 @@
         "REQ-41"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-restore-end-to-end-overtime-functionality-so-assistants-can-successfully-add-or-deduct-overtime-minutes-instead-of-receiving-the-error-message-overtime-functionality-is-currently-unavailable",
+      "title": "Restore end-to-end overtime functionality so assistants can successfully add or deduct overtime minutes instead of receiving the error message \"Overtime functionality is currently unavailable\".",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-overtime-hooks-and-ui-to-call-the-backend-overtime-apis-instead-of-the-current-no-op-disabled-implementations-and-ensure-errors-are-surfaced-through-the-existing-notification-error-handling-patterns",
+      "title": "Update the frontend overtime hooks and UI to call the backend overtime APIs (instead of the current no-op/disabled implementations) and ensure errors are surfaced through the existing notification/error handling patterns.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-dental-avatar-loading-so-all-16-dental-svg-avatars-render-correctly-no-broken-missing-image-links-across-the-entire-app-including-the-avatar-picker-profile-onboarding-settings-header-user-menu-and-manager-user-picker",
+      "title": "Fix dental avatar loading so all 16 dental SVG avatars render correctly (no broken/missing image links) across the entire app, including the avatar picker, profile onboarding/settings, header/user menu, and manager user picker.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-i18n-keys-as-needed-to-cover-any-new-changed-overtime-and-avatar-error-success-messages-used-by-the-fixes-keeping-existing-english-dutch-french-structure-intact-while-ensuring-english-user-facing-text-is-present-for-the-build",
+      "title": "Update i18n keys as needed to cover any new/changed overtime and avatar error/success messages used by the fixes, keeping existing English/Dutch/French structure intact while ensuring English user-facing text is present for the build.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-overtime-total-display-in-hours-in-addition-to-the-existing-minutes-workdays-totals-across-the-app-where-overtime-totals-are-shown",
+      "title": "Add overtime total display in hours (in addition to the existing minutes/workdays totals) across the app where overtime totals are shown.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-weekly-tasks-reset-on-mondays-and-users-can-always-mark-them-done-without-being-blocked-by-this-weekly-task-is-obsolete-and-must-be-reset-before-completion",
+      "title": "Ensure weekly tasks reset on Mondays and users can always mark them done without being blocked by \"This weekly task is obsolete and must be reset before completion\".",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-keep-task-list-ordering-so-that-when-a-task-is-marked-done-it-moves-down-the-list-allowing-more-urgent-incomplete-tasks-to-rise-to-the-top",
+      "title": "Keep task list ordering so that when a task is marked done it moves down the list, allowing more urgent/incomplete tasks to rise to the top.",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-dental-avatar-rendering-so-avatars-reliably-display-across-the-app-avatar-picker-profile-onboarding-settings-header-user-menu-and-manager-user-picker-instead-of-appearing-missing-not-showing",
+      "title": "Fix dental avatar rendering so avatars reliably display across the app (avatar picker, profile onboarding/settings, header/user menu, and manager user picker) instead of appearing missing/not showing.",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-multi-line-task-description-field-that-appears-directly-under-the-task-title-when-creating-a-task-allowing-users-to-describe-the-task-in-detail-persist-this-description-in-the-backend-task-model-and-display-it-under-the-task-title-on-task-cards",
+      "title": "Add a multi-line task description field that appears directly under the task title when creating a task, allowing users to describe the task in detail; persist this description in the backend task model and display it under the task title on task cards.",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-overtime-totals-display-to-convert-total-minutes-into-a-composite-format-using-60-minutes-1-hour-and-8-hours-1-day-and-show-totals-in-the-format-x-day-s-y-hour-s-z-minute-s-e-g-550-minutes-displays-as-1-day-1-hour-10-minutes",
+      "title": "Update overtime totals display to convert total minutes into a composite format using 60 minutes = 1 hour and 8 hours = 1 day, and show totals in the format \"X day(s), Y hour(s), Z minute(s)\" (e.g., 550 minutes displays as \"1 day, 1 hour, 10 minutes\").",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -441,6 +525,76 @@
       "reqIds": [
         "REQ-36"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Implement (or re-introduce) the overtime data model and APIs in the Motoko backend to support creating and listing a caller’s overtime entries, and manager access to per-user overtime views and CSV export data.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Ensure the backend always returns a complete, valid set of 16 dental avatars (with valid SVG markup) from `getAllDentalAvatars()` without requiring a manual one-time initialization call from the frontend.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Avatars: permanently replace the current 16 dental SVG avatars with a new set of cute pastel-colored dental/medical themed avatars (more variety; not all the same).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Overtime: backend must support negative minute values for deductions (store as signed Int) and frontend must display overtime totals in hours in addition to minutes/days.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Tasks: weekly tasks must reset automatically on Mondays even if the app hasn’t been opened; when a task is marked done it should move down the list so more urgent tasks appear first.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Fix overtime submission to support deductions by storing signed minute values (negative minutes) end-to-end, eliminating the runtime error \"Invalid nat argument: BigInt(-6)\".",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Permanently replace the existing set of 16 dental SVG avatars served by the backend with a new set of 16 cute pastel-colored dental/medical themed SVG avatars with clear variety (not all the same).",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Add a safe, conditional data migration for existing deployments to handle the overtime minutes type change required for signed (negative) minutes, preserving any existing overtime data.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Tasks UI: add a multi-line comment/description input directly under each task title to describe the task in detail",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Overtime totals display: convert minutes into a composite \"X days, Y hours, Z minutes\" format using 60 min = 1 hour and 8 hours = 1 day (e.g., 550 min -> 1 day, 1 hour, 10 minutes)",
+      "reqIds": [],
       "status": "pending"
     }
   ],

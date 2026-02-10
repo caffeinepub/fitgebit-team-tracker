@@ -1,34 +1,43 @@
 import { useMemo } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-interface OvertimeEntry {
-  id: number;
-  minutes: number;
-  isAddition: boolean;
-  timestamp: bigint;
-  comment?: string;
-}
+import type { OvertimeEntry } from '../../backend';
 
 interface Props {
   entries: OvertimeEntry[];
 }
 
+function formatCompositeTime(totalMinutes: number): string {
+  const isNegative = totalMinutes < 0;
+  const absMinutes = Math.abs(totalMinutes);
+  
+  // 8 hours = 1 day, 60 minutes = 1 hour
+  const days = Math.floor(absMinutes / 480);
+  const remainingAfterDays = absMinutes % 480;
+  const hours = Math.floor(remainingAfterDays / 60);
+  const minutes = remainingAfterDays % 60;
+  
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+  if (minutes > 0 || parts.length === 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+  
+  const result = parts.join(', ');
+  return isNegative ? `-${result}` : result;
+}
+
 export default function OvertimeTotals({ entries }: Props) {
   const { t } = useI18n();
 
-  const { totalMinutes, workdays, remainderMinutes } = useMemo(() => {
+  const { totalMinutes, compositeDisplay } = useMemo(() => {
+    // Backend stores signed minutes: positive = add, negative = deduct
     const total = entries.reduce((sum, entry) => {
-      return sum + (entry.isAddition ? entry.minutes : -entry.minutes);
+      return sum + Number(entry.minutes);
     }, 0);
-
-    const days = Math.floor(total / 480);
-    const remainder = total % 480;
 
     return {
       totalMinutes: total,
-      workdays: days,
-      remainderMinutes: remainder,
+      compositeDisplay: formatCompositeTime(total),
     };
   }, [entries]);
 
@@ -45,15 +54,10 @@ export default function OvertimeTotals({ entries }: Props) {
               {totalMinutes}
             </span>
           </div>
-          <div className="flex items-center justify-between p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
-            <span className="font-medium">{t('overtime.workdays')}</span>
-            <span className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
-              {workdays}
-              {remainderMinutes !== 0 && (
-                <span className="text-sm ml-2">
-                  {remainderMinutes > 0 ? '+' : ''}{remainderMinutes}m
-                </span>
-              )}
+          <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+            <span className="font-medium">{t('overtime.totalComposite')}</span>
+            <span className="text-xl font-bold text-purple-600 dark:text-purple-400">
+              {compositeDisplay}
             </span>
           </div>
         </div>

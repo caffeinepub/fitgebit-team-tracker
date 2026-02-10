@@ -5,6 +5,7 @@ import { useCreateTask } from '../../hooks/useTasks';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TaskType } from '../../backend';
@@ -20,6 +21,7 @@ export default function CreateTaskDialog({ open, onClose }: Props) {
   const { mutateAsync: createTask, isPending } = useCreateTask();
 
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [taskType, setTaskType] = useState<TaskType>(TaskType.weekly);
 
   const handleSubmit = async () => {
@@ -28,14 +30,21 @@ export default function CreateTaskDialog({ open, onClose }: Props) {
       return;
     }
 
+    if (!description.trim()) {
+      handleError(new Error(t('tasks.descriptionRequired')));
+      return;
+    }
+
     try {
       await createTask({
         title: title.trim(),
+        description: description.trim(),
         taskType,
       });
       success(t('common.success'));
       onClose();
       setTitle('');
+      setDescription('');
       setTaskType(TaskType.weekly);
     } catch (error) {
       handleError(error);
@@ -57,6 +66,19 @@ export default function CreateTaskDialog({ open, onClose }: Props) {
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('tasks.taskTitle')}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">{t('tasks.description')}</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={t('tasks.descriptionPlaceholder')}
+              rows={3}
+              className="resize-none"
+            />
+            <p className="text-xs text-muted-foreground">{t('tasks.descriptionHint')}</p>
           </div>
 
           <div className="space-y-2">

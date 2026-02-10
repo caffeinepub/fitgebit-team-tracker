@@ -23,13 +23,15 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: async ({
       title,
+      description,
       taskType,
     }: {
       title: string;
+      description: string;
       taskType: TaskType;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.createTask(title, taskType);
+      await actor.createTask(title, description, taskType);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -54,9 +56,51 @@ export function useCompleteTask() {
       afterPhoto: ExternalBlob | null;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.completeTask(taskId, comment, beforePhoto, afterPhoto);
+      
+      try {
+        await actor.completeTask(taskId, comment, beforePhoto, afterPhoto);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        
+        // Handle obsolete weekly task error with automatic reset and retry
+        if (errorMessage.includes('obsolete') && errorMessage.includes('weekly')) {
+          // Reset recurring tasks and retry completion
+          await actor.resetRecurringTasksIfNeeded();
+          await actor.completeTask(taskId, comment, beforePhoto, afterPhoto);
+        } else {
+          throw error;
+        }
+      }
+    },
+    onMutate: async ({ taskId }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+
+      // Snapshot previous value
+      const previousTasks = queryClient.getQueryData<Task[]>(['tasks']);
+
+      // Optimistically update to move completed task down
+      if (previousTasks) {
+        queryClient.setQueryData<Task[]>(['tasks'], (old) => {
+          if (!old) return old;
+          return old.map((task) =>
+            task.id === taskId
+              ? { ...task, isCompleted: true }
+              : task
+          );
+        });
+      }
+
+      return { previousTasks };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks'], context.previousTasks);
+      }
     },
     onSuccess: () => {
+      // Invalidate to get the actual completion data from backend
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });

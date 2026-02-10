@@ -25,7 +25,14 @@ export default function TaskList({ tasks }: Props) {
         [TaskType.monthly]: 2,
       };
       
-      return typePriority[a.taskType] - typePriority[b.taskType];
+      const priorityDiff = typePriority[a.taskType] - typePriority[b.taskType];
+      
+      // If same priority, use task ID as stable tie-breaker
+      if (priorityDiff === 0) {
+        return a.id - b.id;
+      }
+      
+      return priorityDiff;
     });
   }, [tasks]);
 

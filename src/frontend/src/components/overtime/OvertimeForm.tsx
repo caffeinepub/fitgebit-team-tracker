@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { useNotify } from '../../hooks/useNotify';
+import { useCreateOvertimeEntry } from '../../hooks/useOvertime';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,13 +12,13 @@ import { Plus, Minus } from 'lucide-react';
 export default function OvertimeForm() {
   const { t } = useI18n();
   const { success, handleError } = useNotify();
+  const createOvertimeMutation = useCreateOvertimeEntry();
 
   const [minutes, setMinutes] = useState('');
   const [day, setDay] = useState(new Date().getDate().toString().padStart(2, '0'));
   const [month, setMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [comment, setComment] = useState('');
-  const [isPending, setIsPending] = useState(false);
 
   const handleSubmit = async (isAddition: boolean) => {
     const minutesNum = parseInt(minutes);
@@ -45,15 +46,25 @@ export default function OvertimeForm() {
     }
 
     try {
-      setIsPending(true);
-      // Backend overtime functionality removed - show error
-      handleError(new Error('Overtime functionality is currently unavailable'));
+      // Apply sign based on add/deduct
+      const signedMinutes = isAddition ? minutesNum : -minutesNum;
+      await createOvertimeMutation.mutateAsync(signedMinutes);
+      success(t('overtime.entryCreated'));
+      
+      // Reset form
+      setMinutes('');
+      setComment('');
+      // Reset date to today
+      const now = new Date();
+      setDay(now.getDate().toString().padStart(2, '0'));
+      setMonth((now.getMonth() + 1).toString().padStart(2, '0'));
+      setYear(now.getFullYear().toString());
     } catch (error) {
       handleError(error);
-    } finally {
-      setIsPending(false);
     }
   };
+
+  const isPending = createOvertimeMutation.isPending;
 
   return (
     <Card>
@@ -70,6 +81,7 @@ export default function OvertimeForm() {
             value={minutes}
             onChange={(e) => setMinutes(e.target.value)}
             placeholder="0"
+            disabled={isPending}
           />
         </div>
 
@@ -83,6 +95,7 @@ export default function OvertimeForm() {
               value={day}
               onChange={(e) => setDay(e.target.value)}
               placeholder="DD"
+              disabled={isPending}
             />
             <Input
               type="number"
@@ -91,6 +104,7 @@ export default function OvertimeForm() {
               value={month}
               onChange={(e) => setMonth(e.target.value)}
               placeholder="MM"
+              disabled={isPending}
             />
             <Input
               type="number"
@@ -99,6 +113,7 @@ export default function OvertimeForm() {
               value={year}
               onChange={(e) => setYear(e.target.value)}
               placeholder="YYYY"
+              disabled={isPending}
             />
           </div>
         </div>
@@ -111,6 +126,7 @@ export default function OvertimeForm() {
             onChange={(e) => setComment(e.target.value)}
             placeholder={t('overtime.comment')}
             rows={2}
+            disabled={isPending}
           />
         </div>
 
@@ -121,7 +137,7 @@ export default function OvertimeForm() {
             className="bg-red-500 hover:bg-red-600 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
-            {t('overtime.add')}
+            {isPending ? t('common.loading') : t('overtime.add')}
           </Button>
           <Button
             onClick={() => handleSubmit(false)}
@@ -129,7 +145,7 @@ export default function OvertimeForm() {
             className="bg-green-500 hover:bg-green-600 text-white"
           >
             <Minus className="w-4 h-4 mr-2" />
-            {t('overtime.deduct')}
+            {isPending ? t('common.loading') : t('overtime.deduct')}
           </Button>
         </div>
       </CardContent>

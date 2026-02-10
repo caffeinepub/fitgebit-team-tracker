@@ -1,151 +1,97 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Deterministic authenticated profile flow with robust avatar/photo rendering and initials support (frontend)",
+  "title": "Fix dental avatar rendering, add task descriptions, and display overtime totals as days/hours/minutes",
   "requirements": [
     {
-      "id": "REQ-34",
-      "summary": "Make the authenticated app flow deterministic (exactly one of LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, AppShell) with visible error + retry fallback for role/profile query failures.",
+      "id": "REQ-54",
+      "summary": "Make dental SVG avatars render reliably across avatar picker, onboarding/settings, header/user menu, and manager user picker with deterministic fallbacks and no console errors.",
       "acceptanceCriteria": [
-        "When authenticated and role is not guest and the user profile is missing, ProfileOnboardingModal always renders and cannot be skipped by transient loading states.",
-        "When authenticated and role is guest, RoleChoiceScreen always renders.",
-        "If fetching role or profile fails, the user sees a visible error state with a retry action rather than a blank/missing UI.",
-        "No console errors are produced by the app flow on a fresh login + onboarding path."
+        "All 16 dental SVG avatars render as visible images (not blank cells and not broken/missing image links) in AvatarPicker.",
+        "Profile avatar rendering works for users who have selected a dental SVG avatar (including in header/user menu and manager user picker).",
+        "If an avatar SVG is invalid/missing, the UI shows a deterministic fallback (no empty/blank area).",
+        "No console errors are produced during normal avatar rendering (excluding intentional warning logs for unexpected avatar counts)."
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/components/auth/AuthenticatedAppFlow.tsx",
-          "operation": "create",
-          "description": "Create a small state-machine-style gate component that decides and renders exactly one of: LoginScreen, RoleChoiceScreen, ProfileOnboardingModal, or AppShell, based on Internet Identity auth state plus role/profile query states. Use the authorization component patterns (role-based flow and cache clearing expectations) to avoid modal flashing and missing UI; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/common/QueryErrorFallback.tsx",
-          "operation": "create",
-          "description": "Add a reusable, visible error state UI that shows an i18n error message and a retry button (calls provided refetch callbacks) for role/profile query failures, preventing blank/missing UI."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Replace the current conditional rendering with the new deterministic AuthenticatedAppFlow, ensuring only one screen is mounted at a time; wire role/profile loading, error, and fetched states into that gate. Remove the no-op avatar initialization effect to avoid confusion and ensure no console errors."
-        }
-      ]
-    },
-    {
-      "id": "REQ-37",
-      "summary": "Update profile onboarding to require username + initials and allow choosing upload photo, dental avatar, or auto-generated avatar with initials, with validation and i18n.",
-      "acceptanceCriteria": [
-        "Onboarding cannot be completed unless username is non-empty and initials length is 2 or 3 characters.",
-        "Onboarding provides a photo upload control and a way to remove/replace the selected photo before saving.",
-        "If the user does not upload a photo, the UI still allows saving by selecting a dental avatar or using the auto-generated avatar option.",
-        "Initials are visibly rendered on the auto-generated avatar preview.",
-        "All new/changed user-facing text uses the i18n system (English/NL/FR entries added/updated)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/profile/ProfileOnboardingModal.tsx",
-          "operation": "modify",
-          "description": "Extend onboarding form to: (1) require username + initials (2–3 chars), (2) offer three avatar modes (upload photo / pick dental avatar / auto-generate), (3) show previews, and (4) prevent save until valid. Use blob-storage’s ExternalBlob on the frontend for photo selection/upload and prefer displaying via direct URL; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/profile/ProfilePhotoField.tsx",
-          "operation": "create",
-          "description": "Create a reusable profile photo selector UI for onboarding (and later settings): file input, replace/remove actions, basic client-side validation (image-only + size guidance), preview, and upload progress support. Use blob-storage ExternalBlob.withUploadProgress for upload progress UI; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useUserProfile.ts",
-          "operation": "modify",
-          "description": "Add React Query mutations for uploading and removing the caller profile photo (wrapping the existing actor functions), plus consistent cache invalidation for currentUserProfile and any photo-related queries. Keep using the existing React Query + useActor pattern."
-        },
-        {
-          "path": "frontend/src/components/avatars/GeneratedDentalAvatar.tsx",
-          "operation": "create",
-          "description": "Implement an auto-generated pastel dental-themed avatar renderer that visibly overlays initials (2–3 chars). This is used for the onboarding preview and as the final fallback avatar rendering throughout the app."
-        }
-      ]
-    },
-    {
-      "id": "REQ-38",
-      "summary": "Update Profile Settings to edit username, initials, and avatar/photo (upload/replace/remove) and ensure the settings sheet is fully opaque in light/dark mode.",
-      "acceptanceCriteria": [
-        "ProfileSettingsPanel shows current username and initials and allows editing both.",
-        "ProfileSettingsPanel shows current avatar/photo and allows changing via upload or selecting a dental avatar.",
-        "Removing a profile photo immediately falls back to the selected dental avatar or auto-generated avatar.",
-        "The settings sheet background is fully opaque (no see-through) in light and dark themes."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/profile/ProfileSettingsPanel.tsx",
-          "operation": "modify",
-          "description": "Add initials editing (2–3 chars) and integrate ProfilePhotoField for upload/replace/remove; keep dental avatar selection available. Ensure the sheet content uses fully opaque background classes in both light/dark (no transparency/backdrop blur bleed-through). Use blob-storage ExternalBlob patterns for photo display (direct URL) and upload; verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-39",
-      "summary": "Create a shared avatar renderer that prioritizes uploaded photo → dental SVG avatar → generated initials avatar, and replace existing avatar usages across the app.",
-      "acceptanceCriteria": [
-        "AppHeader and Manager UserPicker (and any other profile avatar usages) display the uploaded photo when present.",
-        "If no photo is present, the renderer displays the selected dental SVG avatar reliably (no blank cells/placeholders).",
-        "If neither a photo nor a valid dental avatar is available, the renderer displays an auto-generated pastel dental avatar with visible initials.",
-        "No component directly constructs its own dental avatar data URI; all avatar rendering goes through the shared renderer."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/avatars/ProfileAvatar.tsx",
-          "operation": "create",
-          "description": "Create a single reusable ProfileAvatar component that renders, in priority order: uploaded profile photo (ExternalBlob direct URL) → dental SVG avatar by id → GeneratedDentalAvatar with initials. Use blob-storage ExternalBlob.getDirectURL for reliable image rendering; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/layout/AppHeader.tsx",
-          "operation": "modify",
-          "description": "Replace DentalAvatarImage usage with the shared ProfileAvatar so the header user menu consistently shows uploaded photos when present and otherwise falls back correctly."
-        },
-        {
-          "path": "frontend/src/components/manager/UserPicker.tsx",
-          "operation": "modify",
-          "description": "Replace DentalAvatarImage usage with the shared ProfileAvatar so the manager user selector shows uploaded photos when present and otherwise falls back correctly."
-        },
         {
           "path": "frontend/src/components/avatars/DentalAvatarImage.tsx",
           "operation": "modify",
-          "description": "Refactor to ensure it is only responsible for dental SVG rendering by id (no other avatar logic), and ensure it never throws/creates console errors when avatar data is missing; fallback behavior should remain non-blank but minimal."
-        }
-      ]
-    },
-    {
-      "id": "REQ-40",
-      "summary": "Make dental avatar availability reliable from the frontend by handling missing/empty avatar lists with automatic initialization attempts and a visible, retryable error state.",
-      "acceptanceCriteria": [
-        "On a fresh deployment, opening the avatar picker shows 16 avatars without requiring any user action besides normal app usage.",
-        "`getAllDentalAvatars()` returns 16 entries consistently.",
-        "If the avatar set is missing for any reason, the backend self-heals (initializes) or returns a clear error that the frontend can display (no silent empty grid)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useDentalAvatars.ts",
-          "operation": "modify",
-          "description": "Harden dental avatar fetching: if the returned list is empty or not the expected size, attempt a one-time canister initialization call and then refetch; surface a typed error state (instead of silent empty arrays) so the UI can show a clear message + retry."
+          "description": "Harden DentalAvatarImage rendering by replacing DOM-manipulating img onError fallback with React-state-driven fallback rendering, improving SVG validation/normalization for data-URI usage, and ensuring a deterministic non-emoji fallback (e.g., simple inline SVG placeholder) for missing/invalid avatars to prevent blank cells and avoid console errors."
         },
         {
           "path": "frontend/src/components/avatars/AvatarPicker.tsx",
           "operation": "modify",
-          "description": "Update AvatarPicker to handle three states: loading, recoverable error (show i18n message + retry), and loaded grid. Ensure an empty/missing avatar set never results in a silent empty grid."
+          "description": "Ensure AvatarPicker always renders a visible cell for every returned avatar (including during transient lookup states) and passes stable alt/title; keep existing grid structure but confirm DentalAvatarImage sizing classes produce visible content for all 16 avatars."
+        },
+        {
+          "path": "frontend/src/components/avatars/ProfileAvatar.tsx",
+          "operation": "modify",
+          "description": "Ensure ProfileAvatar uses a safe dental avatar path when a dental avatar id is present but not yet available in cache (render deterministic fallback via DentalAvatarImage rather than producing empty output), so header/user menu and manager user picker remain reliable."
+        },
+        {
+          "path": "frontend/src/hooks/useDentalAvatars.ts",
+          "operation": "modify",
+          "description": "Stabilize dental avatar query behavior to reduce missing-avatar flashes (e.g., ensure consistent caching and avoid throwing on empty results in a way that could cascade into blank UI); keep the existing warning for unexpected counts and avoid producing console errors during normal rendering."
         }
       ]
     },
     {
-      "id": "REQ-41",
-      "summary": "Update i18n keys for new/changed profile and photo-upload UI text (en/nl/fr) and remove/confirm-unused outdated role-confirmation strings.",
+      "id": "REQ-55",
+      "summary": "Add a multi-line task description field under the task title in Create Task, submit it when creating tasks, and display it under titles on task cards with i18n coverage.",
       "acceptanceCriteria": [
-        "All new labels/buttons/errors for profile photo upload/removal and initials editing are present in `frontend/src/i18n/translations.ts` for en/nl/fr.",
-        "No newly introduced UI strings are hard-coded outside the translation system.",
-        "Any unreachable/outdated user-facing strings related to removed profile flows are either removed or confirmed unused (no dead UI paths)."
+        "Create Task dialog includes a multi-line text input placed directly under the title input.",
+        "Submitting a new task stores the description and it is returned by the backend in `getTasks()`.",
+        "Task cards render the description directly under the task title (when a description is present).",
+        "Existing tasks created before this change continue to load without errors (description treated as empty/missing).",
+        "All new user-facing text added for this feature uses i18n keys with English strings present."
       ],
       "file_operations": [
         {
+          "path": "frontend/src/components/tasks/CreateTaskDialog.tsx",
+          "operation": "modify",
+          "description": "Add a multi-line description field directly under the title input (confine the layout change to the specific Create Task dialog content area corresponding to XPath /html[1]/body[1]/div[3]/div[2]/div[4]); use an existing shadcn-ui textarea component (verify the component's usage instructions before implementing) and wire the description value into the submit payload using i18n keys for label/placeholder."
+        },
+        {
+          "path": "frontend/src/hooks/useTasks.ts",
+          "operation": "modify",
+          "description": "Update useCreateTask to accept and send `description` along with `title` and `taskType` using the current frontend backend interface signature, and keep cache invalidation behavior unchanged."
+        },
+        {
+          "path": "frontend/src/components/tasks/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Render the task description directly under the task title on the card when a non-empty description is present, without altering unrelated task completion UI."
+        },
+        {
           "path": "frontend/src/i18n/translations.ts",
           "operation": "modify",
-          "description": "Add/adjust translation keys for: profile photo upload/replace/remove, avatar mode selection (photo/avatar/generated), avatar initialization error + retry, initials validation messaging, and any new onboarding/settings helper text (en/nl/fr). Audit existing role-confirmation-related strings and remove those that are confirmed unused by the current UI flow."
+          "description": "Add i18n keys (English required) for the new task description UI text (e.g., tasks.description label/placeholder/help), ensuring new user-facing strings are referenced via t(...)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-56",
+      "summary": "Update overtime totals to display summed minutes as a composite of days/hours/minutes using 8 hours/day and 60 minutes/hour, supporting negative totals.",
+      "acceptanceCriteria": [
+        "OvertimeTotals converts summed signed minutes into (days, hours, minutes) using 8 hours/day and 60 minutes/hour.",
+        "Example validation: total of 550 minutes displays as \"1 day, 1 hour, 10 minutes\".",
+        "The composite display works for totals >= 0 and totals < 0 (negative totals retain a leading minus sign and use absolute values for components).",
+        "Manager overtime page (which reuses OvertimeTotals) reflects the same composite display for the selected user."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/overtime/OvertimeTotals.tsx",
+          "operation": "modify",
+          "description": "Replace/augment the existing hours/workdays computation with composite (days, hours, minutes) formatting derived from total signed minutes (8h/day, 60m/h), including correct negative handling (leading minus sign with absolute component breakdown), and display in the required \"X day(s), Y hour(s), Z minute(s)\" format."
+        },
+        {
+          "path": "frontend/src/i18n/translations.ts",
+          "operation": "modify",
+          "description": "Add i18n keys (English required) for any new overtime composite labels/unit text introduced by the composite totals display (e.g., overtime.totalComposite and/or unit labels), ensuring all new user-facing strings use t(...)."
+        },
+        {
+          "path": "frontend/src/pages/manager/ManagerOvertimePage.tsx",
+          "operation": "modify",
+          "description": "Confirm ManagerOvertimePage continues to reuse OvertimeTotals without additional changes and that the updated composite totals display is visible for the selected user."
         }
       ]
     }

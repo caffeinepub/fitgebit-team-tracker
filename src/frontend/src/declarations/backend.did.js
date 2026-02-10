@@ -25,12 +25,20 @@ export const UserRole = IDL.Variant({
   'guest' : IDL.Null,
 });
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const Time = IDL.Int;
+export const OvertimeEntry = IDL.Record({
+  'id' : IDL.Nat32,
+  'date' : Time,
+  'approvedBy' : IDL.Opt(IDL.Principal),
+  'createdBy' : IDL.Principal,
+  'minutes' : IDL.Int,
+  'approved' : IDL.Bool,
+});
 export const TaskType = IDL.Variant({
   'urgent' : IDL.Null,
   'monthly' : IDL.Null,
   'weekly' : IDL.Null,
 });
-export const Time = IDL.Int;
 export const TaskCompletion = IDL.Record({
   'completedAt' : Time,
   'completedBy' : IDL.Principal,
@@ -43,6 +51,7 @@ export const Task = IDL.Record({
   'title' : IDL.Text,
   'lastResetAt' : Time,
   'isCompleted' : IDL.Bool,
+  'description' : IDL.Text,
   'taskType' : TaskType,
   'currentCompletion' : IDL.Opt(TaskCompletion),
 });
@@ -128,12 +137,18 @@ export const idlService = IDL.Service({
       [],
       [],
     ),
-  'createTask' : IDL.Func([IDL.Text, TaskType], [], []),
+  'createOvertimeEntry' : IDL.Func([IDL.Int], [OvertimeEntry], []),
+  'createTask' : IDL.Func([IDL.Text, IDL.Text, TaskType], [], []),
   'exportTaskData' : IDL.Func([], [IDL.Vec(Task)], ['query']),
   'getAllDentalAvatars' : IDL.Func([], [IDL.Vec(DentalAvatar)], ['query']),
   'getAllUserProfiles' : IDL.Func(
       [],
       [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
+      ['query'],
+    ),
+  'getCallerOvertimeEntries' : IDL.Func(
+      [],
+      [IDL.Vec(OvertimeEntry)],
       ['query'],
     ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -145,12 +160,16 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getTasks' : IDL.Func([], [IDL.Vec(Task)], ['query']),
+  'getUserOvertimeEntries' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(OvertimeEntry)],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
-  'initializeAvatars' : IDL.Func([], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'removeProfilePhoto' : IDL.Func([], [], []),
   'resetRecurringTasksIfNeeded' : IDL.Func([], [], []),
@@ -181,12 +200,20 @@ export const idlFactory = ({ IDL }) => {
     'guest' : IDL.Null,
   });
   const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const Time = IDL.Int;
+  const OvertimeEntry = IDL.Record({
+    'id' : IDL.Nat32,
+    'date' : Time,
+    'approvedBy' : IDL.Opt(IDL.Principal),
+    'createdBy' : IDL.Principal,
+    'minutes' : IDL.Int,
+    'approved' : IDL.Bool,
+  });
   const TaskType = IDL.Variant({
     'urgent' : IDL.Null,
     'monthly' : IDL.Null,
     'weekly' : IDL.Null,
   });
-  const Time = IDL.Int;
   const TaskCompletion = IDL.Record({
     'completedAt' : Time,
     'completedBy' : IDL.Principal,
@@ -199,6 +226,7 @@ export const idlFactory = ({ IDL }) => {
     'title' : IDL.Text,
     'lastResetAt' : Time,
     'isCompleted' : IDL.Bool,
+    'description' : IDL.Text,
     'taskType' : TaskType,
     'currentCompletion' : IDL.Opt(TaskCompletion),
   });
@@ -284,12 +312,18 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
-    'createTask' : IDL.Func([IDL.Text, TaskType], [], []),
+    'createOvertimeEntry' : IDL.Func([IDL.Int], [OvertimeEntry], []),
+    'createTask' : IDL.Func([IDL.Text, IDL.Text, TaskType], [], []),
     'exportTaskData' : IDL.Func([], [IDL.Vec(Task)], ['query']),
     'getAllDentalAvatars' : IDL.Func([], [IDL.Vec(DentalAvatar)], ['query']),
     'getAllUserProfiles' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
+        ['query'],
+      ),
+    'getCallerOvertimeEntries' : IDL.Func(
+        [],
+        [IDL.Vec(OvertimeEntry)],
         ['query'],
       ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -301,12 +335,16 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getTasks' : IDL.Func([], [IDL.Vec(Task)], ['query']),
+    'getUserOvertimeEntries' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(OvertimeEntry)],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
-    'initializeAvatars' : IDL.Func([], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'removeProfilePhoto' : IDL.Func([], [], []),
     'resetRecurringTasksIfNeeded' : IDL.Func([], [], []),

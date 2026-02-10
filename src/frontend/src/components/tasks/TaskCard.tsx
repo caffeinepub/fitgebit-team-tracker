@@ -45,6 +45,11 @@ export default function TaskCard({ task }: Props) {
                 {task.isCompleted && <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />}
                 {task.title}
               </CardTitle>
+              {task.description && (
+                <p className="text-sm text-muted-foreground mt-2 whitespace-pre-wrap">
+                  {task.description}
+                </p>
+              )}
               <div className="flex flex-wrap gap-2 mt-2">
                 <Badge className={typeColors[task.taskType]}>
                   {t(`tasks.${typeLabels[task.taskType]}`)}

@@ -23,6 +23,12 @@ export function useNotify() {
       error(t('errors.unauthorized'));
     } else if (errorMessage.includes('not found')) {
       error(t('errors.notFound'));
+    } else if (errorMessage.includes('Invalid token')) {
+      error(t('auth.tokenRequired'));
+    } else if (errorMessage.includes('Invalid overtime entry')) {
+      error(t('errors.invalidMinutes'));
+    } else if (errorMessage.includes('obsolete') && errorMessage.includes('weekly')) {
+      error(t('errors.weeklyTaskObsolete'));
     } else {
       error(errorMessage);
     }

@@ -31,7 +31,7 @@ export default function ProfileAvatar({
     );
   }
 
-  // Priority 2: Dental SVG avatar
+  // Priority 2: Dental SVG avatar (always render, DentalAvatarImage handles missing/invalid cases)
   if (dentalAvatarId !== undefined) {
     return (
       <DentalAvatarImage
