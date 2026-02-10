@@ -1,170 +1,199 @@
 {
   "kind": "build_request",
-  "title": "Update Overtime (no photos, DD MM YYYY) and redesign Tasks (weekly/monthly/urgent, reset on app open)",
+  "title": "Role-choice login with manager token, tooth logo, initials validation, and replace avatars with 16 canister-served SVGs",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-12",
-      "text": "Remove overtime photo support end-to-end: users must not be able to upload or view overtime photos, and the backend must no longer accept, store, or return any overtime photo data.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Part 2: Overtime Tracker... No photos."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Overtime entry creation API does not accept a photo parameter and does not store photo data.",
-        "Overtime UI has no file input for photos and does not display overtime photos anywhere (history, manager views, exports).",
-        "Existing overtime entries that contain a photo (if any) render safely without attempting to load/display the photo."
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "text": "Update the overtime entry date input UX to use a DD MM YYYY date entry (prefilled to today) and keep the existing rule that future dates are not allowed.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Minutes input (DD MM YYYY prefilled today, no future)."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Overtime form shows a day/month/year input in DD MM YYYY format and is prefilled with today’s date.",
-        "Submitting an overtime entry with a date after today is blocked with a user-visible validation error.",
-        "Submitting with today or a past date succeeds and the created entry shows the correct date in history."
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "text": "Ensure overtime add/deduct behavior and color semantics match the spec: Add must display as red (+minutes) and Deduct must display as green (-minutes) in the overtime history list and totals calculations.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Assistant: Add (red +minutes), deduct (green -minutes), totals (workdays/minutes, 480 min=1 day), colored history list."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The overtime form provides two actions: Add and Deduct.",
-        "History entries clearly show +minutes for additions in red styling and -minutes for deductions in green styling.",
-        "Totals compute net minutes using additions minus deductions and show workdays where 480 minutes = 1 day."
-      ]
-    },
-    {
-      "id": "REQ-15",
-      "text": "Redesign the Tasks domain model and UI to remove due date, assignee, and priority and replace them with: title + type (weekly/monthly/urgent). Tasks must be shared (not per-user assigned).",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Part 3: TasksShared tasks main page: No due date/assignee.Tasks: Title, type (weekly/monthly/urgent; weekly=Monday, monthly=first Monday)."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Create Task UI only collects: Title and Type (weekly/monthly/urgent).",
-        "Task list and task card UI do not show due date, assignee, or priority anywhere.",
-        "Backend task creation/update APIs and stored Task type do not require due date, assignee, or priority.",
-        "Existing task-related pages compile and render without referencing removed fields."
-      ]
-    },
-    {
-      "id": "REQ-16",
-      "text": "Implement task type-based status coloring and done behavior: monthly tasks are yellow, weekly tasks are blue, urgent tasks are red; when completed, the task displays as green 'done' until it resets.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "List: Color (yellow monthly, blue weekly, red urgent; green done until reset)."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Task cards (or list rows) visually indicate type using the specified colors.",
-        "When a task is completed, its visual state switches to a green 'done' styling and remains green until a reset event occurs.",
-        "Colors are applied consistently in both light and dark themes (with appropriate contrast)."
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "text": "Change recurring/reset logic to match the new spec and trigger resets when the app opens: weekly tasks reset based on Monday; monthly tasks reset based on the first Monday of the month; urgent tasks do not auto-reset unless explicitly specified by the implemented logic (document the chosen behavior in code comments).",
+      "id": "REQ-20",
+      "text": "Replace the current post-login role auto-assignment/first-manager confirmation flow with an explicit role-choice flow (Assistant or Manager) where Manager access requires entering the token \"ICPmaxi313\".",
       "target": "both",
       "source": {
         "messageIds": [
           "msg-1",
-          "msg-2"
+          "msg-6",
+          "msg-8"
         ],
         "quotes": [
-          "weekly=Monday, monthly=first Monday).",
-          "Whenever  the app opens"
+          "The UI should gice the choice if one wants to login as assistant or manager. The manager needs to input the token ICPmaxi313",
+          "Login screen should be for assistant & Manager:(needs token ICPmaxi313)",
+          "1. yes"
         ]
       },
       "acceptanceCriteria": [
-        "On app load (or when Tasks page mounts), the system evaluates whether weekly/monthly tasks should reset based on the current date and their last completion/reset state.",
-        "Weekly tasks that were completed for a previous week become available again when the app opens on/after the next Monday boundary.",
-        "Monthly tasks that were completed for a previous month become available again when the app opens on/after the first Monday of the new month.",
-        "Reset logic does not require the app to be open at midnight; it is evaluated when the app opens/loads."
+        "After Internet Identity authentication, the user must be prompted to choose a role: Assistant or Manager.",
+        "Selecting Manager requires entering the exact token \"ICPmaxi313\"; invalid token prevents proceeding as Manager and shows a user-facing error message.",
+        "Selecting Assistant never requires a token.",
+        "The previous 'first user becomes Manager' behavior and UI confirmation are no longer used anywhere in the app flow."
       ]
     },
     {
-      "id": "REQ-18",
-      "text": "Update task completion tracking to record the completer and support optional comment plus optional before-and-after photos (two distinct images). The completion UI must show camera-related affordances/icons.",
-      "target": "both",
+      "id": "REQ-21",
+      "text": "Update backend authorization so that the app can grant Manager/admin privileges only when the caller successfully completes the Manager token flow, and otherwise grants Assistant/user access.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-6",
+          "msg-8"
         ],
         "quotes": [
-          "Mark done: Track completer, optional comment, before/after pics (camera, show icons)."
+          "The manager needs to input the token ICPmaxi313",
+          "Login screen should be for assistant & Manager:(needs token ICPmaxi313)",
+          "1. yes"
         ]
       },
       "acceptanceCriteria": [
-        "Completing a task records which authenticated user completed it (principal) in backend state and returns it in task queries/exports.",
-        "Complete Task dialog allows an optional comment and up to two optional images: before photo and after photo.",
-        "Task UI displays completion details including the completer identity (e.g., username if available) and shows camera/photo icons for before/after images when present.",
-        "If no photos are provided, completion still succeeds and UI does not show broken image elements."
+        "Backend exposes a single, explicit method for role setup/upgrade that checks the manager token for Manager selection and assigns the appropriate authorization role for the caller.",
+        "Callers without completing the Manager token flow do not receive admin privileges and cannot access manager-only endpoints (e.g., getAllUserProfiles, exportTaskData).",
+        "Role selection persists across sessions for that principal (i.e., after re-login the user keeps their assigned role).",
+        "Any legacy behavior that implicitly grants admin privileges to the first caller/user is removed or disabled."
       ]
     },
     {
-      "id": "REQ-19",
-      "text": "Update Manager task statistics and CSV export to align with the redesigned task model and new completion tracking, focusing on 'who completed tasks' and 'how often' and keeping export functional.",
-      "target": "both",
+      "id": "REQ-22",
+      "text": "Revise the login screen UI to include role selection (Assistant/Manager) and, when Manager is selected, a token input field; keep Internet Identity as the authentication mechanism.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-6"
         ],
         "quotes": [
-          "Manager: Basic stats (who/how often), CSV export."
+          "The UI should gice the choice if one wants to login as assistant or manager.",
+          "Login screen should be for assistant & Manager:(needs token ICPmaxi313)"
         ]
       },
       "acceptanceCriteria": [
-        "Manager stats page renders without relying on removed task fields (due date, priority, assignee).",
-        "Stats summarize completions per user (who) and counts (how often) using the new completer tracking.",
-        "Task CSV export includes fields relevant to the new model, including task type and completion metadata (including completer and completion timestamps), and downloads successfully."
+        "Login screen presents Assistant and Manager options clearly.",
+        "When Manager is selected, a token input field is displayed and required to proceed as Manager.",
+        "The screen still uses Internet Identity for authentication; no third-party auth is added.",
+        "All new/updated user-facing strings are integrated via the existing i18n system."
+      ]
+    },
+    {
+      "id": "REQ-23",
+      "text": "Remove the FirstManagerConfirmDialog flow from the authenticated app startup and replace it with the new role-choice/token flow so that App.tsx never triggers the old manager confirmation dialog.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-8"
+        ],
+        "quotes": [
+          "1. yes"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The app no longer displays the existing first-manager confirmation dialog at any time.",
+        "Authenticated users who have not yet selected a role are routed to the new role-choice step instead.",
+        "After successful role choice, the app proceeds to profile onboarding (if needed) and then the main app shell."
+      ]
+    },
+    {
+      "id": "REQ-24",
+      "text": "Update profile onboarding to require a username and initials of length 2–3 characters on first login, and prevent saving if initials are not 2 or 3 characters.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6",
+          "msg-12"
+        ],
+        "quotes": [
+          "Users: Set username and 2-3 initials on first login.",
+          "Users: Set username and 2-3 initials on first login."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The profile onboarding form rejects initials with length < 2 or > 3.",
+        "Initials continue to be stored uppercase.",
+        "Validation errors are shown to the user and block the Save action until the form is valid."
+      ]
+    },
+    {
+      "id": "REQ-25",
+      "text": "Replace the existing 48-avatar static manifest and paginated avatar picker with exactly 16 simple cute dental SVG avatars, served from the canister as SVG strings (or via canister URLs) and displayed in a single grid with no pagination.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-6",
+          "msg-8"
+        ],
+        "quotes": [
+          "Avatars: Fix loading – provide 16 simple cute SVG dental icons (e.g., tooth smile, toothbrush, floss; store as strings in canister, return list/URLs, show all in a single grid).",
+          "2. Replace the 48 with 16"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The avatar set is exactly 16 items; the previous 48-avatar set is removed from the UI selection flow.",
+        "Avatars are stored in the backend canister as SVG strings (not only as frontend static files).",
+        "Frontend fetches the avatar list from the backend and renders all 16 in a single grid (no pagination controls).",
+        "Avatar images reliably render (fix the current issue where SVG avatars are not showing/loading).",
+        "User profiles continue to store an avatar identifier, and existing UI that displays a user’s avatar uses the canister-served avatar data."
+      ]
+    },
+    {
+      "id": "REQ-26",
+      "text": "Add/adjust i18n translation keys for any new or changed user-facing text introduced by the role-choice login/token flow and the updated onboarding validations (English, Dutch, French remain supported).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-6"
+        ],
+        "quotes": [
+          "The UI should gice the choice if one wants to login as assistant or manager.",
+          "Users: Set username and 2-3 initials on first login."
+        ]
+      },
+      "acceptanceCriteria": [
+        "All new strings introduced by the updated login/role flow and onboarding validation are translated in en/nl/fr dictionaries.",
+        "No UI shows missing translation placeholders for the updated screens."
+      ]
+    },
+    {
+      "id": "REQ-27",
+      "text": "Replace the app’s logo/branding mark with a cute tooth icon with no text, and use it on the login screen in place of the current Sparkles icon.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6",
+          "msg-12"
+        ],
+        "quotes": [
+          "Logo: Cute tooth icon (no text).",
+          "Logo: Cute tooth icon (no text)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Login screen displays the provided tooth icon logo (no text) instead of the Sparkles icon.",
+        "The logo is included as a static asset in the frontend and loads in both light and dark modes."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor with all logic in backend/main.mo (add backend/migration.mo only if an upgrade requires state migration).",
-    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "No WebSockets or realtime features; resets must be evaluated on app open/load as specified."
+    "Backend must remain a single Motoko actor with all logic in backend/main.mo (no additional backend services).",
+    "Do not edit files in frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "Manager token must be exactly \"ICPmaxi313\" (case-sensitive).",
+    "Avatar set must be replaced (not extended): exactly 16 avatars total."
   ],
   "nonGoals": [
-    "Do not change Part 1 features (Internet Identity login flow, avatar system, manager role confirmation removal, logo/theme work) in this build unless strictly required to compile after the Tasks/Overtime changes.",
-    "Do not add new external databases or third-party services.",
-    "Do not implement automatic midnight/background resets; resets only occur when the app opens/loads as specified."
+    "Do not add any third-party authentication methods beyond Internet Identity.",
+    "Do not implement new overtime functionality beyond what already exists in the project.",
+    "Do not redesign the Tasks domain beyond the existing weekly/monthly/urgent model already implemented."
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Cute tooth icon logo, no text (app-logo-tooth.dim_256x256.png)"
+    ],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

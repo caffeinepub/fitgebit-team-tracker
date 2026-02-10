@@ -29,6 +29,7 @@ export interface DecisionEntry {
 export type DecisionType = { 'valid' : null } |
   { 'invalid' : null } |
   { 'critical' : null };
+export interface DentalAvatar { 'id' : number, 'svg' : string, 'name' : string }
 export type ExternalBlob = Uint8Array;
 export type ProfileRole = { 'manager' : null } |
   { 'assistant' : null };
@@ -97,16 +98,20 @@ export interface _SERVICE {
   >,
   'createTask' : ActorMethod<[string, TaskType], undefined>,
   'exportTaskData' : ActorMethod<[], Array<Task>>,
+  'getAllDentalAvatars' : ActorMethod<[], Array<DentalAvatar>>,
   'getAllUserProfiles' : ActorMethod<[], Array<[Principal, UserProfile]>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getDecisionEntries' : ActorMethod<[], Array<DecisionEntry>>,
   'getTasks' : ActorMethod<[], Array<Task>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'initializeAvatars' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'resetRecurringTasksIfNeeded' : ActorMethod<[], undefined>,
   'resetTask' : ActorMethod<[number], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'selectRoleAssistant' : ActorMethod<[], undefined>,
+  'selectRoleManager' : ActorMethod<[string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

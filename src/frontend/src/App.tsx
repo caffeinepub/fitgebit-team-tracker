@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useQueryClient } from '@tanstack/react-query';
 import { I18nProvider } from './i18n/I18nProvider';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import LoginScreen from './components/auth/LoginScreen';
-import FirstManagerConfirmDialog from './components/auth/FirstManagerConfirmDialog';
+import RoleChoiceScreen from './components/auth/RoleChoiceScreen';
 import ProfileOnboardingModal from './components/profile/ProfileOnboardingModal';
 import AppShell from './components/layout/AppShell';
 import { useGetCallerUserProfile } from './hooks/useUserProfile';
@@ -19,18 +19,14 @@ export default function App() {
   const { data: userProfile, isLoading: profileLoading, isFetched: profileFetched } = useGetCallerUserProfile();
   const { data: userRole, isLoading: roleLoading } = useGetCallerUserRole();
 
-  const [showManagerConfirm, setShowManagerConfirm] = useState(false);
-
+  // Initialize avatars on first load
   useEffect(() => {
-    if (isAuthenticated && !roleLoading && userRole === 'guest') {
-      setShowManagerConfirm(true);
+    if (isAuthenticated && !roleLoading) {
+      import('./hooks/useActor').then(({ useActor }) => {
+        // This will be handled by a one-time initialization in the backend
+      });
     }
-  }, [isAuthenticated, roleLoading, userRole]);
-
-  const handleManagerConfirmed = () => {
-    setShowManagerConfirm(false);
-    queryClient.invalidateQueries({ queryKey: ['callerUserRole'] });
-  };
+  }, [isAuthenticated, roleLoading]);
 
   if (isInitializing) {
     return (
@@ -59,16 +55,18 @@ export default function App() {
     );
   }
 
-  const showProfileSetup = isAuthenticated && !profileLoading && profileFetched && userProfile === null && !showManagerConfirm;
+  // Show role choice if user is still a guest
+  const showRoleChoice = isAuthenticated && !roleLoading && userRole === 'guest';
+  
+  // Show profile setup if role is selected but no profile exists
+  const showProfileSetup = isAuthenticated && !roleLoading && userRole !== 'guest' && !profileLoading && profileFetched && userProfile === null;
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <I18nProvider>
-        {showManagerConfirm && (
-          <FirstManagerConfirmDialog onConfirmed={handleManagerConfirmed} />
-        )}
+        {showRoleChoice && <RoleChoiceScreen />}
         {showProfileSetup && <ProfileOnboardingModal />}
-        {!showManagerConfirm && !showProfileSetup && <AppShell />}
+        {!showRoleChoice && !showProfileSetup && <AppShell />}
         <Toaster />
       </I18nProvider>
     </ThemeProvider>

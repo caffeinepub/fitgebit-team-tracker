@@ -46,6 +46,11 @@ export const Task = IDL.Record({
   'taskType' : TaskType,
   'currentCompletion' : IDL.Opt(TaskCompletion),
 });
+export const DentalAvatar = IDL.Record({
+  'id' : IDL.Nat32,
+  'svg' : IDL.Text,
+  'name' : IDL.Text,
+});
 export const ProfileRole = IDL.Variant({
   'manager' : IDL.Null,
   'assistant' : IDL.Null,
@@ -123,6 +128,7 @@ export const idlService = IDL.Service({
     ),
   'createTask' : IDL.Func([IDL.Text, TaskType], [], []),
   'exportTaskData' : IDL.Func([], [IDL.Vec(Task)], ['query']),
+  'getAllDentalAvatars' : IDL.Func([], [IDL.Vec(DentalAvatar)], ['query']),
   'getAllUserProfiles' : IDL.Func(
       [],
       [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
@@ -137,10 +143,13 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'initializeAvatars' : IDL.Func([], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'resetRecurringTasksIfNeeded' : IDL.Func([], [], []),
   'resetTask' : IDL.Func([IDL.Nat32], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'selectRoleAssistant' : IDL.Func([], [], []),
+  'selectRoleManager' : IDL.Func([IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
@@ -183,6 +192,11 @@ export const idlFactory = ({ IDL }) => {
     'isCompleted' : IDL.Bool,
     'taskType' : TaskType,
     'currentCompletion' : IDL.Opt(TaskCompletion),
+  });
+  const DentalAvatar = IDL.Record({
+    'id' : IDL.Nat32,
+    'svg' : IDL.Text,
+    'name' : IDL.Text,
   });
   const ProfileRole = IDL.Variant({
     'manager' : IDL.Null,
@@ -261,6 +275,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'createTask' : IDL.Func([IDL.Text, TaskType], [], []),
     'exportTaskData' : IDL.Func([], [IDL.Vec(Task)], ['query']),
+    'getAllDentalAvatars' : IDL.Func([], [IDL.Vec(DentalAvatar)], ['query']),
     'getAllUserProfiles' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
@@ -275,10 +290,13 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'initializeAvatars' : IDL.Func([], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'resetRecurringTasksIfNeeded' : IDL.Func([], [], []),
     'resetTask' : IDL.Func([IDL.Nat32], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'selectRoleAssistant' : IDL.Func([], [], []),
+    'selectRoleManager' : IDL.Func([IDL.Text], [], []),
   });
 };
 

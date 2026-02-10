@@ -132,6 +132,11 @@ export interface DecisionEntry {
     decisionFiles?: Array<ExternalBlob>;
     completionTimestamp?: Time;
 }
+export interface DentalAvatar {
+    id: number;
+    svg: string;
+    name: string;
+}
 export interface UserProfile {
     username: string;
     role: ProfileRole;
@@ -173,16 +178,20 @@ export interface backendInterface {
     completeTask(taskId: number, comment: string | null, beforePhoto: ExternalBlob | null, afterPhoto: ExternalBlob | null): Promise<void>;
     createTask(title: string, taskType: TaskType): Promise<void>;
     exportTaskData(): Promise<Array<Task>>;
+    getAllDentalAvatars(): Promise<Array<DentalAvatar>>;
     getAllUserProfiles(): Promise<Array<[Principal, UserProfile]>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getDecisionEntries(): Promise<Array<DecisionEntry>>;
     getTasks(): Promise<Array<Task>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    initializeAvatars(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     resetRecurringTasksIfNeeded(): Promise<void>;
     resetTask(taskId: number): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    selectRoleAssistant(): Promise<void>;
+    selectRoleManager(_token: string): Promise<void>;
 }
 import type { DecisionEntry as _DecisionEntry, DecisionType as _DecisionType, ExternalBlob as _ExternalBlob, ProfileRole as _ProfileRole, RepeatInterval as _RepeatInterval, Task as _Task, TaskCompletion as _TaskCompletion, TaskType as _TaskType, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -341,6 +350,20 @@ export class Backend implements backendInterface {
             return from_candid_vec_n15(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getAllDentalAvatars(): Promise<Array<DentalAvatar>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllDentalAvatars();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllDentalAvatars();
+            return result;
+        }
+    }
     async getAllUserProfiles(): Promise<Array<[Principal, UserProfile]>> {
         if (this.processError) {
             try {
@@ -425,6 +448,20 @@ export class Backend implements backendInterface {
             return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
         }
     }
+    async initializeAvatars(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.initializeAvatars();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.initializeAvatars();
+            return result;
+        }
+    }
     async isCallerAdmin(): Promise<boolean> {
         if (this.processError) {
             try {
@@ -478,6 +515,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.saveCallerUserProfile(to_candid_UserProfile_n45(this._uploadFile, this._downloadFile, arg0));
+            return result;
+        }
+    }
+    async selectRoleAssistant(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.selectRoleAssistant();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.selectRoleAssistant();
+            return result;
+        }
+    }
+    async selectRoleManager(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.selectRoleManager(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.selectRoleManager(arg0);
             return result;
         }
     }

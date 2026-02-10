@@ -1,243 +1,169 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Overtime: remove photos + DD MM YYYY date input; Tasks: shared type-based model with reset-on-open and updated manager stats/export",
+  "title": "Role-choice login with manager token, onboarding initials validation, tooth logo, and canister-served dental SVG avatars (frontend-only)",
   "requirements": [
     {
-      "id": "REQ-12",
-      "summary": "Remove overtime photo support from all overtime UIs (creation, history, manager views) and render old photo-bearing entries safely without displaying photos.",
+      "id": "REQ-20",
+      "summary": "Replace post-login implicit role assignment with an explicit Assistant/Manager role-choice step (Manager requires token) and remove any reliance on the legacy first-manager confirmation behavior in the UI flow.",
       "acceptanceCriteria": [
-        "Overtime UI has no file input for photos and does not display overtime photos anywhere (history, manager views, exports).",
-        "Existing overtime entries that contain a photo (if any) render safely without attempting to load/display the photo."
+        "After Internet Identity authentication, the user must be prompted to choose a role: Assistant or Manager.",
+        "Selecting Manager requires entering the exact token \"ICPmaxi313\"; invalid token prevents proceeding as Manager and shows a user-facing error message.",
+        "Selecting Assistant never requires a token.",
+        "The previous 'first user becomes Manager' behavior and UI confirmation are no longer used anywhere in the app flow."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
-          "operation": "modify",
-          "description": "Remove overtime photo selection/upload UI and all related state/conversion to ExternalBlob; ensure create mutation no longer sends any photo data."
+          "path": "frontend/src/components/auth/RoleChoiceScreen.tsx",
+          "operation": "create",
+          "description": "Create an authenticated-only role-choice screen that lets the user choose Assistant or Manager, conditionally shows a token field for Manager, calls backend role-selection capabilities (selectRoleAssistant/selectRoleManager), shows a localized error for invalid token, and on success refreshes cached authz/profile queries. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/hooks/useOvertime.ts",
-          "operation": "modify",
-          "description": "Update create overtime hook to no longer accept/require a photo parameter and to call the backend capability without photo arguments (align with updated backend interface)."
+          "path": "frontend/src/hooks/useRoleSelection.ts",
+          "operation": "create",
+          "description": "Add React Query mutations for role selection (Assistant/Manager) that call the backend actor methods, handle/normalize errors for UI display, and invalidate role/admin queries on success. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Remove overtime photo rendering; ensure entries that still include a legacy photo field are ignored (no image element created) so history renders safely."
+          "description": "Replace the current showManagerConfirm logic with the new role-choice gating: when authenticated and the caller role is 'guest', render RoleChoiceScreen instead of any legacy first-manager confirmation UI; only proceed to onboarding or AppShell once role selection is complete. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-22",
+      "summary": "Revise the login UI to clearly present Assistant/Manager selection and require a token input when Manager is selected, while keeping Internet Identity as the only authentication mechanism and using i18n for all strings.",
+      "acceptanceCriteria": [
+        "Login screen presents Assistant and Manager options clearly.",
+        "When Manager is selected, a token input field is displayed and required to proceed as Manager.",
+        "The screen still uses Internet Identity for authentication; no third-party auth is added.",
+        "All new/updated user-facing strings are integrated via the existing i18n system."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/auth/LoginScreen.tsx",
+          "operation": "modify",
+          "description": "Update the unauthenticated login UI to include Assistant/Manager selection and conditional Manager token input (without changing Internet Identity auth); persist the user’s intended selection locally (e.g., sessionStorage) so RoleChoiceScreen can prefill after authentication. Verify the component's usage instructions before implementing."
         },
+        {
+          "path": "frontend/src/components/auth/RoleChoiceScreen.tsx",
+          "operation": "modify",
+          "description": "Consume any pre-auth persisted role/token choice from LoginScreen to prefill the authenticated role-choice step, while still allowing the user to change selection before submitting. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-23",
+      "summary": "Remove the FirstManagerConfirmDialog startup flow and ensure authenticated users without a selected role are routed to the new role-choice step.",
+      "acceptanceCriteria": [
+        "The app no longer displays the existing first-manager confirmation dialog at any time.",
+        "Authenticated users who have not yet selected a role are routed to the new role-choice step instead.",
+        "After successful role choice, the app proceeds to profile onboarding (if needed) and then the main app shell."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/auth/FirstManagerConfirmDialog.tsx",
+          "operation": "delete",
+          "description": "Remove the legacy first-manager confirmation dialog component to prevent any accidental reuse."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Remove imports/usages/state related to FirstManagerConfirmDialog; ensure the authenticated flow is: (1) role-choice if role is guest, (2) profile onboarding if profile is missing, (3) AppShell otherwise. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-24",
+      "summary": "Require username and 2–3 character initials during first-login profile onboarding; enforce validation, keep initials uppercase, and block saving until valid.",
+      "acceptanceCriteria": [
+        "The profile onboarding form rejects initials with length < 2 or > 3.",
+        "Initials continue to be stored uppercase.",
+        "Validation errors are shown to the user and block the Save action until the form is valid."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/profile/ProfileOnboardingModal.tsx",
+          "operation": "modify",
+          "description": "Add explicit validation for initials length (2–3) with localized inline error messaging; keep onChange uppercasing; disable Save unless username is non-empty and initials length is valid; avoid sending invalid data. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-25",
+      "summary": "Replace the 48-avatar static manifest and paginated picker with a canister-fetched set of exactly 16 dental SVG avatars rendered in a single grid without pagination, and update all avatar displays to use canister-served data.",
+      "acceptanceCriteria": [
+        "The avatar set is exactly 16 items; the previous 48-avatar set is removed from the UI selection flow.",
+        "Avatars are stored in the backend canister as SVG strings (not only as frontend static files).",
+        "Frontend fetches the avatar list from the backend and renders all 16 in a single grid (no pagination controls).",
+        "Avatar images reliably render (fix the current issue where SVG avatars are not showing/loading).",
+        "User profiles continue to store an avatar identifier, and existing UI that displays a user’s avatar uses the canister-served avatar data."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useDentalAvatars.ts",
+          "operation": "create",
+          "description": "Add a React Query hook to fetch the dental avatar list from the backend (getAllDentalAvatars), cache it, and provide helpers to lookup an avatar by id; include a client-side assertion/guard that the list length is 16 and handle mismatch gracefully in UI. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/avatars/DentalAvatarImage.tsx",
+          "operation": "create",
+          "description": "Create a reusable avatar renderer that takes an avatar id and renders the corresponding SVG reliably (e.g., via inline SVG rendering) using cached canister data, with a loading/fallback state. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/avatars/AvatarPicker.tsx",
+          "operation": "modify",
+          "description": "Rewrite AvatarPicker to use canister-fetched dental avatars (exactly 16) and render them in a single grid with no pagination controls; ensure selection highlights and click-to-select continue to work with avatar ids. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/avatars/avatarManifest.ts",
+          "operation": "delete",
+          "description": "Remove the static 48-avatar manifest (and its path resolver) to ensure the UI no longer depends on frontend static avatar assets."
+        },
+        {
+          "path": "frontend/src/components/layout/AppHeader.tsx",
+          "operation": "modify",
+          "description": "Replace usage of getAvatarPath/static avatar paths with DentalAvatarImage so the logged-in user’s avatar renders from canister-served SVG data. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/manager/UserPicker.tsx",
+          "operation": "modify",
+          "description": "Replace usage of getAvatarPath/static avatar paths with DentalAvatarImage so user avatars in manager user selection render from canister-served SVG data. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-26",
+      "summary": "Add/adjust i18n keys for the new role-choice/token flow and onboarding initials validation across English, Dutch, and French.",
+      "acceptanceCriteria": [
+        "All new strings introduced by the updated login/role flow and onboarding validation are translated in en/nl/fr dictionaries.",
+        "No UI shows missing translation placeholders for the updated screens."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/i18n/translations.ts",
           "operation": "modify",
-          "description": "Remove/adjust overtime photo-related translation strings (e.g., overtime.photo) and any UI copy that references uploading or viewing overtime photos."
+          "description": "Add translation keys for role choice (assistant/manager labels, token field label/placeholder, proceed/confirm actions, invalid token error) and initials validation errors (2–3 characters) in en/nl/fr; keep legacy keys if still referenced elsewhere. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-13",
-      "summary": "Update overtime entry date input UX to DD MM YYYY (prefilled to today) and block future dates with a visible validation error.",
+      "id": "REQ-27",
+      "summary": "Replace the login screen branding mark with the provided cute tooth icon (no text) and ensure it loads in light/dark mode.",
       "acceptanceCriteria": [
-        "Overtime form shows a day/month/year input in DD MM YYYY format and is prefilled with today’s date.",
-        "Submitting an overtime entry with a date after today is blocked with a user-visible validation error.",
-        "Submitting with today or a past date succeeds and the created entry shows the correct date in history."
+        "Login screen displays the provided tooth icon logo (no text) instead of the Sparkles icon.",
+        "The logo is included as a static asset in the frontend and loads in both light and dark modes."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
-          "operation": "modify",
-          "description": "Replace the single date input with DD MM YYYY inputs prefilled to today; parse to a Date for timestamp creation; enforce no-future-date validation with a user-visible error message."
+          "path": "frontend/public/assets/generated/app-logo-tooth.dim_256x256.png",
+          "operation": "create",
+          "description": "Add the generated tooth logo asset at frontend/public/assets/generated/app-logo-tooth.dim_256x256.png and ensure it is committed/available as a static frontend asset."
         },
         {
-          "path": "frontend/src/components/overtime/OvertimeHistory.tsx",
+          "path": "frontend/src/components/auth/LoginScreen.tsx",
           "operation": "modify",
-          "description": "Ensure overtime entry date display aligns with the new input expectations (DD/MM/YYYY-like display if required by the UX), while still using stored timestamps."
-        },
-        {
-          "path": "frontend/src/i18n/translations.ts",
-          "operation": "modify",
-          "description": "Add/update translation strings for any new date field labels and validation messaging required by DD MM YYYY input."
-        }
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "summary": "Ensure overtime add/deduct actions, color semantics, and totals match spec: Add is red +minutes; Deduct is green -minutes; totals compute net minutes and workdays (480 min = 1 day).",
-      "acceptanceCriteria": [
-        "The overtime form provides two actions: Add and Deduct.",
-        "History entries clearly show +minutes for additions in red styling and -minutes for deductions in green styling.",
-        "Totals compute net minutes using additions minus deductions and show workdays where 480 minutes = 1 day."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
-          "operation": "modify",
-          "description": "Verify Add/Deduct actions remain present and aligned with spec; ensure button labels and styling convey Add=red and Deduct=green."
-        },
-        {
-          "path": "frontend/src/components/overtime/OvertimeHistory.tsx",
-          "operation": "modify",
-          "description": "Verify history rows display +minutes in red for additions and -minutes in green for deductions; ensure visuals remain legible in light/dark themes."
-        },
-        {
-          "path": "frontend/src/components/overtime/OvertimeTotals.tsx",
-          "operation": "modify",
-          "description": "Confirm totals compute net minutes as additions minus deductions and convert to workdays using 480 minutes per day; ensure negative totals render sensibly."
-        }
-      ]
-    },
-    {
-      "id": "REQ-15",
-      "summary": "Redesign Tasks UI to the new shared model: Task is only title + type (weekly/monthly/urgent), with no due date, assignee, or priority shown/collected.",
-      "acceptanceCriteria": [
-        "Create Task UI only collects: Title and Type (weekly/monthly/urgent).",
-        "Task list and task card UI do not show due date, assignee, or priority anywhere.",
-        "Existing task-related pages compile and render without referencing removed fields."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/tasks/CreateTaskDialog.tsx",
-          "operation": "modify",
-          "description": "Replace the create task form to collect only Title and Type (weekly/monthly/urgent); remove due date, priority, and assignee picker; align to backend createTask(title, taskType)."
-        },
-        {
-          "path": "frontend/src/hooks/useTasks.ts",
-          "operation": "modify",
-          "description": "Update task hooks to use the new Task model and backend capabilities: remove due-date sorting query hook usage and update createTask to accept (title, taskType) only."
-        },
-        {
-          "path": "frontend/src/components/tasks/TaskCard.tsx",
-          "operation": "modify",
-          "description": "Refactor TaskCard to remove all references/UI for due date, assignee, and priority; render only title, type, and completion details supported by the new Task shape."
-        },
-        {
-          "path": "frontend/src/components/tasks/TaskList.tsx",
-          "operation": "modify",
-          "description": "Remove due-date/priority-based sorting and any references to removed fields; sort/filter tasks in a way that makes sense for title + type + completion state (without introducing new routes)."
-        },
-        {
-          "path": "frontend/src/pages/TasksPage.tsx",
-          "operation": "modify",
-          "description": "Switch the Tasks page to load tasks using the updated hook(s) and render the redesigned list/create dialog without any removed-field dependencies."
-        },
-        {
-          "path": "frontend/src/i18n/translations.ts",
-          "operation": "modify",
-          "description": "Update tasks translation strings: remove due date/assignee/priority/frequency labels where no longer used; add Task Type labels and any new UI copy required."
-        }
-      ]
-    },
-    {
-      "id": "REQ-16",
-      "summary": "Add task type-based coloring and done state styling: monthly=yellow, weekly=blue, urgent=red; completed tasks show green 'done' until reset.",
-      "acceptanceCriteria": [
-        "Task cards (or list rows) visually indicate type using the specified colors.",
-        "When a task is completed, its visual state switches to a green 'done' styling and remains green until a reset event occurs.",
-        "Colors are applied consistently in both light and dark themes (with appropriate contrast)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/tasks/TaskCard.tsx",
-          "operation": "modify",
-          "description": "Implement consistent type-color styling (monthly yellow, weekly blue, urgent red) and a green 'done' styling when task.isCompleted is true; ensure light/dark contrast."
-        },
-        {
-          "path": "frontend/src/components/tasks/TaskList.tsx",
-          "operation": "modify",
-          "description": "Ensure list-level presentation does not override/conflict with TaskCard’s type/done coloring and remains consistent across the list."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "If needed for contrast/accessibility, adjust or add Tailwind-friendly CSS variables/classes used by the task type/done color semantics (avoid creating new global stylesheet paths)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "summary": "Trigger weekly/monthly reset evaluation when the app opens/Tasks page mounts; keep urgent reset behavior explicit and documented in code comments.",
-      "acceptanceCriteria": [
-        "On app load (or when Tasks page mounts), the system evaluates whether weekly/monthly tasks should reset based on the current date and their last completion/reset state.",
-        "Weekly tasks that were completed for a previous week become available again when the app opens on/after the next Monday boundary.",
-        "Monthly tasks that were completed for a previous month become available again when the app opens on/after the first Monday of the new month.",
-        "Reset logic does not require the app to be open at midnight; it is evaluated when the app opens/loads."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useTasks.ts",
-          "operation": "modify",
-          "description": "Add a React Query mutation/helper hook that invokes the backend capability resetRecurringTasksIfNeeded and invalidates the tasks query afterwards."
-        },
-        {
-          "path": "frontend/src/pages/TasksPage.tsx",
-          "operation": "modify",
-          "description": "Invoke the resetRecurringTasksIfNeeded hook on initial mount (app open/page open behavior) before/while rendering tasks; add concise code comments clarifying urgent-task reset behavior is backend-defined."
-        }
-      ]
-    },
-    {
-      "id": "REQ-18",
-      "summary": "Update task completion UI to record completer, support optional comment, and allow optional before/after photos with camera-related affordances/icons; display completion details safely.",
-      "acceptanceCriteria": [
-        "Complete Task dialog allows an optional comment and up to two optional images: before photo and after photo.",
-        "Task UI displays completion details including the completer identity (e.g., username if available) and shows camera/photo icons for before/after images when present.",
-        "If no photos are provided, completion still succeeds and UI does not show broken image elements."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-          "operation": "modify",
-          "description": "Redesign completion dialog to collect optional comment plus optional before and after images, and show camera-related affordances/icons. Use the blob-storage component’s ExternalBlob to convert selected files into blobs for upload. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useTasks.ts",
-          "operation": "modify",
-          "description": "Update completeTask mutation to call backend completeTask(taskId, comment, beforePhoto, afterPhoto) and handle nulls for optional fields; use ExternalBlob for images. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/tasks/TaskCard.tsx",
-          "operation": "modify",
-          "description": "Display completion metadata from task.currentCompletion (completedAt, completedBy, comment, before/after photos). Use the authorization component pattern by resolving completedBy to a human-readable username via existing profile queries (do not display raw principal by default). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/i18n/translations.ts",
-          "operation": "modify",
-          "description": "Add/update translation strings for before/after photos, camera affordances, and completion metadata (completed by / completed at)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-19",
-      "summary": "Update Manager task stats and CSV export to align with new task model and completion tracking (who completed tasks and how often), keeping export functional.",
-      "acceptanceCriteria": [
-        "Manager stats page renders without relying on removed task fields (due date, priority, assignee).",
-        "Stats summarize completions per user (who) and counts (how often) using the new completer tracking.",
-        "Task CSV export includes fields relevant to the new model, including task type and completion metadata (including completer and completion timestamps), and downloads successfully."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/manager/ManagerStatsPage.tsx",
-          "operation": "modify",
-          "description": "Refactor manager stats page export mapping to use the new Task fields (taskType, isCompleted, currentCompletion metadata) and remove assignee/priority/due-date references."
-        },
-        {
-          "path": "frontend/src/components/manager/TaskCompletionChart.tsx",
-          "operation": "modify",
-          "description": "Update chart aggregation to count completions by task.currentCompletion.completedBy (who/how often) instead of task.assignee; ensure it tolerates tasks without currentCompletion."
-        },
-        {
-          "path": "frontend/src/components/manager/TaskAuditLog.tsx",
-          "operation": "modify",
-          "description": "Update audit log to show task title, type, completedBy (resolved to username where possible), completion timestamp, optional comment, and before/after photo presence (icons), without referencing removed fields."
-        },
-        {
-          "path": "frontend/src/hooks/useManagerTasks.ts",
-          "operation": "modify",
-          "description": "Ensure manager export hook and query keys align with the updated exportTaskData return shape and are used consistently by ManagerStatsPage."
-        },
-        {
-          "path": "frontend/src/i18n/translations.ts",
-          "operation": "modify",
-          "description": "Update manager/task stats translation strings to reflect the new model (type, completed by, completion time, before/after photo indicators)."
+          "description": "Replace the Sparkles icon mark with an <img> using frontend/public/assets/generated/app-logo-tooth.dim_256x256.png (no text) and ensure styling works in light/dark mode. Verify the component's usage instructions before implementing."
         }
       ]
     }

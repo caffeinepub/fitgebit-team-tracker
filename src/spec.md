@@ -1,16 +1,16 @@
 # Specification
 
 ## Summary
-**Goal:** Update the Overtime tracker to remove all photo handling and improve date/color semantics, and redesign Tasks around shared recurring types with completion tracking, reset-on-open behavior, and manager reporting/export updates.
+**Goal:** Replace the current auto-assigned manager flow with an explicit Assistant/Manager role-choice login (Manager requires token), tighten first-login profile validation, switch to 16 canister-served SVG dental avatars, and update login branding to a tooth icon.
 
 **Planned changes:**
-- Remove overtime photo support end-to-end (no upload/view; backend does not accept/store/return photo data; legacy entries render safely without photos).
-- Update overtime date entry UX to DD MM YYYY (prefilled to today) and block future dates with a visible validation error.
-- Ensure overtime add/deduct actions and history semantics match: Add shows red +minutes, Deduct shows green -minutes; totals compute net minutes and show workdays where 480 minutes = 1 day.
-- Redesign Tasks model and UI to only include Title + Type (weekly/monthly/urgent), with tasks being shared and with no due date/assignee/priority.
-- Implement task type-based coloring (weekly blue, monthly yellow, urgent red) and completed state as green “done” until reset.
-- Implement recurring/reset logic evaluated on app open/load: weekly resets on/after Monday boundary; monthly resets on/after the first Monday of the month; define and document urgent reset behavior in code comments.
-- Add task completion tracking: record completer, optional comment, and optional before-and-after photos; show camera/photo icons and completion details in the UI without broken images when photos are absent.
-- Update manager task stats and CSV export to align with the new task model and completion tracking (who completed tasks and how often), and keep export functional.
+- Add an explicit post–Internet Identity role-choice step (Assistant or Manager); require token `ICPmaxi313` to proceed as Manager and show an error on invalid token.
+- Remove/disable the legacy “first user becomes Manager” behavior and ensure the old first-manager confirmation dialog is never shown; route unconfigured users to the new role-choice step.
+- Update backend authorization to persist the selected role per principal, and to grant Manager/admin privileges only after successful Manager token setup; block manager-only endpoints for non-Managers.
+- Revise the login UI to include role selection and conditional token entry while keeping Internet Identity authentication.
+- Update profile onboarding to require username plus initials of length 2–3 characters; keep initials stored uppercase and block saving with invalid initials.
+- Replace the existing 48-avatar manifest and paginated picker with exactly 16 simple cute dental SVG avatars stored in the canister; fetch and render them in a single grid with no pagination; ensure SVGs reliably load and existing avatar display uses canister-served data.
+- Add/adjust i18n keys for any new/changed user-facing strings (en/nl/fr) for the role/token flow and onboarding validation.
+- Replace the login screen Sparkles icon with a static cute tooth icon logo (no text) that works in light/dark modes.
 
-**User-visible outcome:** Users can log overtime without photos using a DD MM YYYY date input and see correctly colored add/deduct history and totals. Users can manage shared weekly/monthly/urgent tasks that reset when the app opens, mark tasks done with optional comment and before/after photos, and managers can view completion-focused stats and download an updated CSV export.
+**User-visible outcome:** After authenticating with Internet Identity, users choose to continue as Assistant or Manager (Managers must enter the `ICPmaxi313` token). New users must enter a username and 2–3 character initials to complete onboarding, and avatar selection shows a single grid of 16 cute dental SVG options that load reliably.

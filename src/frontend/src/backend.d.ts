@@ -46,6 +46,11 @@ export interface DecisionEntry {
     decisionFiles?: Array<ExternalBlob>;
     completionTimestamp?: Time;
 }
+export interface DentalAvatar {
+    id: number;
+    svg: string;
+    name: string;
+}
 export interface UserProfile {
     username: string;
     role: ProfileRole;
@@ -80,14 +85,18 @@ export interface backendInterface {
     completeTask(taskId: number, comment: string | null, beforePhoto: ExternalBlob | null, afterPhoto: ExternalBlob | null): Promise<void>;
     createTask(title: string, taskType: TaskType): Promise<void>;
     exportTaskData(): Promise<Array<Task>>;
+    getAllDentalAvatars(): Promise<Array<DentalAvatar>>;
     getAllUserProfiles(): Promise<Array<[Principal, UserProfile]>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getDecisionEntries(): Promise<Array<DecisionEntry>>;
     getTasks(): Promise<Array<Task>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    initializeAvatars(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     resetRecurringTasksIfNeeded(): Promise<void>;
     resetTask(taskId: number): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    selectRoleAssistant(): Promise<void>;
+    selectRoleManager(_token: string): Promise<void>;
 }

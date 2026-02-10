@@ -19,10 +19,13 @@ export default function ProfileOnboardingModal() {
 
   const [username, setUsername] = useState('');
   const [initials, setInitials] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState<number>(1);
+  const [selectedAvatar, setSelectedAvatar] = useState<number>(0);
+
+  const initialsError = initials.length > 0 && (initials.length < 2 || initials.length > 3);
+  const canSave = username.trim().length > 0 && initials.length >= 2 && initials.length <= 3;
 
   const handleSave = async () => {
-    if (!username.trim() || !initials.trim()) {
+    if (!canSave) {
       handleError(new Error(t('errors.required')));
       return;
     }
@@ -65,9 +68,13 @@ export default function ProfileOnboardingModal() {
               id="initials"
               value={initials}
               onChange={(e) => setInitials(e.target.value.toUpperCase())}
-              placeholder={t('profile.initials')}
+              placeholder={t('profile.initialsPlaceholder')}
               maxLength={3}
             />
+            {initialsError && (
+              <p className="text-sm text-destructive">{t('errors.initialsLength')}</p>
+            )}
+            <p className="text-xs text-muted-foreground">{t('profile.initialsHint')}</p>
           </div>
 
           <div className="space-y-2">
@@ -80,7 +87,7 @@ export default function ProfileOnboardingModal() {
 
           <Button
             onClick={handleSave}
-            disabled={isPending || !username.trim() || !initials.trim()}
+            disabled={isPending || !canSave}
             className="w-full"
           >
             {isPending ? t('common.loading') : t('profile.save')}

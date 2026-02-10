@@ -2,7 +2,7 @@ import { Principal } from '@dfinity/principal';
 import { useI18n } from '../../hooks/useI18n';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { UserProfile } from '../../backend';
-import { getAvatarPath } from '../avatars/avatarManifest';
+import DentalAvatarImage from '../avatars/DentalAvatarImage';
 
 interface Props {
   users: Array<[Principal, UserProfile]>;
@@ -31,8 +31,8 @@ export default function UserPicker({ users, selectedUserId, onSelectUser }: Prop
         {users.map(([principal, profile]) => (
           <SelectItem key={principal.toString()} value={principal.toString()}>
             <div className="flex items-center gap-2">
-              <img
-                src={getAvatarPath(profile.avatar)}
+              <DentalAvatarImage
+                avatarId={profile.avatar}
                 alt={profile.username}
                 className="w-6 h-6 rounded-full"
               />

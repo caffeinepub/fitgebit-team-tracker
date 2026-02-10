@@ -2,12 +2,118 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-overtime-photo-support-end-to-end-users-must-not-be-able-to-upload-or-view-overtime-photos-and-the-backend-must-no-longer-accept-store-or-return-any-overtime-photo-data",
-      "featureTitle": "Remove overtime photo support end-to-end: users must not be able to upload or view overtime photos, and the backend must no longer accept, store, or return any overtime photo data.",
+      "featureId": "feature-replace-the-current-post-login-role-auto-assignment-first-manager-confirmation-flow-with-an-explicit-role-choice-flow-assistant-or-manager-where-manager-access-requires-entering-the-token-icpmaxi313",
+      "featureTitle": "Replace the current post-login role auto-assignment/first-manager confirmation flow with an explicit role-choice flow (Assistant or Manager) where Manager access requires entering the token \"ICPmaxi313\".",
       "files": [
-        "frontend/src/components/overtime/OvertimeForm.tsx",
-        "frontend/src/components/overtime/OvertimeHistory.tsx",
-        "frontend/src/hooks/useOvertime.ts",
+        "frontend/src/App.tsx",
+        "frontend/src/components/auth/RoleChoiceScreen.tsx",
+        "frontend/src/hooks/useRoleSelection.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-20"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-revise-the-login-screen-ui-to-include-role-selection-assistant-manager-and-when-manager-is-selected-a-token-input-field-keep-internet-identity-as-the-authentication-mechanism",
+      "featureTitle": "Revise the login screen UI to include role selection (Assistant/Manager) and, when Manager is selected, a token input field; keep Internet Identity as the authentication mechanism.",
+      "files": [
+        "frontend/src/components/auth/LoginScreen.tsx",
+        "frontend/src/components/auth/RoleChoiceScreen.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-22"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-the-firstmanagerconfirmdialog-flow-from-the-authenticated-app-startup-and-replace-it-with-the-new-role-choice-token-flow-so-that-app-tsx-never-triggers-the-old-manager-confirmation-dialog",
+      "featureTitle": "Remove the FirstManagerConfirmDialog flow from the authenticated app startup and replace it with the new role-choice/token flow so that App.tsx never triggers the old manager confirmation dialog.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/auth/FirstManagerConfirmDialog.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-23"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-profile-onboarding-to-require-a-username-and-initials-of-length-2-3-characters-on-first-login-and-prevent-saving-if-initials-are-not-2-or-3-characters",
+      "featureTitle": "Update profile onboarding to require a username and initials of length 2–3 characters on first login, and prevent saving if initials are not 2 or 3 characters.",
+      "files": [
+        "frontend/src/components/profile/ProfileOnboardingModal.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-24"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-replace-the-existing-48-avatar-static-manifest-and-paginated-avatar-picker-with-exactly-16-simple-cute-dental-svg-avatars-served-from-the-canister-as-svg-strings-or-via-canister-urls-and-displayed-in-a-single-grid-with-no-pagination",
+      "featureTitle": "Replace the existing 48-avatar static manifest and paginated avatar picker with exactly 16 simple cute dental SVG avatars, served from the canister as SVG strings (or via canister URLs) and displayed in a single grid with no pagination.",
+      "files": [
+        "frontend/src/components/avatars/AvatarPicker.tsx",
+        "frontend/src/components/avatars/DentalAvatarImage.tsx",
+        "frontend/src/components/avatars/avatarManifest.ts",
+        "frontend/src/components/layout/AppHeader.tsx",
+        "frontend/src/components/manager/UserPicker.tsx",
+        "frontend/src/hooks/useDentalAvatars.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-25"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-adjust-i18n-translation-keys-for-any-new-or-changed-user-facing-text-introduced-by-the-role-choice-login-token-flow-and-the-updated-onboarding-validations-english-dutch-french-remain-supported",
+      "featureTitle": "Add/adjust i18n translation keys for any new or changed user-facing text introduced by the role-choice login/token flow and the updated onboarding validations (English, Dutch, French remain supported).",
+      "files": [
         "frontend/src/i18n/translations.ts"
       ],
       "components": [
@@ -20,17 +126,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-12"
+        "REQ-26"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-overtime-entry-date-input-ux-to-use-a-dd-mm-yyyy-date-entry-prefilled-to-today-and-keep-the-existing-rule-that-future-dates-are-not-allowed",
-      "featureTitle": "Update the overtime entry date input UX to use a DD MM YYYY date entry (prefilled to today) and keep the existing rule that future dates are not allowed.",
+      "featureId": "feature-replace-the-app-s-logo-branding-mark-with-a-cute-tooth-icon-with-no-text-and-use-it-on-the-login-screen-in-place-of-the-current-sparkles-icon",
+      "featureTitle": "Replace the app’s logo/branding mark with a cute tooth icon with no text, and use it on the login screen in place of the current Sparkles icon.",
       "files": [
-        "frontend/src/components/overtime/OvertimeForm.tsx",
-        "frontend/src/components/overtime/OvertimeHistory.tsx",
-        "frontend/src/i18n/translations.ts"
+        "frontend/src/components/auth/LoginScreen.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -42,143 +146,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-13"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-overtime-add-deduct-behavior-and-color-semantics-match-the-spec-add-must-display-as-red-minutes-and-deduct-must-display-as-green-minutes-in-the-overtime-history-list-and-totals-calculations",
-      "featureTitle": "Ensure overtime add/deduct behavior and color semantics match the spec: Add must display as red (+minutes) and Deduct must display as green (-minutes) in the overtime history list and totals calculations.",
-      "files": [
-        "frontend/src/components/overtime/OvertimeForm.tsx",
-        "frontend/src/components/overtime/OvertimeHistory.tsx",
-        "frontend/src/components/overtime/OvertimeTotals.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-14"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-redesign-the-tasks-domain-model-and-ui-to-remove-due-date-assignee-and-priority-and-replace-them-with-title-type-weekly-monthly-urgent-tasks-must-be-shared-not-per-user-assigned",
-      "featureTitle": "Redesign the Tasks domain model and UI to remove due date, assignee, and priority and replace them with: title + type (weekly/monthly/urgent). Tasks must be shared (not per-user assigned).",
-      "files": [
-        "frontend/src/components/tasks/CreateTaskDialog.tsx",
-        "frontend/src/components/tasks/TaskCard.tsx",
-        "frontend/src/components/tasks/TaskList.tsx",
-        "frontend/src/hooks/useTasks.ts",
-        "frontend/src/i18n/translations.ts",
-        "frontend/src/pages/TasksPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-15"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-task-type-based-status-coloring-and-done-behavior-monthly-tasks-are-yellow-weekly-tasks-are-blue-urgent-tasks-are-red-when-completed-the-task-displays-as-green-done-until-it-resets",
-      "featureTitle": "Implement task type-based status coloring and done behavior: monthly tasks are yellow, weekly tasks are blue, urgent tasks are red; when completed, the task displays as green 'done' until it resets.",
-      "files": [
-        "frontend/src/components/tasks/TaskCard.tsx",
-        "frontend/src/components/tasks/TaskList.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-16"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-change-recurring-reset-logic-to-match-the-new-spec-and-trigger-resets-when-the-app-opens-weekly-tasks-reset-based-on-monday-monthly-tasks-reset-based-on-the-first-monday-of-the-month-urgent-tasks-do-not-auto-reset-unless-explicitly-specified-by-the-implemented-logic-document-the-chosen-behavior-in-code-comments",
-      "featureTitle": "Change recurring/reset logic to match the new spec and trigger resets when the app opens: weekly tasks reset based on Monday; monthly tasks reset based on the first Monday of the month; urgent tasks do not auto-reset unless explicitly specified by the implemented logic (document the chosen behavior in code comments).",
-      "files": [
-        "frontend/src/hooks/useTasks.ts",
-        "frontend/src/pages/TasksPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-17"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-task-completion-tracking-to-record-the-completer-and-support-optional-comment-plus-optional-before-and-after-photos-two-distinct-images-the-completion-ui-must-show-camera-related-affordances-icons",
-      "featureTitle": "Update task completion tracking to record the completer and support optional comment plus optional before-and-after photos (two distinct images). The completion UI must show camera-related affordances/icons.",
-      "files": [
-        "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-        "frontend/src/components/tasks/TaskCard.tsx",
-        "frontend/src/hooks/useTasks.ts",
-        "frontend/src/i18n/translations.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-18"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-manager-task-statistics-and-csv-export-to-align-with-the-redesigned-task-model-and-new-completion-tracking-focusing-on-who-completed-tasks-and-how-often-and-keeping-export-functional",
-      "featureTitle": "Update Manager task statistics and CSV export to align with the redesigned task model and new completion tracking, focusing on 'who completed tasks' and 'how often' and keeping export functional.",
-      "files": [
-        "frontend/src/components/manager/TaskAuditLog.tsx",
-        "frontend/src/components/manager/TaskCompletionChart.tsx",
-        "frontend/src/hooks/useManagerTasks.ts",
-        "frontend/src/i18n/translations.ts",
-        "frontend/src/pages/manager/ManagerStatsPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-19"
+        "REQ-27"
       ],
       "confidence": "high"
     }

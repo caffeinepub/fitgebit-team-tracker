@@ -5,8 +5,8 @@ import { useI18n } from '../../hooks/useI18n';
 import { useGetCallerUserProfile } from '../../hooks/useUserProfile';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Settings, LogOut, Award, Sparkles } from 'lucide-react';
-import { getAvatarPath } from '../avatars/avatarManifest';
+import { Settings, LogOut, Award } from 'lucide-react';
+import DentalAvatarImage from '../avatars/DentalAvatarImage';
 import ProfileSettingsPanel from '../profile/ProfileSettingsPanel';
 import BadgeShelf from '../badges/BadgeShelf';
 import ThemeToggle from './ThemeToggle';
@@ -32,8 +32,12 @@ export default function AppHeader() {
         <div className="container mx-auto px-4 py-4 max-w-6xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 shadow-lg">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="flex items-center justify-center w-10 h-10">
+                <img
+                  src="/assets/generated/app-logo-tooth.dim_256x256.png"
+                  alt="Tooth Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -53,8 +57,8 @@ export default function AppHeader() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center gap-2 h-auto py-2">
-                      <img
-                        src={getAvatarPath(profile.avatar)}
+                      <DentalAvatarImage
+                        avatarId={profile.avatar}
                         alt={profile.username}
                         className="w-8 h-8 rounded-full border-2 border-teal-400"
                       />

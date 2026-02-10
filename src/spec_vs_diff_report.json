@@ -1,92 +1,87 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T23:13:42.874Z",
-  "summary": "Tasks domain/model/UI appear largely redesigned (type weekly/monthly/urgent, shared tasks, completion tracking with completer/comment/before+after photos, and manager-facing completion stats components). Overtime UI date entry and add/deduct color semantics are present, but the diff indicates overtime backend functionality was removed/disabled rather than updated to remove photos only, leaving overtime creation unavailable and hooks returning empty data. Reset logic and manager CSV export cannot be confirmed from the provided diff excerpts.",
+  "generatedAt": "2026-02-10T00:15:29.721Z",
+  "summary": "Diff implements a new role-choice UI (Assistant/Manager with token), adds canister-served dental avatars rendered in a non-paginated grid, updates onboarding initials validation, and swaps header/login branding to a tooth image path. However, several requirements cannot be confirmed from the truncated backend diff (token enforcement, persistence, removal of first-user manager behavior), and some changes appear outside the BuildRequest (overtime/task-domain alterations).",
   "missing_requirements": [
     {
-      "id": "REQ-12",
-      "requirement": "Remove overtime photo support end-to-end while keeping overtime creation/history functional (backend must not accept/store/return photo data).",
-      "reason": "Frontend and hooks indicate overtime functionality was removed/disabled entirely (no backend API call; hooks return empty/no-op), rather than implementing overtime without photos. The migration file still defines old overtimeEntries with photo, but new actor state drops overtime completely, which does not satisfy the requirement to keep overtime working sans photos.",
+      "id": "REQ-21",
+      "requirement": "Backend exposes a single, explicit method for role setup/upgrade that checks the manager token for Manager selection and assigns the appropriate authorization role for the caller.",
+      "reason": "Frontend calls two separate backend methods (selectRoleAssistant and selectRoleManager) rather than a single explicit role-setup method. The backend diff snippet shown does not evidence a single consolidated method.",
       "evidence": [
-        "frontend/src/components/overtime/OvertimeForm.tsx (\"Overtime functionality is currently unavailable\")",
-        "frontend/src/hooks/useOvertime.ts (returns [] and throws \"Overtime functionality has been removed\")",
-        "backend/migration.mo (OldActor includes overtimeEntries with photo; migration drops overtimeEntries/nextOvertimeId)"
+        "frontend/src/hooks/useRoleSelection.ts"
       ]
     },
     {
-      "id": "REQ-17",
-      "requirement": "Weekly/monthly task reset logic (weekly resets on Monday; monthly resets on first Monday) evaluated on app open/load; urgent behavior documented in code comments.",
-      "reason": "The diff shows a frontend hook calling resetRecurringTasksIfNeeded(), but the backend implementation and the specific Monday/first-Monday logic (and urgent behavior comments) are not shown in the provided truncated backend diff, and no frontend mount/app-open trigger is evidenced in the shown files.",
+      "id": "REQ-21",
+      "requirement": "Selecting Manager requires entering the exact token \"ICPmaxi313\" and only then granting admin/manager privileges; callers without completing token flow cannot access manager-only endpoints; legacy first-user admin grant removed/disabled.",
+      "reason": "The backend diff is truncated before showing any token validation logic, role persistence mapping, or removal of legacy implicit-first-user admin behavior, so compliance cannot be verified from the provided evidence.",
       "evidence": [
-        "frontend/src/hooks/useTasks.ts (useResetRecurringTasks calls actor.resetRecurringTasksIfNeeded())",
-        "backend/main.mo (truncated; reset logic not visible)"
+        "backend/main.mo"
       ]
     },
     {
-      "id": "REQ-19",
-      "requirement": "Update Manager task statistics and CSV export to align with the redesigned task model and new completion tracking; export must download successfully and include task type + completion metadata.",
-      "reason": "Manager-facing stats components exist (chart/audit log), and there is a hook calling actor.exportTaskData(), but no evidence is shown for CSV generation/download on the frontend, and backend exportTaskData / CSV formatting/content is not shown in the provided diff summary.",
+      "id": "REQ-25",
+      "requirement": "Avatars are initialized/available from the canister reliably so the frontend can fetch and render all 16 without manual steps.",
+      "reason": "Backend shows an exposed initializeAvatars() method, but the frontend App.tsx contains a no-op/stub comment and no evidence of calling initialization automatically; the backend diff is truncated before showing whether avatars are initialized at deploy/upgrade time.",
       "evidence": [
-        "frontend/src/components/manager/TaskCompletionChart.tsx",
-        "frontend/src/components/manager/TaskAuditLog.tsx",
-        "frontend/src/hooks/useManagerTasks.ts (useExportTaskData calls actor.exportTaskData())",
-        "backend/main.mo (truncated; exportTaskData/CSV not visible)"
+        "backend/main.mo",
+        "frontend/src/App.tsx"
+      ]
+    },
+    {
+      "id": "REQ-26",
+      "requirement": "All new strings introduced by the updated login/role flow and onboarding validation are translated in en/nl/fr dictionaries.",
+      "reason": "Only the English portion of translations is visible in the truncated snippet; Dutch and French updates for the new keys cannot be confirmed from the provided diff excerpt.",
+      "evidence": [
+        "frontend/src/i18n/translations.ts"
+      ]
+    },
+    {
+      "id": "REQ-27",
+      "requirement": "Logo is included as a static asset in the frontend and loads in both light and dark modes.",
+      "reason": "Components reference \"/assets/generated/app-logo-tooth.dim_256x256.png\", but the diff summary does not show the image asset being added/modified, so inclusion cannot be verified.",
+      "evidence": [
+        "frontend/src/components/auth/LoginScreen.tsx",
+        "frontend/src/components/layout/AppHeader.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Overtime feature removed/disabled (backend removed; frontend form hard-errors; hooks return empty/no-op).",
-      "reason": "The BuildRequest requires removing overtime photo support, not removing overtime functionality entirely.",
+      "description": "Overtime functionality appears to be removed/disabled (hooks returning empty data) with UI still present for backwards compatibility.",
+      "reason": "BuildRequest explicitly lists as a non-goal: \"Do not implement new overtime functionality beyond what already exists\"—it does not request removing/neutralizing overtime. The diff summary indicates overtime backend removal behavior via frontend hook stubbing.",
       "evidence": [
-        "frontend/src/hooks/useOvertime.ts (\"Overtime has been removed from the backend\")",
-        "frontend/src/components/overtime/OvertimeForm.tsx (\"Overtime functionality is currently unavailable\")",
-        "backend/migration.mo (explicitly drops overtimeEntries and nextOvertimeId)"
+        "frontend-file-summaries.txt (frontend/src/hooks/useOvertime.ts)"
       ]
     },
     {
-      "description": "Added a Privacy & Data panel that exports cached data as JSON and provides a delete flow that logs the user out.",
-      "reason": "Not requested by any requirement; unrelated to Tasks/Overtime changes.",
+      "description": "Task domain/UI appears simplified beyond the described existing weekly/monthly/urgent model (e.g., removing assignee/due date/priority references).",
+      "reason": "BuildRequest non-goal: \"Do not redesign the Tasks domain beyond the existing weekly/monthly/urgent model already implemented.\" The diff summary suggests removing additional task fields/behavior, which is an unrequested domain change.",
       "evidence": [
-        "frontend/src/components/profile/PrivacyPanel.tsx"
-      ]
-    },
-    {
-      "description": "Added/expanded header UI elements related to badges and settings panels (e.g., BadgeShelf).",
-      "reason": "Not requested by any requirement; non-goal says not to change Part 1 features unless required to compile.",
-      "evidence": [
-        "frontend/src/components/layout/AppHeader.tsx"
+        "frontend-file-summaries.txt (frontend/src/components/tasks/CreateTaskDialog.tsx)",
+        "frontend-file-summaries.txt (frontend/src/components/tasks/TaskList.tsx)"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/components/auth/FirstManagerConfirmDialog.tsx",
+    "frontend/src/components/auth/LoginScreen.tsx",
+    "frontend/src/components/auth/RoleChoiceScreen.tsx",
+    "frontend/src/components/avatars/AvatarPicker.tsx",
+    "frontend/src/components/avatars/DentalAvatarImage.tsx",
+    "frontend/src/components/avatars/avatarManifest.ts",
     "frontend/src/components/layout/AppHeader.tsx",
-    "frontend/src/components/manager/TaskAuditLog.tsx",
-    "frontend/src/components/manager/TaskCompletionChart.tsx",
-    "frontend/src/components/overtime/OvertimeForm.tsx",
-    "frontend/src/components/overtime/OvertimeHistory.tsx",
-    "frontend/src/components/overtime/OvertimeTotals.tsx",
-    "frontend/src/components/profile/PrivacyPanel.tsx",
+    "frontend/src/components/manager/UserPicker.tsx",
     "frontend/src/components/profile/ProfileOnboardingModal.tsx",
-    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-    "frontend/src/components/tasks/CreateTaskDialog.tsx",
-    "frontend/src/components/tasks/TaskCard.tsx",
-    "frontend/src/components/tasks/TaskList.tsx",
-    "frontend/src/hooks/useManagerOvertime.ts",
-    "frontend/src/hooks/useManagerTasks.ts",
-    "frontend/src/hooks/useOvertime.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useTasks.ts",
-    "frontend/src/hooks/useUserProfile.ts",
+    "frontend/src/hooks/useDentalAvatars.ts",
+    "frontend/src/hooks/useRoleSelection.ts",
     "frontend/src/i18n/translations.ts",
-    "frontend/src/pages/TasksPage.tsx",
-    "frontend/src/pages/manager/ManagerOvertimePage.tsx",
-    "frontend/src/pages/manager/ManagerStatsPage.tsx",
+    "frontend/src/index.css",
     "project_state.json"
   ]
 }
