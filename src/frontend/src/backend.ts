@@ -188,7 +188,7 @@ export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     completeTask(taskId: number, comment: string | null, beforePhoto: ExternalBlob | null, afterPhoto: ExternalBlob | null): Promise<void>;
-    createOvertimeEntry(minutes: bigint): Promise<OvertimeEntry>;
+    createOvertimeEntry(minutes: bigint, date: Time): Promise<OvertimeEntry>;
     createTask(title: string, description: string, taskType: TaskType): Promise<void>;
     exportTaskData(): Promise<Array<Task>>;
     getAllDentalAvatars(): Promise<Array<DentalAvatar>>;
@@ -339,17 +339,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createOvertimeEntry(arg0: bigint): Promise<OvertimeEntry> {
+    async createOvertimeEntry(arg0: bigint, arg1: Time): Promise<OvertimeEntry> {
         if (this.processError) {
             try {
-                const result = await this.actor.createOvertimeEntry(arg0);
+                const result = await this.actor.createOvertimeEntry(arg0, arg1);
                 return from_candid_OvertimeEntry_n13(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createOvertimeEntry(arg0);
+            const result = await this.actor.createOvertimeEntry(arg0, arg1);
             return from_candid_OvertimeEntry_n13(this._uploadFile, this._downloadFile, result);
         }
     }

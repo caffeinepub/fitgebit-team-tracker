@@ -6,8 +6,8 @@
   "frontend/src/components/tasks/TaskCard.tsx": "Task card with type-based color coding, description display, completion details, and a reset button with RotateCcw icon visible on completed tasks when canResetTasks prop is true.",
   "frontend/src/components/tasks/TaskList.tsx": "Task list sorting by completion status and type priority with stable task ID tie-breaker, now accepting and passing canResetTasks prop to each TaskCard.",
   "frontend/src/index.css": "Global CSS with Tailwind directives, OKLCH dental-themed color tokens, and floating tooth animation keyframes.",
-  "frontend/src/hooks/useOvertime.ts": "React Query hooks for overtime functionality with real backend integration via createOvertimeEntry and getCallerOvertimeEntries methods.",
-  "frontend/src/components/overtime/OvertimeForm.tsx": "Overtime form with date/minutes inputs and Add/Deduct buttons that creates real overtime entries via backend mutation with proper validation and success notifications.",
+  "frontend/src/hooks/useOvertime.ts": "React Query hooks for overtime functionality with backend integration via createOvertimeEntry accepting both minutes and date timestamp parameters.",
+  "frontend/src/components/overtime/OvertimeForm.tsx": "Overtime form with date picker integration, minutes input, and Add/Deduct buttons that creates overtime entries with selected dates, enforcing 2-month past limit and future date validation with proper error handling.",
   "frontend/src/components/overtime/OvertimeHistory.tsx": "Displays overtime history entries from backend with color-coded styling based on signed minutes (positive=red add, negative=green deduct) and DD/MM/YYYY date format.",
   "frontend/src/components/overtime/OvertimeTotals.tsx": "Calculates and displays total overtime as composite days/hours/minutes using 8-hour workdays and 60-minute hours, with proper negative value handling.",
   "frontend/src/hooks/useTasks.ts": "Task hooks with placeholderData to prevent UI flicker during refetch, and improved reset mutation that uses refetchQueries instead of invalidateQueries for better cache stability.",
@@ -17,7 +17,7 @@
   "frontend/src/components/manager/TaskCompletionChart.tsx": "Bar chart showing task completions per user based on currentCompletion.completedBy field.",
   "frontend/src/components/manager/TaskAuditLog.tsx": "Audit log table displaying completed tasks with type, completer username, comment, and before/after photo indicators.",
   "frontend/src/hooks/useManagerTasks.ts": "Manager task export hook for CSV generation using backend exportTaskData capability.",
-  "frontend/src/i18n/translations.ts": "Translation strings for English, Dutch, and French including new tasks.resetTask key for the reset button label across all three languages.",
+  "frontend/src/i18n/translations.ts": "Translation strings for English, Dutch, and French including new error keys for invalid minutes, invalid input, future date, and past date too old validation messages.",
   "frontend/src/hooks/useQueries.ts": "Minimal queries file serving as a placeholder; feature-specific hooks are in separate files with OvertimeEntry type reference removed.",
   "frontend/src/hooks/useUserProfile.ts": "User profile hooks for fetching, saving, uploading photo, and removing photo with proper cache invalidation.",
   "frontend/src/components/profile/PrivacyPanel.tsx": "Privacy panel component for data export and profile deletion; deletion now only clears local data and logs out since backend deleteCallerUserProfile method doesn't exist.",
@@ -38,5 +38,6 @@
   "frontend/src/components/avatars/ProfileAvatar.tsx": "Unified avatar renderer with priority fallback (uploaded photo → dental SVG avatar → generated initials avatar) that always renders DentalAvatarImage for dental avatars to ensure consistent fallback handling.",
   "frontend/src/pages/OvertimePage.tsx": "Overtime page displaying form, totals, and history using real backend overtime data.",
   "frontend/src/hooks/useManagerOvertime.ts": "Manager overtime hooks for querying user overtime entries and preparing CSV export data with proper date/type/minutes formatting.",
-  "frontend/src/hooks/useNotify.ts": "Notification hook with error handling for overtime-specific errors, token validation failures, and weekly task obsolete errors using i18n translations."
+  "frontend/src/hooks/useNotify.ts": "Notification hook with error handling for overtime-specific errors, token validation failures, and weekly task obsolete errors using i18n translations.",
+  "frontend/src/components/overtime/OvertimeDatePickerField.tsx": "Reusable date picker field component that wraps DD/MM/YYYY inputs with a hidden native date picker constrained to [today - 2 months, today], displaying a calendar icon and triggering the picker on click."
 }

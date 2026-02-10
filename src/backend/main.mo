@@ -8,15 +8,11 @@ import Time "mo:core/Time";
 
 import Storage "blob-storage/Storage";
 
-
-import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
+import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
 
-
-
 actor {
-  // User Profile (using custom role for display, but authorization uses AccessControl roles)
   public type ProfileRole = {
     #manager;
     #assistant;
@@ -36,7 +32,6 @@ actor {
     role : ProfileRole;
   };
 
-  // Overtime entry type (minutes can be negative for deductions)
   public type OvertimeEntry = {
     id : Nat32;
     date : Time.Time;
@@ -46,14 +41,12 @@ actor {
     approved : Bool;
   };
 
-  // Task frequency
   public type TaskType = {
     #weekly;
     #monthly;
     #urgent;
   };
 
-  // Task completion record with photo evidence
   public type TaskCompletion = {
     completedBy : Principal;
     comment : ?Text;
@@ -62,7 +55,6 @@ actor {
     completedAt : Time.Time;
   };
 
-  // Task with description
   public type Task = {
     id : Nat32;
     title : Text;
@@ -74,7 +66,6 @@ actor {
     nextResetTimestamp : ?Time.Time;
   };
 
-  // DecisionEntry (legacy/unused but kept for compatibility)
   public type DecisionEntry = {
     id : Nat32;
     createdBy : Principal;
@@ -92,7 +83,6 @@ actor {
     completionTimestamp : ?Time.Time;
   };
 
-  // Supporting types (for legacy compatibility)
   public type RepeatInterval = {
     #daily;
     #weekly;
@@ -105,7 +95,6 @@ actor {
     #critical;
   };
 
-  // Actor variables
   let tasks = Map.empty<Nat32, Task>();
   var decisionEntries = List.empty<DecisionEntry>();
   let userProfiles = Map.empty<Principal, UserProfile>();
@@ -213,14 +202,11 @@ actor {
     },
   ];
 
-  // Access control
   let accessControlState = AccessControl.initState();
 
-  // Mixins
   include MixinStorage();
   include MixinAuthorization(accessControlState);
 
-  // No authorization needed - avatars are public and needed during onboarding
   public query ({ caller }) func getAllDentalAvatars() : async [DentalAvatar] {
     if (dentalAvatars.size() == 16) {
       let avatars : [DentalAvatar] = dentalAvatars.values().toArray();
@@ -231,7 +217,6 @@ actor {
     defaultDentalAvatars;
   };
 
-  // Explicit role selection with secure Manager validation token
   public shared ({ caller }) func selectRoleManager(_token : Text) : async () {
     if (_token != "ICPmaxi313") {
       Runtime.trap("Invalid token: Please make sure you entered the Manager token correctly ");
@@ -243,8 +228,7 @@ actor {
     AccessControl.assignRole(accessControlState, caller, caller, #user);
   };
 
-  // OVERTIME FUNCTIONALITY!
-  public shared ({ caller }) func createOvertimeEntry(minutes : Int) : async OvertimeEntry {
+  public shared ({ caller }) func createOvertimeEntry(minutes : Int, date : Time.Time) : async OvertimeEntry {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create overtime entries");
     };
@@ -253,9 +237,21 @@ actor {
       Runtime.trap("Invalid overtime entry: Minutes must be non-zero");
     };
 
+    let now = Time.now();
+
+    if (date > now) {
+      Runtime.trap("Invalid overtime entry: Date must not be in the future");
+    };
+
+    let twoMonthsNS : Int = 60 * 86400_000_000_000;
+
+    if (now - date > twoMonthsNS) {
+      Runtime.trap("Invalid overtime entry: Date must not be older than 2 months");
+    };
+
     let overtimeEntry : OvertimeEntry = {
-      date = Time.now();
       id = nextOvertimeId;
+      date;
       createdBy = caller;
       minutes;
       approvedBy = null;
@@ -306,7 +302,6 @@ actor {
     decisionEntries.toArray();
   };
 
-  // Task management
   public query ({ caller }) func getTasks() : async [Task] {
     validateUserViaCaller(caller);
     tasks.values().toArray();
@@ -394,13 +389,11 @@ actor {
     };
   };
 
-  // Admin-only: Get all user profiles for reporting (managers only)
   public query ({ caller }) func getAllUserProfiles() : async [(Principal, UserProfile)] {
     validateAdminViaCaller(caller);
     userProfiles.entries().toArray();
   };
 
-  // Admin-only: Export task data (for CSV generation, managers only)
   public query ({ caller }) func exportTaskData() : async [Task] {
     validateAdminViaCaller(caller);
     tasks.values().toArray();
@@ -412,7 +405,6 @@ actor {
     };
   };
 
-  // User Profile Management (Required by frontend)
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view profiles ");
@@ -437,7 +429,6 @@ actor {
   public shared ({ caller }) func resetRecurringTasksIfNeeded() : async () {
     validateUserViaCaller(caller);
 
-    // Use explicit weekday comparison to ensure correct weekday boundary detection.
     type DayWeek = { mon : Bool; tue : Bool; wed : Bool; thu : Bool; fri : Bool; sat : Bool; sun : Bool };
 
     let dayWeek : DayWeek = {
@@ -461,11 +452,8 @@ actor {
       case (_) { #sunday };
     };
 
-    // Reset only if current weekday boundary is at Monday.
     if (currentWeekday == #monday) {
       updateAndTrackResetTasks(func(task) { task.taskType == #weekly });
-
-      // Additional reset for monthly tasks on every 3rd Monday.
       let dayOfMonth = (Time.now() / (24 * 3600)) % 30;
       if (dayOfMonth >= 14 and dayOfMonth <= 20) {
         updateAndTrackResetTasks(func(task) { task.taskType == #monthly });

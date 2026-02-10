@@ -1,57 +1,77 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T17:09:46.208Z",
+  "generatedAt": "2026-02-10T22:45:09.032Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-63",
-        "summary": "Update the task completion dialog (mark-done popup) to display the current task’s title as a smaller subtitle-style line near the top of the dialog, so users can clearly confirm which task they are marking done.",
+        "id": "REQ-65",
+        "summary": "Update the Overtime entry UI so the existing DD/MM/YYYY manual date inputs remain, but clicking on the date field opens a calendar date picker that lets Assistants choose a date from today back to 2 months ago (inclusive). Future dates must remain disallowed.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-          "frontend/src/components/tasks/TaskCard.tsx"
+          "frontend/src/components/overtime/OvertimeDatePickerField.tsx",
+          "frontend/src/components/overtime/OvertimeForm.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-          "frontend/src/components/tasks/TaskCard.tsx"
+          "frontend/src/components/overtime/OvertimeDatePickerField.tsx",
+          "frontend/src/components/overtime/OvertimeForm.tsx"
         ]
       },
       {
-        "id": "REQ-64",
-        "summary": "Add a clearly visible per-task manual reset button that is accessible to Assistants in the task list UI. The button must be present (not missing) and must reset the task back to “not done” by calling the existing resetTask mutation so the task becomes incomplete again after the action completes.",
+        "id": "REQ-66",
+        "summary": "Update overtime form validation and user-facing error handling to enforce the 2-month past-date limit consistently. Any new/changed user-facing validation text introduced by this change must be in English.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/i18n/translations.ts",
-          "frontend/src/pages/TasksPage.tsx",
-          "frontend/src/components/tasks/TaskList.tsx",
-          "frontend/src/components/tasks/TaskCard.tsx"
+          "frontend/src/components/overtime/OvertimeForm.tsx",
+          "frontend/src/i18n/translations.ts"
         ],
         "matchedFiles": [
-          "frontend/src/i18n/translations.ts",
-          "frontend/src/pages/TasksPage.tsx",
-          "frontend/src/components/tasks/TaskList.tsx",
-          "frontend/src/components/tasks/TaskCard.tsx"
+          "frontend/src/components/overtime/OvertimeForm.tsx",
+          "frontend/src/i18n/translations.ts"
+        ]
+      },
+      {
+        "id": "REQ-67",
+        "summary": "Update the Motoko backend overtime API to accept a caller-provided date for an overtime entry (instead of always using Time.now()), and enforce server-side validation that the date is not in the future and not older than 2 months ago (inclusive).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-68",
+        "summary": "Wire the frontend overtime create mutation to send the selected date to the backend overtime create API, and ensure the overtime history list reflects the chosen date after successful submission.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useOvertime.ts",
+          "frontend/src/components/overtime/OvertimeForm.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useOvertime.ts",
+          "frontend/src/components/overtime/OvertimeForm.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-    "frontend/src/components/tasks/TaskCard.tsx",
-    "frontend/src/components/tasks/TaskList.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/overtime/OvertimeDatePickerField.tsx",
+    "frontend/src/components/overtime/OvertimeForm.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useOvertime.ts",
     "frontend/src/i18n/translations.ts",
-    "frontend/src/pages/TasksPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

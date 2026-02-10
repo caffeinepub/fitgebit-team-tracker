@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Make task completion actions clearer by showing the task title in the “mark done” dialog and provide Assistants with a visible per-task reset control to set completed tasks back to not done.
+**Goal:** Allow assistants to log overtime for a selected date within the past 2 months (including today) using a date picker, with consistent frontend and backend validation and storage.
 
 **Planned changes:**
-- Update the task completion (mark-done) dialog to include the current task’s title as a smaller subtitle-style line near the top (not the main dialog title), matching the task card title and preserving full opacity in light/dark mode.
-- Add a clearly visible per-task reset button/control on task cards for Assistants in the task list, available wherever the task list is shown.
-- Wire the reset control to the existing `resetTask` mutation/hooks so that, after success, the task updates to “not completed” in the list while keeping existing React Query caching behavior intact.
-- Add any new user-facing reset label(s) via the existing i18n system with English text (e.g., `tasks.resetTask`).
+- Update the overtime entry date UI to keep the existing editable DD/MM/YYYY inputs while opening a calendar date picker when the date field/area is clicked.
+- Restrict selectable dates in the date picker to the inclusive range from today back to 2 months ago; prevent future dates and dates older than 2 months.
+- Add/adjust frontend validation to block submission for dates older than 2 months with an English error message, while preserving the existing future-date error behavior.
+- Update the backend overtime create API to accept a caller-provided date, store it on the overtime entry, and enforce server-side validation for future/too-old dates with English error/trap messages.
+- Wire the frontend create-overtime request to send the selected/entered date to the backend and ensure OvertimeHistory shows the stored chosen date after submission.
 
-**User-visible outcome:** When marking a task done, users see the task title in the confirmation dialog, and Assistants can reset any completed task directly from its task card to make it incomplete again.
+**User-visible outcome:** Assistants can pick (or manually type) an overtime date within the last 2 months using a calendar picker, submit it successfully, and see the selected date reflected in overtime history; invalid dates are rejected with clear English errors.

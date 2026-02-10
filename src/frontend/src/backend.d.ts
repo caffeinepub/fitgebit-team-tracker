@@ -95,7 +95,7 @@ export enum UserRole {
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     completeTask(taskId: number, comment: string | null, beforePhoto: ExternalBlob | null, afterPhoto: ExternalBlob | null): Promise<void>;
-    createOvertimeEntry(minutes: bigint): Promise<OvertimeEntry>;
+    createOvertimeEntry(minutes: bigint, date: Time): Promise<OvertimeEntry>;
     createTask(title: string, description: string, taskType: TaskType): Promise<void>;
     exportTaskData(): Promise<Array<Task>>;
     getAllDentalAvatars(): Promise<Array<DentalAvatar>>;

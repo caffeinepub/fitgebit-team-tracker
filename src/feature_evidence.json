@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-task-completion-dialog-mark-done-popup-to-display-the-current-task-s-title-as-a-smaller-subtitle-style-line-near-the-top-of-the-dialog-so-users-can-clearly-confirm-which-task-they-are-marking-done",
-      "featureTitle": "Update the task completion dialog (mark-done popup) to display the current task’s title as a smaller subtitle-style line near the top of the dialog, so users can clearly confirm which task they are marking done.",
+      "featureId": "feature-update-the-overtime-entry-ui-so-the-existing-dd-mm-yyyy-manual-date-inputs-remain-but-clicking-on-the-date-field-opens-a-calendar-date-picker-that-lets-assistants-choose-a-date-from-today-back-to-2-months-ago-inclusive-future-dates-must-remain-disallowed",
+      "featureTitle": "Update the Overtime entry UI so the existing DD/MM/YYYY manual date inputs remain, but clicking on the date field opens a calendar date picker that lets Assistants choose a date from today back to 2 months ago (inclusive). Future dates must remain disallowed.",
       "files": [
-        "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-        "frontend/src/components/tasks/TaskCard.tsx"
+        "frontend/src/components/overtime/OvertimeDatePickerField.tsx",
+        "frontend/src/components/overtime/OvertimeForm.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,18 +18,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-63"
+        "REQ-65"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-clearly-visible-per-task-manual-reset-button-that-is-accessible-to-assistants-in-the-task-list-ui-the-button-must-be-present-not-missing-and-must-reset-the-task-back-to-not-done-by-calling-the-existing-resettask-mutation-so-the-task-becomes-incomplete-again-after-the-action-completes",
-      "featureTitle": "Add a clearly visible per-task manual reset button that is accessible to Assistants in the task list UI. The button must be present (not missing) and must reset the task back to “not done” by calling the existing resetTask mutation so the task becomes incomplete again after the action completes.",
+      "featureId": "feature-update-overtime-form-validation-and-user-facing-error-handling-to-enforce-the-2-month-past-date-limit-consistently-any-new-changed-user-facing-validation-text-introduced-by-this-change-must-be-in-english",
+      "featureTitle": "Update overtime form validation and user-facing error handling to enforce the 2-month past-date limit consistently. Any new/changed user-facing validation text introduced by this change must be in English.",
       "files": [
-        "frontend/src/components/tasks/TaskCard.tsx",
-        "frontend/src/components/tasks/TaskList.tsx",
-        "frontend/src/i18n/translations.ts",
-        "frontend/src/pages/TasksPage.tsx"
+        "frontend/src/components/overtime/OvertimeForm.tsx",
+        "frontend/src/i18n/translations.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -41,7 +39,28 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-64"
+        "REQ-66"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-wire-the-frontend-overtime-create-mutation-to-send-the-selected-date-to-the-backend-overtime-create-api-and-ensure-the-overtime-history-list-reflects-the-chosen-date-after-successful-submission",
+      "featureTitle": "Wire the frontend overtime create mutation to send the selected date to the backend overtime create API, and ensure the overtime history list reflects the chosen date after successful submission.",
+      "files": [
+        "frontend/src/components/overtime/OvertimeForm.tsx",
+        "frontend/src/hooks/useOvertime.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-68"
       ],
       "confidence": "high"
     }

@@ -108,7 +108,7 @@ export interface _SERVICE {
     [number, [] | [string], [] | [ExternalBlob], [] | [ExternalBlob]],
     undefined
   >,
-  'createOvertimeEntry' : ActorMethod<[bigint], OvertimeEntry>,
+  'createOvertimeEntry' : ActorMethod<[bigint, Time], OvertimeEntry>,
   'createTask' : ActorMethod<[string, string, TaskType], undefined>,
   'exportTaskData' : ActorMethod<[], Array<Task>>,
   'getAllDentalAvatars' : ActorMethod<[], Array<DentalAvatar>>,

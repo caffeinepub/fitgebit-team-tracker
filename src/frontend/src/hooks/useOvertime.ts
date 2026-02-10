@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { OvertimeEntry } from '../backend';
+import type { OvertimeEntry, Time } from '../backend';
 
 export function useGetOvertimeEntries() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -20,10 +20,10 @@ export function useCreateOvertimeEntry() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (minutes: number) => {
+    mutationFn: async ({ minutes, date }: { minutes: number; date: Time }) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend expects bigint for minutes
-      return actor.createOvertimeEntry(BigInt(minutes));
+      // Backend expects bigint for minutes and Time (bigint) for date
+      return actor.createOvertimeEntry(BigInt(minutes), date);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['overtimeEntries'] });

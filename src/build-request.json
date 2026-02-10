@@ -1,58 +1,105 @@
 {
   "kind": "build_request",
-  "title": "Show task title in completion popup and add visible per-task reset button for assistants",
+  "title": "Overtime: add date picker with past-date logging (2-month limit) and backend date support",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-63",
-      "text": "Update the task completion dialog (mark-done popup) to display the current task’s title as a smaller subtitle-style line near the top of the dialog, so users can clearly confirm which task they are marking done.",
+      "id": "REQ-65",
+      "text": "Update the Overtime entry UI so the existing DD/MM/YYYY manual date inputs remain, but clicking on the date field opens a calendar date picker that lets Assistants choose a date from today back to 2 months ago (inclusive). Future dates must remain disallowed.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "When clicking 'mark done' I want the popup to also show the title of the task at hand, so no mistakes are made",
-          "smaller subtitle-style placement"
+          "the ability to log overtime for past dates.",
+          "When an assistant clicks on the date field in the overtime entry form, it should open a calendar/date picker that allows them to select any previous date (not just today).",
+          "1. Yes",
+          "2. 2 months limit"
         ]
       },
       "acceptanceCriteria": [
-        "When the completion dialog is opened from any task card, the dialog shows the selected task’s title in the dialog content/header area as a smaller subtitle-style element (not as the main dialog title).",
-        "The displayed title matches the task title shown on the task card (no truncation beyond existing UI constraints, no mismatched task).",
-        "The completion dialog remains fully opaque in both light and dark mode (no see-through background regression)."
+        "The overtime form still shows the existing DD/MM/YYYY inputs and they remain editable.",
+        "Clicking the date area opens a calendar/date picker UI.",
+        "The date picker disables (or prevents selecting) any date in the future.",
+        "The date picker disables (or prevents selecting) any date older than 2 months before today (inclusive range: [today - 2 months, today]).",
+        "Selecting a date in the date picker updates the DD/MM/YYYY inputs to match the selected date.",
+        "Submitting an overtime entry uses the selected date (not always today)."
       ]
     },
     {
-      "id": "REQ-64",
-      "text": "Add a clearly visible per-task manual reset button that is accessible to Assistants in the task list UI. The button must be present (not missing) and must reset the task back to “not done” by calling the existing resetTask mutation so the task becomes incomplete again after the action completes.",
+      "id": "REQ-66",
+      "text": "Update overtime form validation and user-facing error handling to enforce the 2-month past-date limit consistently. Any new/changed user-facing validation text introduced by this change must be in English.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-2"
         ],
         "quotes": [
-          "I don't see this button that's why I asked for it again",
-          "it should be visible to all assistants",
-          "Add a manual reset button for each task. This should allow me to manually reset any task back to \"not done\" status, regardless of whether it's a daily, weekly, monthly, or urgent task."
+          "2. 2 months limit"
         ]
       },
       "acceptanceCriteria": [
-        "For a completed task, Assistants can see a reset control on the task card without needing to open any other screen.",
-        "Clicking the reset control triggers the existing frontend resetTask flow (via the current hooks) and, after success, the task displays as not completed in the list.",
-        "The reset control is not hidden for Assistants (based on role) anywhere the task list is displayed.",
-        "Any new user-facing label(s) introduced for this reset action use the i18n system and have English text present (e.g., a key like tasks.resetTask)."
+        "If a user manually types a date older than 2 months ago, the form blocks submission and shows an English error message.",
+        "If a user manually types a future date, the form blocks submission and shows the existing future-date error.",
+        "No non-English hard-coded strings are introduced for the new validation behavior."
+      ]
+    },
+    {
+      "id": "REQ-67",
+      "text": "Update the Motoko backend overtime API to accept a caller-provided date for an overtime entry (instead of always using Time.now()), and enforce server-side validation that the date is not in the future and not older than 2 months ago (inclusive).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2",
+          "msg-3"
+        ],
+        "quotes": [
+          "the ability to log overtime for past dates.",
+          "2. 2 months limit",
+          "3. I don't know what this means I'm not a developer"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The backend overtime create function stores the submitted date in the resulting OvertimeEntry.date (it is no longer always Time.now()).",
+        "Backend rejects dates in the future.",
+        "Backend rejects dates older than 2 months before current date/time (inclusive policy matches the frontend).",
+        "Backend returns clear trap/error messages in English for invalid dates (future or too old).",
+        "Existing overtime listing queries continue to work and return the stored dates unchanged."
+      ]
+    },
+    {
+      "id": "REQ-68",
+      "text": "Wire the frontend overtime create mutation to send the selected date to the backend overtime create API, and ensure the overtime history list reflects the chosen date after successful submission.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "When an assistant clicks on the date field in the overtime entry form, it should open a calendar/date picker that allows them to select any previous date (not just today).",
+          "2. 2 months limit"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Creating an overtime entry for a past date within the allowed 2-month window succeeds end-to-end.",
+        "After submission, OvertimeHistory displays the date that was selected (DD/MM/YYYY) for the new entry.",
+        "Creating an overtime entry with a date outside the allowed window fails end-to-end and the error is surfaced in the UI through the existing notification/error handling pattern."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/components/ui (Shadcn components are read-only).",
-    "Keep the existing React Query task caching behavior (placeholderData / invalidateQueries) intact except where required to surface the reset action reliably.",
-    "Use English for any new/changed user-facing text introduced by this change (and route it through the existing i18n key system)."
+    "Backend must remain a single Motoko actor with all logic in backend/main.mo.",
+    "Do not edit frontend immutable paths listed in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui).",
+    "Use English for any new/changed user-facing text introduced by these changes."
   ],
   "nonGoals": [
-    "Do not redesign the overall tasks page layout beyond adding the requested subtitle and reset control.",
-    "Do not change backend task reset semantics or data model as part of this request.",
-    "Do not add new task types or alter task sorting/reset boundary logic as part of this request."
+    "Do not add new overtime features beyond date selection (e.g., approvals workflow changes, manager-specific overtime behavior changes, new overtime fields).",
+    "Do not change the existing overtime add/deduct color semantics or totals calculations.",
+    "Do not introduce third-party auth or external services."
   ],
   "imageRequirements": {
     "required": [],

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 25,
+  "projectStateVersion": 27,
   "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set name/username and 2–3 initials. Profile must support either an uploaded profile picture or an auto-generated cute dental-themed avatar (pastel palette, unique per user, initials visible). Avatars/photos must load reliably across the app; profile UI must be persistent and not disappear after updates. Logo is a cute tooth icon (no text).",
   "architectural_notes": [
     "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
@@ -26,7 +26,7 @@
     "Task completion error: \"Invalid task: This weekly task is obsolete and must be reset before completion\" blocking marking tasks done.",
     "Task completion state does not persist correctly across app refresh; completed tasks can appear reset prematurely instead of staying done until weekly/monthly reset or manual reactivation."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-implement-internet-identity-login-and-an-authenticated-app-shell-for-fitgebit-team-tracker-including-automatic-role-assignment-the-first-ever-authenticated-user-deployer-becomes-manager-after-a-first-login-confirmation-and-all-other-users-default-to-assistant",
@@ -451,6 +451,30 @@
         "REQ-64"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-overtime-entry-ui-so-the-existing-dd-mm-yyyy-manual-date-inputs-remain-but-clicking-on-the-date-field-opens-a-calendar-date-picker-that-lets-assistants-choose-a-date-from-today-back-to-2-months-ago-inclusive-future-dates-must-remain-disallowed",
+      "title": "Update the Overtime entry UI so the existing DD/MM/YYYY manual date inputs remain, but clicking on the date field opens a calendar date picker that lets Assistants choose a date from today back to 2 months ago (inclusive). Future dates must remain disallowed.",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-overtime-form-validation-and-user-facing-error-handling-to-enforce-the-2-month-past-date-limit-consistently-any-new-changed-user-facing-validation-text-introduced-by-this-change-must-be-in-english",
+      "title": "Update overtime form validation and user-facing error handling to enforce the 2-month past-date limit consistently. Any new/changed user-facing validation text introduced by this change must be in English.",
+      "reqIds": [
+        "REQ-66"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-wire-the-frontend-overtime-create-mutation-to-send-the-selected-date-to-the-backend-overtime-create-api-and-ensure-the-overtime-history-list-reflects-the-chosen-date-after-successful-submission",
+      "title": "Wire the frontend overtime create mutation to send the selected date to the backend overtime create API, and ensure the overtime history list reflects the chosen date after successful submission.",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -690,6 +714,20 @@
       "id": "AR-47",
       "summary": "Tasks UI: add a clearly visible manual reset/reactivate button for each task so assistants can set any task back to \"not done\" regardless of task type; place it near where the Reactivate button should be.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-48",
+      "summary": "Overtime date entry: keep DD MM YYYY input but clicking opens a calendar/date picker; allow selecting past dates up to 2 months back (still disallow future dates) and ensure backend validates/accepts this range.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-51",
+      "summary": "Update the Motoko backend overtime API to accept a caller-provided date for an overtime entry (instead of always using Time.now()), and enforce server-side validation that the date is not in the future and not older than 2 months ago (inclusive).",
+      "reqIds": [
+        "REQ-67"
+      ],
       "status": "pending"
     }
   ],

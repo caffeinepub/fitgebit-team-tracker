@@ -1,58 +1,71 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Task completion dialog subtitle + per-task reset button for assistants",
+  "title": "Overtime: date picker for past-date logging (2-month limit) with frontend wiring",
   "requirements": [
     {
-      "id": "REQ-63",
-      "summary": "Show the selected task title as a smaller subtitle line in the task completion (mark-done) dialog.",
+      "id": "REQ-65",
+      "summary": "Add a click-to-open calendar/date picker to the overtime date fields while keeping the existing DD/MM/YYYY inputs editable, constrained to [today - 2 months, today] and disallowing future dates.",
       "acceptanceCriteria": [
-        "When the completion dialog is opened from any task card, the dialog shows the selected task’s title in the dialog content/header area as a smaller subtitle-style element (not as the main dialog title).",
-        "The displayed title matches the task title shown on the task card (no truncation beyond existing UI constraints, no mismatched task).",
-        "The completion dialog remains fully opaque in both light and dark mode (no see-through background regression)."
+        "The overtime form still shows the existing DD/MM/YYYY inputs and they remain editable.",
+        "Clicking the date area opens a calendar/date picker UI.",
+        "The date picker disables (or prevents selecting) any date in the future.",
+        "The date picker disables (or prevents selecting) any date older than 2 months before today (inclusive range: [today - 2 months, today]).",
+        "Selecting a date in the date picker updates the DD/MM/YYYY inputs to match the selected date.",
+        "Submitting an overtime entry uses the selected date (not always today)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/tasks/CompleteTaskDialog.tsx",
-          "operation": "modify",
-          "description": "Render the current task.title in the dialog header/content as a smaller subtitle-style line beneath the existing dialog title while keeping the DialogContent background fully opaque in light/dark mode."
+          "path": "frontend/src/components/overtime/OvertimeDatePickerField.tsx",
+          "operation": "create",
+          "description": "Create a reusable overtime-specific date picker field that (a) renders the existing DD/MM/YYYY inputs via props/state, and (b) opens a calendar/date picker UI on click (implemented using a hidden native date input picker) with min/max bounds set to [today - 2 months, today]; when a date is picked, it propagates back to update the three inputs."
         },
         {
-          "path": "frontend/src/components/tasks/TaskCard.tsx",
+          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
           "operation": "modify",
-          "description": "Ensure the completion dialog continues to be opened with the correct task instance so the subtitle always reflects the same task title shown on the card."
+          "description": "Wire the new OvertimeDatePickerField into the form so the date inputs remain visible/editable, but clicking the date area triggers the picker; ensure picker selection updates day/month/year state and that future dates remain disallowed."
         }
       ]
     },
     {
-      "id": "REQ-64",
-      "summary": "Add a visible per-task reset control for Assistants on completed task cards that calls the existing resetTask mutation and updates the list state after success.",
+      "id": "REQ-66",
+      "summary": "Enforce the 2-month past-date limit in overtime form validation with consistent, user-facing English error handling, while keeping the existing future-date error behavior.",
       "acceptanceCriteria": [
-        "For a completed task, Assistants can see a reset control on the task card without needing to open any other screen.",
-        "Clicking the reset control triggers the existing frontend resetTask flow (via the current hooks) and, after success, the task displays as not completed in the list.",
-        "The reset control is not hidden for Assistants (based on role) anywhere the task list is displayed.",
-        "Any new user-facing label(s) introduced for this reset action use the i18n system and have English text present (e.g., a key like tasks.resetTask)."
+        "If a user manually types a date older than 2 months ago, the form blocks submission and shows an English error message.",
+        "If a user manually types a future date, the form blocks submission and shows the existing future-date error.",
+        "No non-English hard-coded strings are introduced for the new validation behavior."
       ],
       "file_operations": [
         {
+          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
+          "operation": "modify",
+          "description": "Update validation to compute the minimum allowed date (today at midnight minus 2 calendar months, inclusive) and block submission when the manually typed date is older than that minimum; keep the existing future-date validation intact and surface the new error via the existing notification/error handling pattern."
+        },
+        {
           "path": "frontend/src/i18n/translations.ts",
           "operation": "modify",
-          "description": "Add a new i18n key for the reset action label (e.g., tasks.resetTask) with English text present, and wire it into existing translation dictionaries."
+          "description": "Add a new translation key for the 'date is older than 2 months' validation error (e.g., errors.pastDateTooOld) and set its value in English for all supported languages (en/nl/fr) to comply with the requirement that new/changed validation text introduced by this change must be in English."
+        }
+      ]
+    },
+    {
+      "id": "REQ-68",
+      "summary": "Send the selected overtime date to the backend create call and ensure the overtime history reflects the chosen date after submission, surfacing out-of-window errors via existing UI error handling.",
+      "acceptanceCriteria": [
+        "Creating an overtime entry for a past date within the allowed 2-month window succeeds end-to-end.",
+        "After submission, OvertimeHistory displays the date that was selected (DD/MM/YYYY) for the new entry.",
+        "Creating an overtime entry with a date outside the allowed window fails end-to-end and the error is surfaced in the UI through the existing notification/error handling pattern."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useOvertime.ts",
+          "operation": "modify",
+          "description": "Update the create overtime mutation to accept both minutes and a selected date, convert the selected date to the backend Time format expected by the actor, and pass it through to createOvertimeEntry; on success, update or invalidate the overtime entries query so OvertimeHistory reflects the stored date."
         },
         {
-          "path": "frontend/src/pages/TasksPage.tsx",
+          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
           "operation": "modify",
-          "description": "Fetch the caller user profile and derive an isAssistant flag (based on ProfileRole) to pass down to the task list so the reset control is available to all Assistants wherever the task list is rendered on this page."
-        },
-        {
-          "path": "frontend/src/components/tasks/TaskList.tsx",
-          "operation": "modify",
-          "description": "Extend TaskList props to accept an Assistant capability flag (e.g., canResetTasks) and pass it through to each TaskCard so completed tasks can expose the reset control consistently."
-        },
-        {
-          "path": "frontend/src/components/tasks/TaskCard.tsx",
-          "operation": "modify",
-          "description": "Use the existing useResetTask hook to add a clearly visible reset button on completed task cards when the caller is an Assistant; label the control via i18n and keep existing React Query caching behavior (invalidateQueries/placeholderData) intact so the task re-renders as not completed after reset succeeds."
+          "description": "Update submit handling to use the currently selected/typed date (not always today) when calling the updated create overtime mutation; ensure backend validation failures (future/too old) are surfaced through the existing error notification pattern."
         }
       ]
     }

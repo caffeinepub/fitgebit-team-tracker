@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Plus, Minus } from 'lucide-react';
+import OvertimeDatePickerField from './OvertimeDatePickerField';
 
 export default function OvertimeForm() {
   const { t } = useI18n();
@@ -37,6 +38,8 @@ export default function OvertimeForm() {
     }
 
     const selectedDate = new Date(yearNum, monthNum - 1, dayNum);
+    selectedDate.setHours(0, 0, 0, 0);
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -45,10 +48,24 @@ export default function OvertimeForm() {
       return;
     }
 
+    // Calculate 2 months ago from today
+    const twoMonthsAgo = new Date(today);
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+    twoMonthsAgo.setHours(0, 0, 0, 0);
+
+    if (selectedDate < twoMonthsAgo) {
+      handleError(new Error(t('errors.pastDateTooOld')));
+      return;
+    }
+
     try {
       // Apply sign based on add/deduct
       const signedMinutes = isAddition ? minutesNum : -minutesNum;
-      await createOvertimeMutation.mutateAsync(signedMinutes);
+      
+      // Convert selected date to nanoseconds timestamp for backend
+      const dateTimestamp = BigInt(selectedDate.getTime()) * BigInt(1_000_000);
+      
+      await createOvertimeMutation.mutateAsync({ minutes: signedMinutes, date: dateTimestamp });
       success(t('overtime.entryCreated'));
       
       // Reset form
@@ -87,35 +104,15 @@ export default function OvertimeForm() {
 
         <div className="space-y-2">
           <Label>{t('overtime.date')}</Label>
-          <div className="grid grid-cols-3 gap-2">
-            <Input
-              type="number"
-              min="1"
-              max="31"
-              value={day}
-              onChange={(e) => setDay(e.target.value)}
-              placeholder="DD"
-              disabled={isPending}
-            />
-            <Input
-              type="number"
-              min="1"
-              max="12"
-              value={month}
-              onChange={(e) => setMonth(e.target.value)}
-              placeholder="MM"
-              disabled={isPending}
-            />
-            <Input
-              type="number"
-              min="2000"
-              max="2100"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              placeholder="YYYY"
-              disabled={isPending}
-            />
-          </div>
+          <OvertimeDatePickerField
+            day={day}
+            month={month}
+            year={year}
+            onDayChange={setDay}
+            onMonthChange={setMonth}
+            onYearChange={setYear}
+            disabled={isPending}
+          />
         </div>
 
         <div className="space-y-2">
