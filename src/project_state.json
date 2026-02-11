@@ -1,18 +1,18 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 27,
+  "projectStateVersion": 29,
   "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set name/username and 2–3 initials. Profile must support either an uploaded profile picture or an auto-generated cute dental-themed avatar (pastel palette, unique per user, initials visible). Avatars/photos must load reliably across the app; profile UI must be persistent and not disappear after updates. Logo is a cute tooth icon (no text).",
   "architectural_notes": [
     "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
     "Localization: manual language selection (Dutch/French/English) with UI toggle.",
     "Media storage: task photos stored directly in canister (not external storage).",
-    "Overtime rules: date defaults to today; disallow future dates; entries are minutes-only with add (red) / deduct (green); 480 minutes = 1 workday.",
     "Exports: manager can export overtime and task/audit/stats data to CSV.",
     "Manager role assignment: creator/deployer is auto-assigned Manager immediately with no confirmation prompts.",
     "Avatar delivery: store SVG avatar assets as strings in the canister and expose them via a list/URLs for the frontend.",
     "Tasks schema: tasks only have title + type (weekly/monthly/urgent); remove due date, assignee, and priority fields from UI and backend.",
     "Task recurrence: weekly due Monday; monthly due first Monday; reset/recompute recurrence when the app opens (not via midnight cron).",
-    "Role selection replaces auto-assignment: users choose Assistant or Manager at login; Manager role granted only after entering token ICPmaxi313."
+    "Role selection replaces auto-assignment: users choose Assistant or Manager at login; Manager role granted only after entering token ICPmaxi313.",
+    "Overtime rules update: 450 minutes = 1 workday (7h30) instead of 480 minutes; apply this conversion globally (including composite totals) and recalculate existing overtime totals accordingly."
   ],
   "known_issues": [
     "Avatar SVGs are not currently showing/loading in the app (needs fix to asset storage/serving and picker rendering).",
@@ -475,6 +475,22 @@
         "REQ-68"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-all-overtime-total-conversion-displays-so-that-1-full-workday-equals-7-hours-30-minutes-450-minutes-instead-of-8-hours-480-minutes-including-the-composite-total-format-x-day-s-y-hour-s-z-minute-s-and-any-other-ui-that-derives-days-from-minutes",
+      "title": "Update all overtime total/conversion displays so that 1 full workday equals 7 hours 30 minutes (450 minutes) instead of 8 hours (480 minutes), including the composite total format (\"X day(s), Y hour(s), Z minute(s)\") and any other UI that derives days from minutes.",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-that-changing-the-workday-conversion-rule-immediately-affects-historical-already-recorded-overtime-totals-shown-throughout-the-app-without-requiring-users-to-re-enter-overtime-entries",
+      "title": "Ensure that changing the workday conversion rule immediately affects historical (already-recorded) overtime totals shown throughout the app, without requiring users to re-enter overtime entries.",
+      "reqIds": [
+        "REQ-70"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -728,6 +744,12 @@
       "reqIds": [
         "REQ-67"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-52",
+      "summary": "Overtime conversion rule: change 1 full workday from 8h (480 min) to 7h30 (450 min) everywhere (including composite totals display) and recalculate all existing overtime totals using the new 450-minute day rule.",
+      "reqIds": [],
       "status": "pending"
     }
   ],

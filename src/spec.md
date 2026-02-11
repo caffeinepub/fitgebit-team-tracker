@@ -1,13 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Allow assistants to log overtime for a selected date within the past 2 months (including today) using a date picker, with consistent frontend and backend validation and storage.
+**Goal:** Update overtime totals/conversion displays so that one full workday equals 7h30 (450 minutes) instead of 8h (480 minutes) everywhere in the app.
 
 **Planned changes:**
-- Update the overtime entry date UI to keep the existing editable DD/MM/YYYY inputs while opening a calendar date picker when the date field/area is clicked.
-- Restrict selectable dates in the date picker to the inclusive range from today back to 2 months ago; prevent future dates and dates older than 2 months.
-- Add/adjust frontend validation to block submission for dates older than 2 months with an English error message, while preserving the existing future-date error behavior.
-- Update the backend overtime create API to accept a caller-provided date, store it on the overtime entry, and enforce server-side validation for future/too-old dates with English error/trap messages.
-- Wire the frontend create-overtime request to send the selected/entered date to the backend and ensure OvertimeHistory shows the stored chosen date after submission.
+- Change all UI logic that converts overtime minutes into workdays to use 450 minutes per day, including composite totals formatted as “X day(s), Y hour(s), Z minute(s)”.
+- Ensure the updated conversion is applied consistently across Assistant and Manager overtime views and any other UI that derives days from minutes.
+- Keep composite formatting rules intact (60 minutes = 1 hour) and preserve negative total display with a leading “-”.
+- Apply the new conversion rule to historical overtime totals automatically (no re-entry required; refresh is sufficient).
 
-**User-visible outcome:** Assistants can pick (or manually type) an overtime date within the last 2 months using a calendar picker, submit it successfully, and see the selected date reflected in overtime history; invalid dates are rejected with clear English errors.
+**User-visible outcome:** All overtime totals and composite day/hour/minute displays reflect 7h30 per workday across the app (including existing entries), consistently for both Assistants and Managers.

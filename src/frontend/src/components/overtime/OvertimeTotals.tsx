@@ -2,28 +2,10 @@ import { useMemo } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { OvertimeEntry } from '../../backend';
+import { formatCompositeTime } from '../../utils/overtimeTime';
 
 interface Props {
   entries: OvertimeEntry[];
-}
-
-function formatCompositeTime(totalMinutes: number): string {
-  const isNegative = totalMinutes < 0;
-  const absMinutes = Math.abs(totalMinutes);
-  
-  // 8 hours = 1 day, 60 minutes = 1 hour
-  const days = Math.floor(absMinutes / 480);
-  const remainingAfterDays = absMinutes % 480;
-  const hours = Math.floor(remainingAfterDays / 60);
-  const minutes = remainingAfterDays % 60;
-  
-  const parts: string[] = [];
-  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
-  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
-  if (minutes > 0 || parts.length === 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
-  
-  const result = parts.join(', ');
-  return isNegative ? `-${result}` : result;
 }
 
 export default function OvertimeTotals({ entries }: Props) {

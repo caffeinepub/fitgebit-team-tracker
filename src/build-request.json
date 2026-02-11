@@ -1,118 +1,58 @@
 {
   "kind": "build_request",
-  "title": "Overtime: add date picker with past-date logging (2-month limit) and backend date support",
+  "title": "Change overtime workday conversion to 7h30 (450 minutes) everywhere",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-65",
-      "text": "Update the Overtime entry UI so the existing DD/MM/YYYY manual date inputs remain, but clicking on the date field opens a calendar date picker that lets Assistants choose a date from today back to 2 months ago (inclusive). Future dates must remain disallowed.",
+      "id": "REQ-69",
+      "text": "Update all overtime total/conversion displays so that 1 full workday equals 7 hours 30 minutes (450 minutes) instead of 8 hours (480 minutes), including the composite total format (\"X day(s), Y hour(s), Z minute(s)\") and any other UI that derives days from minutes.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-5",
+          "msg-10"
         ],
         "quotes": [
-          "the ability to log overtime for past dates.",
-          "When an assistant clicks on the date field in the overtime entry form, it should open a calendar/date picker that allows them to select any previous date (not just today).",
-          "1. Yes",
-          "2. 2 months limit"
+          "Change A full workday to 7 hours and 30 minutes instead of 8 hours.",
+          "1. Yes\n2. Yes"
         ]
       },
       "acceptanceCriteria": [
-        "The overtime form still shows the existing DD/MM/YYYY inputs and they remain editable.",
-        "Clicking the date area opens a calendar/date picker UI.",
-        "The date picker disables (or prevents selecting) any date in the future.",
-        "The date picker disables (or prevents selecting) any date older than 2 months before today (inclusive range: [today - 2 months, today]).",
-        "Selecting a date in the date picker updates the DD/MM/YYYY inputs to match the selected date.",
-        "Submitting an overtime entry uses the selected date (not always today)."
+        "In the overtime totals UI, composite formatting uses 450 minutes per day (not 480).",
+        "Any UI that converts minutes to days/workdays reflects 7h30 per day consistently for both Assistants and Managers (including Manager overtime views).",
+        "Composite formatting continues to use 60 minutes = 1 hour and displays negative totals with a leading '-' when applicable."
       ]
     },
     {
-      "id": "REQ-66",
-      "text": "Update overtime form validation and user-facing error handling to enforce the 2-month past-date limit consistently. Any new/changed user-facing validation text introduced by this change must be in English.",
+      "id": "REQ-70",
+      "text": "Ensure that changing the workday conversion rule immediately affects historical (already-recorded) overtime totals shown throughout the app, without requiring users to re-enter overtime entries.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-5",
+          "msg-10"
         ],
         "quotes": [
-          "2. 2 months limit"
+          "2. Yes"
         ]
       },
       "acceptanceCriteria": [
-        "If a user manually types a date older than 2 months ago, the form blocks submission and shows an English error message.",
-        "If a user manually types a future date, the form blocks submission and shows the existing future-date error.",
-        "No non-English hard-coded strings are introduced for the new validation behavior."
-      ]
-    },
-    {
-      "id": "REQ-67",
-      "text": "Update the Motoko backend overtime API to accept a caller-provided date for an overtime entry (instead of always using Time.now()), and enforce server-side validation that the date is not in the future and not older than 2 months ago (inclusive).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1",
-          "msg-2",
-          "msg-3"
-        ],
-        "quotes": [
-          "the ability to log overtime for past dates.",
-          "2. 2 months limit",
-          "3. I don't know what this means I'm not a developer"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The backend overtime create function stores the submitted date in the resulting OvertimeEntry.date (it is no longer always Time.now()).",
-        "Backend rejects dates in the future.",
-        "Backend rejects dates older than 2 months before current date/time (inclusive policy matches the frontend).",
-        "Backend returns clear trap/error messages in English for invalid dates (future or too old).",
-        "Existing overtime listing queries continue to work and return the stored dates unchanged."
-      ]
-    },
-    {
-      "id": "REQ-68",
-      "text": "Wire the frontend overtime create mutation to send the selected date to the backend overtime create API, and ensure the overtime history list reflects the chosen date after successful submission.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1",
-          "msg-2"
-        ],
-        "quotes": [
-          "When an assistant clicks on the date field in the overtime entry form, it should open a calendar/date picker that allows them to select any previous date (not just today).",
-          "2. 2 months limit"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Creating an overtime entry for a past date within the allowed 2-month window succeeds end-to-end.",
-        "After submission, OvertimeHistory displays the date that was selected (DD/MM/YYYY) for the new entry.",
-        "Creating an overtime entry with a date outside the allowed window fails end-to-end and the error is surfaced in the UI through the existing notification/error handling pattern."
+        "After the change, the same existing overtime entries produce updated day-based/composite totals everywhere they are displayed.",
+        "No data-reset or manual user action is required to see updated totals for existing entries (refreshing the page is sufficient)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor with all logic in backend/main.mo.",
-    "Do not edit frontend immutable paths listed in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui).",
-    "Use English for any new/changed user-facing text introduced by these changes."
+    "Respect the existing single-actor Motoko backend architecture; do not introduce additional backend services.",
+    "Do not edit files under frontend/src/components/ui or other immutable paths listed in SYSTEM_CONTEXT.",
+    "Use English for any user-facing text introduced or changed by this work."
   ],
   "nonGoals": [
-    "Do not add new overtime features beyond date selection (e.g., approvals workflow changes, manager-specific overtime behavior changes, new overtime fields).",
-    "Do not change the existing overtime add/deduct color semantics or totals calculations.",
-    "Do not introduce third-party auth or external services."
+    "Do not change how overtime entries are stored (minutes and dates) beyond what is required for display conversion.",
+    "Do not change overtime add/deduct color semantics or the overtime entry workflow."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

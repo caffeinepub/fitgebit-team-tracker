@@ -1,71 +1,46 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Overtime: date picker for past-date logging (2-month limit) with frontend wiring",
+  "title": "Update overtime workday conversion to 7h30 (450 minutes) across frontend",
   "requirements": [
     {
-      "id": "REQ-65",
-      "summary": "Add a click-to-open calendar/date picker to the overtime date fields while keeping the existing DD/MM/YYYY inputs editable, constrained to [today - 2 months, today] and disallowing future dates.",
+      "id": "REQ-69",
+      "summary": "Change all overtime minutes→workdays/composite displays to use 450 minutes per day (7h30) instead of 480, including negative totals formatting.",
       "acceptanceCriteria": [
-        "The overtime form still shows the existing DD/MM/YYYY inputs and they remain editable.",
-        "Clicking the date area opens a calendar/date picker UI.",
-        "The date picker disables (or prevents selecting) any date in the future.",
-        "The date picker disables (or prevents selecting) any date older than 2 months before today (inclusive range: [today - 2 months, today]).",
-        "Selecting a date in the date picker updates the DD/MM/YYYY inputs to match the selected date.",
-        "Submitting an overtime entry uses the selected date (not always today)."
+        "In the overtime totals UI, composite formatting uses 450 minutes per day (not 480).",
+        "Any UI that converts minutes to days/workdays reflects 7h30 per day consistently for both Assistants and Managers (including Manager overtime views).",
+        "Composite formatting continues to use 60 minutes = 1 hour and displays negative totals with a leading '-' when applicable."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/overtime/OvertimeDatePickerField.tsx",
+          "path": "frontend/src/utils/overtimeTime.ts",
           "operation": "create",
-          "description": "Create a reusable overtime-specific date picker field that (a) renders the existing DD/MM/YYYY inputs via props/state, and (b) opens a calendar/date picker UI on click (implemented using a hidden native date input picker) with min/max bounds set to [today - 2 months, today]; when a date is picked, it propagates back to update the three inputs."
+          "description": "Create a shared overtime time conversion utility that defines the workday size as 450 minutes and provides composite formatting (days/hours/minutes) with correct negative-sign handling and 60 minutes per hour."
         },
         {
-          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
+          "path": "frontend/src/components/overtime/OvertimeTotals.tsx",
           "operation": "modify",
-          "description": "Wire the new OvertimeDatePickerField into the form so the date inputs remain visible/editable, but clicking the date area triggers the picker; ensure picker selection updates day/month/year state and that future dates remain disallowed."
+          "description": "Refactor overtime composite total formatting to use the shared utility (450 minutes per workday) rather than the current hardcoded 480-minute day, ensuring the output remains \"X day(s), Y hour(s), Z minute(s)\" and preserves leading '-' for negative totals."
         }
       ]
     },
     {
-      "id": "REQ-66",
-      "summary": "Enforce the 2-month past-date limit in overtime form validation with consistent, user-facing English error handling, while keeping the existing future-date error behavior.",
+      "id": "REQ-70",
+      "summary": "Ensure the updated workday conversion rule is applied purely at display-time so historical overtime totals update immediately everywhere they are shown.",
       "acceptanceCriteria": [
-        "If a user manually types a date older than 2 months ago, the form blocks submission and shows an English error message.",
-        "If a user manually types a future date, the form blocks submission and shows the existing future-date error.",
-        "No non-English hard-coded strings are introduced for the new validation behavior."
+        "After the change, the same existing overtime entries produce updated day-based/composite totals everywhere they are displayed.",
+        "No data-reset or manual user action is required to see updated totals for existing entries (refreshing the page is sufficient)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
+          "path": "frontend/src/utils/overtimeTime.ts",
           "operation": "modify",
-          "description": "Update validation to compute the minimum allowed date (today at midnight minus 2 calendar months, inclusive) and block submission when the manually typed date is older than that minimum; keep the existing future-date validation intact and surface the new error via the existing notification/error handling pattern."
+          "description": "Ensure the conversion rule is a frontend constant used only for derived display calculations (not persisted), so any existing stored overtime minutes automatically render using the updated 450-min/day rule after refresh."
         },
         {
-          "path": "frontend/src/i18n/translations.ts",
+          "path": "frontend/src/pages/manager/ManagerOvertimePage.tsx",
           "operation": "modify",
-          "description": "Add a new translation key for the 'date is older than 2 months' validation error (e.g., errors.pastDateTooOld) and set its value in English for all supported languages (en/nl/fr) to comply with the requirement that new/changed validation text introduced by this change must be in English."
-        }
-      ]
-    },
-    {
-      "id": "REQ-68",
-      "summary": "Send the selected overtime date to the backend create call and ensure the overtime history reflects the chosen date after submission, surfacing out-of-window errors via existing UI error handling.",
-      "acceptanceCriteria": [
-        "Creating an overtime entry for a past date within the allowed 2-month window succeeds end-to-end.",
-        "After submission, OvertimeHistory displays the date that was selected (DD/MM/YYYY) for the new entry.",
-        "Creating an overtime entry with a date outside the allowed window fails end-to-end and the error is surfaced in the UI through the existing notification/error handling pattern."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useOvertime.ts",
-          "operation": "modify",
-          "description": "Update the create overtime mutation to accept both minutes and a selected date, convert the selected date to the backend Time format expected by the actor, and pass it through to createOvertimeEntry; on success, update or invalidate the overtime entries query so OvertimeHistory reflects the stored date."
-        },
-        {
-          "path": "frontend/src/components/overtime/OvertimeForm.tsx",
-          "operation": "modify",
-          "description": "Update submit handling to use the currently selected/typed date (not always today) when calling the updated create overtime mutation; ensure backend validation failures (future/too old) are surfaced through the existing error notification pattern."
+          "description": "Verify manager overtime totals/historical views continue to use the shared OvertimeTotals component (and thus the updated 450-min/day rule) for all selected users, ensuring historical entries display updated totals after refresh."
         }
       ]
     }
