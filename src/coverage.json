@@ -1,49 +1,71 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T00:11:54.787Z",
+  "generatedAt": "2026-02-11T20:25:35.462Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
+    "total": 4,
     "implemented": 2,
     "items": [
       {
-        "id": "REQ-69",
-        "summary": "Update all overtime total/conversion displays so that 1 full workday equals 7 hours 30 minutes (450 minutes) instead of 8 hours (480 minutes), including the composite total format (\"X day(s), Y hour(s), Z minute(s)\") and any other UI that derives days from minutes.",
+        "id": "REQ-71",
+        "summary": "Add a backend API to edit an existing task’s editable fields (title, description, taskType) by task ID, allowing any authenticated user (Assistant or Manager) to perform the edit.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-72",
+        "summary": "Ensure task edits preserve existing completion state and completion history data: editing a task must not change isCompleted, currentCompletion, lastResetAt, or nextResetTimestamp.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-73",
+        "summary": "Add a frontend task editing flow that is accessible to both Assistants and Managers: show an Edit action on each task, open an Edit Task dialog pre-filled with the task’s current title, description, and type, and save changes via a new React Query mutation calling the backend edit API.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/overtimeTime.ts",
-          "frontend/src/components/overtime/OvertimeTotals.tsx"
+          "frontend/src/hooks/useTasks.ts",
+          "frontend/src/components/tasks/EditTaskDialog.tsx",
+          "frontend/src/components/tasks/TaskCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/overtimeTime.ts",
-          "frontend/src/components/overtime/OvertimeTotals.tsx"
+          "frontend/src/hooks/useTasks.ts",
+          "frontend/src/components/tasks/EditTaskDialog.tsx",
+          "frontend/src/components/tasks/TaskCard.tsx"
         ]
       },
       {
-        "id": "REQ-70",
-        "summary": "Ensure that changing the workday conversion rule immediately affects historical (already-recorded) overtime totals shown throughout the app, without requiring users to re-enter overtime entries.",
+        "id": "REQ-74",
+        "summary": "Add/adjust i18n translation keys for any new user-facing text introduced by task editing (English/Dutch/French dictionaries), and ensure any new/changed user-facing validation/error text used by the editing UI is present in English.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/overtimeTime.ts",
-          "frontend/src/pages/manager/ManagerOvertimePage.tsx"
+          "frontend/src/i18n/translations.ts"
         ],
         "matchedFiles": [
-          "frontend/src/utils/overtimeTime.ts"
+          "frontend/src/i18n/translations.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/overtime/OvertimeTotals.tsx",
-    "frontend/src/utils/overtimeTime.ts",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/tasks/EditTaskDialog.tsx",
+    "frontend/src/components/tasks/TaskCard.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useTasks.ts",
+    "frontend/src/i18n/translations.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

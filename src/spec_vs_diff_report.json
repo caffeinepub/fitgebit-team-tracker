@@ -1,36 +1,59 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T00:11:54.782Z",
-  "summary": "Added a shared overtime time formatting utility using 450 minutes per workday and updated the main OvertimeTotals component to use it for composite day/hour/minute display with negative handling. However, the diff summary does not show updates to other places where minutes may be converted to workdays (notably Manager overtime views or any other UI deriving days from minutes).",
+  "generatedAt": "2026-02-11T20:25:35.457Z",
+  "summary": "Frontend task editing UI (Edit button + EditTaskDialog) and a React Query mutation (useEditTask) were added, along with new i18n keys in English. However, the diff summary does not provide evidence of the required backend editTask API implementation or that completion/history fields are preserved. Additionally, the diff summary indicates changes to reset behavior/availability that were not requested and may conflict with the non-goals.",
   "missing_requirements": [
     {
-      "id": "REQ-69",
-      "requirement": "Update all overtime total/conversion displays so that 1 full workday equals 7h30 (450 minutes) everywhere, including any other UI that derives days from minutes, for both Assistants and Managers (including Manager overtime views).",
-      "reason": "The diff explicitly updates only `frontend/src/components/overtime/OvertimeTotals.tsx` to use the new 450-minute-per-day composite formatter. The diff summary does not show modifications to any Manager overtime UI or any other components that might convert minutes to days/workdays.",
+      "id": "REQ-71",
+      "requirement": "Add a backend shared(update) API in backend/main.mo to edit an existing task’s title, description, and taskType by task ID, with #user permission checks, non-empty validation, and a clear trap when task not found.",
+      "reason": "backend/main.mo is shown only as a truncated type/actor snapshot and does not include any visible new shared update method (e.g., editTask) nor its validation/permission/trap behavior.",
       "evidence": [
-        "frontend/src/components/overtime/OvertimeTotals.tsx",
-        "frontend/src/utils/overtimeTime.ts",
-        "frontend-file-summaries.txt (no shown diff entries for manager overtime totals/views)"
+        "backend/main.mo (truncated)"
       ]
     },
     {
-      "id": "REQ-70",
-      "requirement": "Changing the workday conversion rule immediately affects historical overtime totals shown throughout the app (no re-entry needed), everywhere totals are displayed.",
-      "reason": "While totals in `OvertimeTotals` will update for existing entries (formatting is purely derived from stored minutes), the diff summary does not provide evidence that *all* other places that display historical totals/composites (including Manager views) were updated to use the new 450-minute rule.",
+      "id": "REQ-72",
+      "requirement": "Ensure task edits preserve completion state and history (isCompleted, currentCompletion, lastResetAt, nextResetTimestamp) and do not trigger reset logic.",
+      "reason": "No backend edit implementation is visible, so there is no evidence that the edit operation updates only editable fields while preserving completion-related fields and timestamps.",
       "evidence": [
-        "frontend/src/components/overtime/OvertimeTotals.tsx",
-        "frontend/src/utils/overtimeTime.ts",
-        "frontend-file-summaries.txt (no shown diff entries for other overtime total displays)"
+        "backend/main.mo (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-74",
+      "requirement": "Provide i18n translation keys for new task editing text in English/Dutch/French with no hard-coded non-i18n strings in the editing UI.",
+      "reason": "The diff shows new English keys in translations.ts, but the provided truncated excerpt does not show corresponding nl/fr additions for the new task-editing keys.",
+      "evidence": [
+        "frontend/src/i18n/translations.ts (truncated)"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.62,
+  "hallucinated_features": [
+    {
+      "description": "Change making task reset capability available broadly (\"so all authenticated users can reset tasks\").",
+      "reason": "The BuildRequest explicitly states not to change task completion/reset behavior beyond ensuring edits do not affect completion history/state, but the diff summary indicates reset capability logic was altered.",
+      "evidence": [
+        "frontend-file-summaries.txt (entry for \"frontend/src/pages/TasksPage.tsx\": \"passes canResetTasks flag to TaskList so all authenticated users can reset tasks\")",
+        "frontend-file-summaries.txt (entry for \"frontend/src/components/tasks/TaskList.tsx\": \"now accepting and passing canResetTasks prop\")"
+      ]
+    },
+    {
+      "description": "Automatic reset-and-retry logic during task completion when encountering an 'obsolete weekly task' error (calling resetRecurringTasksIfNeeded and retrying completeTask).",
+      "reason": "Not requested by REQ-71–REQ-74 and touches completion/reset behavior, which the BuildRequest listed as a non-goal to change (beyond preserving history during edits).",
+      "evidence": [
+        "frontend/src/hooks/useTasks.ts (shows new try/catch with resetRecurringTasksIfNeeded + retry in completeTask)"
+      ]
+    }
+  ],
+  "confidence": 0.64,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/overtime/OvertimeTotals.tsx",
-    "frontend/src/utils/overtimeTime.ts",
+    "frontend/src/components/tasks/EditTaskDialog.tsx",
+    "frontend/src/components/tasks/TaskCard.tsx",
+    "frontend/src/hooks/useTasks.ts",
+    "frontend/src/i18n/translations.ts",
     "project_state.json"
   ]
 }

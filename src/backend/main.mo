@@ -307,6 +307,29 @@ actor {
     tasks.values().toArray();
   };
 
+  public shared ({ caller }) func editTask(taskId : Nat32, newTitle : Text, newDescription : Text, newTaskType : TaskType) : async () {
+    validateUserViaCaller(caller);
+    switch (tasks.get(taskId)) {
+      case (null) { Runtime.trap("Task not found") };
+      case (?task) {
+        if (newTitle.size() == 0) {
+          Runtime.trap("Invalid task: title cannot be empty ");
+        };
+        if (newDescription.size() == 0) {
+          Runtime.trap("Invalid task: description cannot be empty ");
+        };
+
+        let updatedTask : Task = {
+          task with
+          title = newTitle;
+          description = newDescription;
+          taskType = newTaskType;
+        };
+        tasks.add(taskId, updatedTask);
+      };
+    };
+  };
+
   public shared ({ caller }) func createTask(title : Text, description : Text, taskType : TaskType) : async () {
     validateUserViaCaller(caller);
 

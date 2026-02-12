@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Update overtime totals/conversion displays so that one full workday equals 7h30 (450 minutes) instead of 8h (480 minutes) everywhere in the app.
+**Goal:** Allow Assistants and Managers to edit a task’s title, description, and type while keeping completion state and history unchanged.
 
 **Planned changes:**
-- Change all UI logic that converts overtime minutes into workdays to use 450 minutes per day, including composite totals formatted as “X day(s), Y hour(s), Z minute(s)”.
-- Ensure the updated conversion is applied consistently across Assistant and Manager overtime views and any other UI that derives days from minutes.
-- Keep composite formatting rules intact (60 minutes = 1 hour) and preserve negative total display with a leading “-”.
-- Apply the new conversion rule to historical overtime totals automatically (no re-entry required; refresh is sufficient).
+- Backend: add an authenticated task update API/method to edit title/description/taskType by taskId with non-empty validation and a clear “Task not found” error for missing IDs.
+- Backend: ensure edits do not modify completion-related fields (isCompleted, currentCompletion, lastResetAt, nextResetTimestamp) and that existing task-returning endpoints reflect updated fields without losing completion info.
+- Frontend: add an Edit action on each task to open a pre-filled Edit Task dialog and save via a new React Query mutation, refreshing the tasks list on success and surfacing errors via existing notification handling.
+- Frontend: add/adjust i18n keys for new task-editing UI text (EN/NL/FR), with all new user-facing strings using i18n.
 
-**User-visible outcome:** All overtime totals and composite day/hour/minute displays reflect 7h30 per workday across the app (including existing entries), consistently for both Assistants and Managers.
+**User-visible outcome:** Assistants and Managers can edit a task’s title, description, and type from the task list, and completed tasks keep their completion badge and completion details exactly as before.

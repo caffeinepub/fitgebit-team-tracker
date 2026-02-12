@@ -1,46 +1,51 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update overtime workday conversion to 7h30 (450 minutes) across frontend",
+  "title": "Task editing UI for assistants/managers with i18n",
   "requirements": [
     {
-      "id": "REQ-69",
-      "summary": "Change all overtime minutes→workdays/composite displays to use 450 minutes per day (7h30) instead of 480, including negative totals formatting.",
+      "id": "REQ-73",
+      "summary": "Add an Edit action per task that opens a pre-filled Edit Task dialog and saves changes via a React Query mutation calling the backend editTask capability.",
       "acceptanceCriteria": [
-        "In the overtime totals UI, composite formatting uses 450 minutes per day (not 480).",
-        "Any UI that converts minutes to days/workdays reflects 7h30 per day consistently for both Assistants and Managers (including Manager overtime views).",
-        "Composite formatting continues to use 60 minutes = 1 hour and displays negative totals with a leading '-' when applicable."
+        "Each TaskCard renders a clearly discoverable Edit button/action for both completed and incomplete tasks.",
+        "Clicking Edit opens a dialog/sheet that allows editing all fields: title, description, and type, with inputs pre-populated from the selected task.",
+        "Submitting the edit calls a new frontend mutation (in frontend/src/hooks/useTasks.ts or a new tasks hook file) that invokes the new backend edit API.",
+        "On successful save, the tasks list updates to show the new values without requiring a manual page refresh (invalidate/refetch the ['tasks'] query).",
+        "If the backend returns an error, it is surfaced using the existing notification/error handling pattern (useNotify.handleError).",
+        "The completion UI (Completed badge, completion metadata, photos) still displays exactly as before after editing a completed task."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/overtimeTime.ts",
-          "operation": "create",
-          "description": "Create a shared overtime time conversion utility that defines the workday size as 450 minutes and provides composite formatting (days/hours/minutes) with correct negative-sign handling and 60 minutes per hour."
+          "path": "frontend/src/hooks/useTasks.ts",
+          "operation": "modify",
+          "description": "Add a new React Query mutation hook (e.g., useEditTask) that calls actor.editTask(taskId, newTitle, newDescription, newTaskType) and invalidates the ['tasks'] query on success; keep error handling consistent with existing task mutations."
         },
         {
-          "path": "frontend/src/components/overtime/OvertimeTotals.tsx",
+          "path": "frontend/src/components/tasks/EditTaskDialog.tsx",
+          "operation": "create",
+          "description": "Create an Edit Task dialog component (parallel to CreateTaskDialog) that accepts the selected Task, pre-fills title/description/type inputs, validates non-empty title/description on submit, calls useEditTask().mutateAsync, and uses useNotify.success/useNotify.handleError for success/error feedback."
+        },
+        {
+          "path": "frontend/src/components/tasks/TaskCard.tsx",
           "operation": "modify",
-          "description": "Refactor overtime composite total formatting to use the shared utility (450 minutes per workday) rather than the current hardcoded 480-minute day, ensuring the output remains \"X day(s), Y hour(s), Z minute(s)\" and preserves leading '-' for negative totals."
+          "description": "Add an Edit action/button for every task (completed and incomplete), manage dialog open/close state, and render the new EditTaskDialog wired with the current task; ensure existing completion UI (badges, metadata, photos) rendering remains unchanged."
         }
       ]
     },
     {
-      "id": "REQ-70",
-      "summary": "Ensure the updated workday conversion rule is applied purely at display-time so historical overtime totals update immediately everywhere they are shown.",
+      "id": "REQ-74",
+      "summary": "Add i18n translation keys for new task-editing UI text across English/Dutch/French dictionaries and avoid hard-coded strings in the editing UI.",
       "acceptanceCriteria": [
-        "After the change, the same existing overtime entries produce updated day-based/composite totals everywhere they are displayed.",
-        "No data-reset or manual user action is required to see updated totals for existing entries (refreshing the page is sufficient)."
+        "New i18n keys exist for task editing UI labels/buttons (e.g., \"Edit Task\", \"Save Changes\", and any field labels/placeholders if newly introduced).",
+        "English translations are provided for all newly introduced keys.",
+        "Dutch and French translations are provided for the same keys (matching the app’s existing i18n structure).",
+        "No hard-coded non-i18n UI strings are introduced in the task editing UI."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/overtimeTime.ts",
+          "path": "frontend/src/i18n/translations.ts",
           "operation": "modify",
-          "description": "Ensure the conversion rule is a frontend constant used only for derived display calculations (not persisted), so any existing stored overtime minutes automatically render using the updated 450-min/day rule after refresh."
-        },
-        {
-          "path": "frontend/src/pages/manager/ManagerOvertimePage.tsx",
-          "operation": "modify",
-          "description": "Verify manager overtime totals/historical views continue to use the shared OvertimeTotals component (and thus the updated 450-min/day rule) for all selected users, ensuring historical entries display updated totals after refresh."
+          "description": "Add translation keys used by the edit-task flow (e.g., tasks.editTask, tasks.saveChanges, and any additional edit-dialog helper/error text needed) in en/nl/fr, and ensure EditTaskDialog uses t(...) for all user-facing strings."
         }
       ]
     }

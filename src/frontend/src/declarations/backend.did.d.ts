@@ -110,6 +110,7 @@ export interface _SERVICE {
   >,
   'createOvertimeEntry' : ActorMethod<[bigint, Time], OvertimeEntry>,
   'createTask' : ActorMethod<[string, string, TaskType], undefined>,
+  'editTask' : ActorMethod<[number, string, string, TaskType], undefined>,
   'exportTaskData' : ActorMethod<[], Array<Task>>,
   'getAllDentalAvatars' : ActorMethod<[], Array<DentalAvatar>>,
   'getAllUserProfiles' : ActorMethod<[], Array<[Principal, UserProfile]>>,

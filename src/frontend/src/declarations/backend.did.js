@@ -140,6 +140,7 @@ export const idlService = IDL.Service({
     ),
   'createOvertimeEntry' : IDL.Func([IDL.Int, Time], [OvertimeEntry], []),
   'createTask' : IDL.Func([IDL.Text, IDL.Text, TaskType], [], []),
+  'editTask' : IDL.Func([IDL.Nat32, IDL.Text, IDL.Text, TaskType], [], []),
   'exportTaskData' : IDL.Func([], [IDL.Vec(Task)], ['query']),
   'getAllDentalAvatars' : IDL.Func([], [IDL.Vec(DentalAvatar)], ['query']),
   'getAllUserProfiles' : IDL.Func(
@@ -316,6 +317,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'createOvertimeEntry' : IDL.Func([IDL.Int, Time], [OvertimeEntry], []),
     'createTask' : IDL.Func([IDL.Text, IDL.Text, TaskType], [], []),
+    'editTask' : IDL.Func([IDL.Nat32, IDL.Text, IDL.Text, TaskType], [], []),
     'exportTaskData' : IDL.Func([], [IDL.Vec(Task)], ['query']),
     'getAllDentalAvatars' : IDL.Func([], [IDL.Vec(DentalAvatar)], ['query']),
     'getAllUserProfiles' : IDL.Func(

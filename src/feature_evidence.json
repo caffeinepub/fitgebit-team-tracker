@@ -2,11 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-all-overtime-total-conversion-displays-so-that-1-full-workday-equals-7-hours-30-minutes-450-minutes-instead-of-8-hours-480-minutes-including-the-composite-total-format-x-day-s-y-hour-s-z-minute-s-and-any-other-ui-that-derives-days-from-minutes",
-      "featureTitle": "Update all overtime total/conversion displays so that 1 full workday equals 7 hours 30 minutes (450 minutes) instead of 8 hours (480 minutes), including the composite total format (\"X day(s), Y hour(s), Z minute(s)\") and any other UI that derives days from minutes.",
+      "featureId": "feature-add-a-frontend-task-editing-flow-that-is-accessible-to-both-assistants-and-managers-show-an-edit-action-on-each-task-open-an-edit-task-dialog-pre-filled-with-the-task-s-current-title-description-and-type-and-save-changes-via-a-new-react-query-mutation-calling-the-backend-edit-api",
+      "featureTitle": "Add a frontend task editing flow that is accessible to both Assistants and Managers: show an Edit action on each task, open an Edit Task dialog pre-filled with the task’s current title, description, and type, and save changes via a new React Query mutation calling the backend edit API.",
       "files": [
-        "frontend/src/components/overtime/OvertimeTotals.tsx",
-        "frontend/src/utils/overtimeTime.ts"
+        "frontend/src/components/tasks/EditTaskDialog.tsx",
+        "frontend/src/components/tasks/TaskCard.tsx",
+        "frontend/src/hooks/useTasks.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,15 +19,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-69"
+        "REQ-73"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-that-changing-the-workday-conversion-rule-immediately-affects-historical-already-recorded-overtime-totals-shown-throughout-the-app-without-requiring-users-to-re-enter-overtime-entries",
-      "featureTitle": "Ensure that changing the workday conversion rule immediately affects historical (already-recorded) overtime totals shown throughout the app, without requiring users to re-enter overtime entries.",
+      "featureId": "feature-add-adjust-i18n-translation-keys-for-any-new-user-facing-text-introduced-by-task-editing-english-dutch-french-dictionaries-and-ensure-any-new-changed-user-facing-validation-error-text-used-by-the-editing-ui-is-present-in-english",
+      "featureTitle": "Add/adjust i18n translation keys for any new user-facing text introduced by task editing (English/Dutch/French dictionaries), and ensure any new/changed user-facing validation/error text used by the editing UI is present in English.",
       "files": [
-        "frontend/src/utils/overtimeTime.ts"
+        "frontend/src/i18n/translations.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -38,7 +39,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-70"
+        "REQ-74"
       ],
       "confidence": "high"
     }

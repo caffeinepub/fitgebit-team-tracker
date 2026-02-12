@@ -41,6 +41,31 @@ export function useCreateTask() {
   });
 }
 
+export function useEditTask() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      taskId,
+      title,
+      description,
+      taskType,
+    }: {
+      taskId: number;
+      title: string;
+      description: string;
+      taskType: TaskType;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.editTask(taskId, title, description, taskType);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+}
+
 export function useCompleteTask() {
   const { actor } = useActor();
   const queryClient = useQueryClient();

@@ -8,8 +8,9 @@ import { TaskType } from '../../backend';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Camera, RotateCcw } from 'lucide-react';
+import { CheckCircle2, Camera, RotateCcw, Pencil } from 'lucide-react';
 import CompleteTaskDialog from './CompleteTaskDialog';
+import EditTaskDialog from './EditTaskDialog';
 
 interface Props {
   task: Task;
@@ -20,6 +21,7 @@ export default function TaskCard({ task, canResetTasks = false }: Props) {
   const { t } = useI18n();
   const { success, handleError } = useNotify();
   const [showComplete, setShowComplete] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const { mutateAsync: resetTask, isPending: isResetting } = useResetTask();
 
   const completedByProfile = useGetUserProfile(task.currentCompletion?.completedBy || null);
@@ -76,6 +78,15 @@ export default function TaskCard({ task, canResetTasks = false }: Props) {
               </div>
             </div>
             <div className="flex flex-col gap-2">
+              <Button 
+                onClick={() => setShowEdit(true)} 
+                size="sm" 
+                variant="outline"
+                className="gap-2"
+              >
+                <Pencil className="w-4 h-4" />
+                {t('tasks.edit')}
+              </Button>
               {!task.isCompleted && (
                 <Button onClick={() => setShowComplete(true)} size="sm">
                   {t('tasks.markDone')}
@@ -149,6 +160,12 @@ export default function TaskCard({ task, canResetTasks = false }: Props) {
       <CompleteTaskDialog
         open={showComplete}
         onClose={() => setShowComplete(false)}
+        task={task}
+      />
+
+      <EditTaskDialog
+        open={showEdit}
+        onClose={() => setShowEdit(false)}
         task={task}
       />
     </>

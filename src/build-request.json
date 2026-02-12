@@ -1,58 +1,111 @@
 {
   "kind": "build_request",
-  "title": "Change overtime workday conversion to 7h30 (450 minutes) everywhere",
+  "title": "Add task editing (title, type, description) for Assistants and Managers while preserving completion history",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-69",
-      "text": "Update all overtime total/conversion displays so that 1 full workday equals 7 hours 30 minutes (450 minutes) instead of 8 hours (480 minutes), including the composite total format (\"X day(s), Y hour(s), Z minute(s)\") and any other UI that derives days from minutes.",
-      "target": "frontend",
+      "id": "REQ-71",
+      "text": "Add a backend API to edit an existing task’s editable fields (title, description, taskType) by task ID, allowing any authenticated user (Assistant or Manager) to perform the edit.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-5",
-          "msg-10"
+          "msg-7",
+          "msg-8"
         ],
         "quotes": [
-          "Change A full workday to 7 hours and 30 minutes instead of 8 hours.",
-          "1. Yes\n2. Yes"
+          "a task should be able to be edited",
+          "1 all of them\n2 yes"
         ]
       },
       "acceptanceCriteria": [
-        "In the overtime totals UI, composite formatting uses 450 minutes per day (not 480).",
-        "Any UI that converts minutes to days/workdays reflects 7h30 per day consistently for both Assistants and Managers (including Manager overtime views).",
-        "Composite formatting continues to use 60 minutes = 1 hour and displays negative totals with a leading '-' when applicable."
+        "A new shared (update) method exists in backend/main.mo to update a task’s title, description, and taskType given a taskId.",
+        "The method rejects unauthenticated/unauthorized callers using the same permission approach as createTask/completeTask/resetTask (i.e., users with #user permission).",
+        "The method validates that title and description are non-empty (same rules as createTask).",
+        "If the task ID does not exist, the method traps with a clear error (e.g., \"Task not found\")."
       ]
     },
     {
-      "id": "REQ-70",
-      "text": "Ensure that changing the workday conversion rule immediately affects historical (already-recorded) overtime totals shown throughout the app, without requiring users to re-enter overtime entries.",
-      "target": "frontend",
+      "id": "REQ-72",
+      "text": "Ensure task edits preserve existing completion state and completion history data: editing a task must not change isCompleted, currentCompletion, lastResetAt, or nextResetTimestamp.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-5",
-          "msg-10"
+          "msg-8"
         ],
         "quotes": [
-          "2. Yes"
+          "2 yes"
         ]
       },
       "acceptanceCriteria": [
-        "After the change, the same existing overtime entries produce updated day-based/composite totals everywhere they are displayed.",
-        "No data-reset or manual user action is required to see updated totals for existing entries (refreshing the page is sufficient)."
+        "When editing a completed task, it remains completed after the edit.",
+        "When editing a completed task, its currentCompletion (completedBy/comment/photos/completedAt) remains unchanged after the edit.",
+        "Editing does not trigger any reset logic or modify lastResetAt/nextResetTimestamp.",
+        "Manager audit/stat/export endpoints that return tasks continue to include the updated task fields without losing completion info."
+      ]
+    },
+    {
+      "id": "REQ-73",
+      "text": "Add a frontend task editing flow that is accessible to both Assistants and Managers: show an Edit action on each task, open an Edit Task dialog pre-filled with the task’s current title, description, and type, and save changes via a new React Query mutation calling the backend edit API.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7",
+          "msg-8"
+        ],
+        "quotes": [
+          "a task should be able to be edited",
+          "Both"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each TaskCard renders a clearly discoverable Edit button/action for both completed and incomplete tasks.",
+        "Clicking Edit opens a dialog/sheet that allows editing all fields: title, description, and type, with inputs pre-populated from the selected task.",
+        "Submitting the edit calls a new frontend mutation (in frontend/src/hooks/useTasks.ts or a new tasks hook file) that invokes the new backend edit API.",
+        "On successful save, the tasks list updates to show the new values without requiring a manual page refresh (invalidate/refetch the ['tasks'] query).",
+        "If the backend returns an error, it is surfaced using the existing notification/error handling pattern (useNotify.handleError).",
+        "The completion UI (Completed badge, completion metadata, photos) still displays exactly as before after editing a completed task."
+      ]
+    },
+    {
+      "id": "REQ-74",
+      "text": "Add/adjust i18n translation keys for any new user-facing text introduced by task editing (English/Dutch/French dictionaries), and ensure any new/changed user-facing validation/error text used by the editing UI is present in English.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7",
+          "msg-8"
+        ]
+      },
+      "acceptanceCriteria": [
+        "New i18n keys exist for task editing UI labels/buttons (e.g., \"Edit Task\", \"Save Changes\", and any field labels/placeholders if newly introduced).",
+        "English translations are provided for all newly introduced keys.",
+        "Dutch and French translations are provided for the same keys (matching the app’s existing i18n structure).",
+        "No hard-coded non-i18n UI strings are introduced in the task editing UI."
       ]
     }
   ],
   "constraints": [
-    "Respect the existing single-actor Motoko backend architecture; do not introduce additional backend services.",
-    "Do not edit files under frontend/src/components/ui or other immutable paths listed in SYSTEM_CONTEXT.",
-    "Use English for any user-facing text introduced or changed by this work."
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not edit files under frontend/src/components/ui or any other paths listed in frontend.immutablePaths.",
+    "Use English for any new/changed user-facing text introduced by this change (and add corresponding nl/fr translations as per the existing i18n structure)."
   ],
   "nonGoals": [
-    "Do not change how overtime entries are stored (minutes and dates) beyond what is required for display conversion.",
-    "Do not change overtime add/deduct color semantics or the overtime entry workflow."
+    "Do not add task deletion in this change.",
+    "Do not change task completion/reset behavior beyond ensuring edits do not affect completion history/state.",
+    "Do not add per-user task assignment or new task fields beyond editing the existing title/description/type."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

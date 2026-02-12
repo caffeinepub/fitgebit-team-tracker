@@ -190,6 +190,7 @@ export interface backendInterface {
     completeTask(taskId: number, comment: string | null, beforePhoto: ExternalBlob | null, afterPhoto: ExternalBlob | null): Promise<void>;
     createOvertimeEntry(minutes: bigint, date: Time): Promise<OvertimeEntry>;
     createTask(title: string, description: string, taskType: TaskType): Promise<void>;
+    editTask(taskId: number, newTitle: string, newDescription: string, newTaskType: TaskType): Promise<void>;
     exportTaskData(): Promise<Array<Task>>;
     getAllDentalAvatars(): Promise<Array<DentalAvatar>>;
     getAllUserProfiles(): Promise<Array<[Principal, UserProfile]>>;
@@ -364,6 +365,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.createTask(arg0, arg1, to_candid_TaskType_n16(this._uploadFile, this._downloadFile, arg2));
+            return result;
+        }
+    }
+    async editTask(arg0: number, arg1: string, arg2: string, arg3: TaskType): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.editTask(arg0, arg1, arg2, to_candid_TaskType_n16(this._uploadFile, this._downloadFile, arg3));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.editTask(arg0, arg1, arg2, to_candid_TaskType_n16(this._uploadFile, this._downloadFile, arg3));
             return result;
         }
     }

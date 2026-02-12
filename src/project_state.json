@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 29,
+  "projectStateVersion": 31,
   "summary": "Update “FitGebit Team Tracker” app on ICP with Internet Identity. Maintain fun dental-themed UI. Login/onboarding is post–Internet Identity with visible floating-tooth animation. Change role handling: remove auto-assign-first-user/creator-as-Manager; instead present a role choice (Assistant or Manager) and require Manager token ICPmaxi313. On first login users set name/username and 2–3 initials. Profile must support either an uploaded profile picture or an auto-generated cute dental-themed avatar (pastel palette, unique per user, initials visible). Avatars/photos must load reliably across the app; profile UI must be persistent and not disappear after updates. Logo is a cute tooth icon (no text).",
   "architectural_notes": [
     "Platform: Internet Computer (ICP) with Internet Identity for authentication.",
@@ -491,6 +491,22 @@
         "REQ-70"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-frontend-task-editing-flow-that-is-accessible-to-both-assistants-and-managers-show-an-edit-action-on-each-task-open-an-edit-task-dialog-pre-filled-with-the-task-s-current-title-description-and-type-and-save-changes-via-a-new-react-query-mutation-calling-the-backend-edit-api",
+      "title": "Add a frontend task editing flow that is accessible to both Assistants and Managers: show an Edit action on each task, open an Edit Task dialog pre-filled with the task’s current title, description, and type, and save changes via a new React Query mutation calling the backend edit API.",
+      "reqIds": [
+        "REQ-73"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-adjust-i18n-translation-keys-for-any-new-user-facing-text-introduced-by-task-editing-english-dutch-french-dictionaries-and-ensure-any-new-changed-user-facing-validation-error-text-used-by-the-editing-ui-is-present-in-english",
+      "title": "Add/adjust i18n translation keys for any new user-facing text introduced by task editing (English/Dutch/French dictionaries), and ensure any new/changed user-facing validation/error text used by the editing UI is present in English.",
+      "reqIds": [
+        "REQ-74"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -750,6 +766,28 @@
       "id": "AR-52",
       "summary": "Overtime conversion rule: change 1 full workday from 8h (480 min) to 7h30 (450 min) everywhere (including composite totals display) and recalculate all existing overtime totals using the new 450-minute day rule.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-53",
+      "summary": "Tasks: allow editing existing tasks (title, type, description) and allow both Assistants and Managers to edit; edits must preserve existing completion history/audit data",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-54",
+      "summary": "Add a backend API to edit an existing task’s editable fields (title, description, taskType) by task ID, allowing any authenticated user (Assistant or Manager) to perform the edit.",
+      "reqIds": [
+        "REQ-71"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-55",
+      "summary": "Ensure task edits preserve existing completion state and completion history data: editing a task must not change isCompleted, currentCompletion, lastResetAt, or nextResetTimestamp.",
+      "reqIds": [
+        "REQ-72"
+      ],
       "status": "pending"
     }
   ],
